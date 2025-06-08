@@ -18,7 +18,7 @@ setup(
     python_requires=">=3.7",
     entry_points={
         'console_scripts': [
-            'hk-finance-mcp-server=app:main',
+            'hk-finance-mcp-server=hk_finance_mcp_server.app:main',
         ],
     },
     classifiers=[
