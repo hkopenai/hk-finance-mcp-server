@@ -1,0 +1,41 @@
+name: Python Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+
+    - name: Run tests with coverage
+      id: coverage
+      run: |
+        python -m coverage run -m unittest tests/test_hko_tools.py
+        python -m coverage xml
+        COVERAGE=$(python -m coverage report -m | awk '/TOTAL/ {print $4}')
+        echo "coverage=${COVERAGE}" >> $GITHUB_OUTPUT
+        python -m coverage report -m
+
+    - name: Generate coverage badge
+      uses: schneegans/dynamic-badges-action@v1.7.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: 74ca6d01d35092293864c8044cda02c3
+        filename: coverage.json
+        label: Coverage
+        message: ${{ steps.coverage.outputs.coverage }}
+        color: green
