@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="hk-finance-mcp-server",
-    version="0.1.0",
+    version="0.1.1",
     description="Hong Kong Finance MCP Server providing financial data tools",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

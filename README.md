@@ -51,9 +51,9 @@ To connect this MCP server to Cline using stdio:
     "disabled": false,
     "timeout": 3,
     "type": "stdio",
-    "command": "python",
+    "command": "uvx",
     "args": [
-      "c:/Projects/hk-finance-mcp-server/app.py"
+      "hk_finance_mcp_server"
     ]
   }
 }
