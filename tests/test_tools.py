@@ -64,7 +64,7 @@ class TestBusinessReturns(unittest.TestCase):
         with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.CSV_DATA.encode('utf-8'))()):
             # Test end year/month filter
             result = tools.fetch_business_returns_data(end_year=2025, end_month=3)
-            self.assertEqual(len(result), 19)
+            self.assertEqual(len(result), 17)
             self.assertEqual(result[-1]['year_month'], '2023-11')
 
     def test_both_year_month_filters(self):
@@ -91,9 +91,17 @@ class TestBusinessReturns(unittest.TestCase):
         # Test end year only filter
         with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.CSV_DATA.encode('utf-8'))()):
             result = tools.fetch_business_returns_data(end_year=2025)
-            self.assertEqual(len(result), 5)
+            self.assertEqual(len(result), 19)
             self.assertEqual(result[0]['year_month'], '2025-05')
-            self.assertEqual(result[-1]['year_month'], '2025-01')
+            self.assertEqual(result[-1]['year_month'], '2023-11')
+
+    def test_end_year_only_filter_2024(self):
+        # Test end year only filter
+        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.CSV_DATA.encode('utf-8'))()):            
+            result = tools.fetch_business_returns_data(end_year=2024)
+            self.assertEqual(len(result), 14)
+            self.assertEqual(result[0]['year_month'], '2024-12')
+            self.assertEqual(result[-1]['year_month'], '2023-11')            
 
     def test_both_year_only_filters(self):
         # Test both year only filters

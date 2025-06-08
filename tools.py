@@ -38,6 +38,7 @@ def fetch_business_returns_data(
             continue
         if end_year and current_year == end_year and end_month and current_month > end_month:
             continue
+        
         results.append({
             'year_month': f"{year_month[:4]}-{year_month[4:]}",
             'active_business': int(row['ACTIVE_MAIN_BUS']),
