@@ -17,6 +17,8 @@ Assume chart tool is available.
 
 * Plot a line chart showing trend and number of new business registered each month from Jan to Dec in Hong Kong 2024.
 
+![](https://raw.githubusercontent.com/hkopenai/hk-finance-mcp-server/refs/heads/main/assets/line_chart.png?token=GHSAT0AAAAAADE3UP3O6EGOJ45ZT3TH6G2O2CFSRDA)
+
 ## Setup
 
 1. Clone this repository
