@@ -15,7 +15,7 @@ This is an MCP server that provides access to finance related data in Hong Kong 
 
 Assume chart tool is available.
 
-* Plot a bar chart showing trend and number of new business registered each month in Hong Kong 2024. The month is on x-axis
+* Plot a line chart showing trend and number of new business registered each month from Jan to Dec in Hong Kong 2024.
 
 ## Setup
 
