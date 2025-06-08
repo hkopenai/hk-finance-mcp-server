@@ -13,13 +13,13 @@ This is an MCP server that provides access to finance related data in Hong Kong 
 ## Examples
 
 * What is the number of new business registered in Hong Kong 2024?
-* What is the number of residential mortgage loans in negative equity in Q1 2025?
+* What is the negative loan situation in Hong Kong Q1 2025 compare with Q1 2024?
+* Write a commentary about the latest residential mortgage loans in negative equity in Hong Kong
 
-Assume chart tool is available.
+Assume chart tool is available:
 
 * Plot a line chart showing trend and number of new business registered each month from Jan to Dec in Hong Kong 2024.
 ![](https://raw.githubusercontent.com/hkopenai/hk-finance-mcp-server/refs/heads/main/assets/line_chart.png)
-* Plot a column chart showing negative equity mortgage loans by quarter from 2024 to 2025.
 
 ## Setup
 
