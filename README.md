@@ -3,10 +3,17 @@
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue.svg)](https://github.com/hkopenai/hk-finance-mcp-server)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This is an MCP server that provides access to monthly statistics on the number of new business registrations in Hong Kong through a FastMCP interface.
+This is an MCP server that provides access to finance related data in Hong Kong through a FastMCP interface.
 
 ## Features
 
+1. Monthly statistics on the number of new and active business registrations
+
+## Examples
+
+1. What is the number of new business registered in Hong Kong 2024?
+```
+```
 
 ## Setup
 
