@@ -63,7 +63,6 @@ To connect this MCP server to Cline using stdio:
 
 Tests are available in the `tests/` directory. Run with:
 ```bash
-python -m unittest discover tests
+pytest
 ```
-```bash
-python -m unittest tests/test_tools.py
+
