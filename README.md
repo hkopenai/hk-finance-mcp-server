@@ -11,9 +11,11 @@ This is an MCP server that provides access to finance related data in Hong Kong 
 
 ## Examples
 
-1. What is the number of new business registered in Hong Kong 2024?
-```
-```
+* What is the number of new business registered in Hong Kong 2024?
+
+Assume chart tool is available.
+
+* Plot a bar chart showing trend and number of new business registered each month in Hong Kong 2024. The month is on x-axis
 
 ## Setup
 
