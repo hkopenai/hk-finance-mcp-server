@@ -53,7 +53,7 @@ To connect this MCP server to Cline using stdio:
     "type": "stdio",
     "command": "uvx",
     "args": [
-      "hk_finance_mcp_server"
+      "hk-finance-mcp-server"
     ]
   }
 }
