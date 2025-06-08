@@ -29,13 +29,3 @@ jobs:
         COVERAGE=$(python -m coverage report -m | awk '/TOTAL/ {print $4}')
         echo "coverage=${COVERAGE}" >> $GITHUB_OUTPUT
         python -m coverage report -m
-
-    - name: Generate coverage badge
-      uses: schneegans/dynamic-badges-action@v1.7.0
-      with:
-        auth: ${{ secrets.GIST_SECRET }}
-        gistID: 74ca6d01d35092293864c8044cda02c3
-        filename: coverage.json
-        label: Coverage
-        message: ${{ steps.coverage.outputs.coverage }}
-        color: green
