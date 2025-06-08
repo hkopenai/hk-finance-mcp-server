@@ -8,16 +8,18 @@ This is an MCP server that provides access to finance related data in Hong Kong 
 ## Features
 
 1. Monthly statistics on the number of new and active business registrations
+2. Quarterly statistics on residential mortgage loans in negative equity
 
 ## Examples
 
 * What is the number of new business registered in Hong Kong 2024?
+* What is the number of residential mortgage loans in negative equity in Q1 2025?
 
 Assume chart tool is available.
 
 * Plot a line chart showing trend and number of new business registered each month from Jan to Dec in Hong Kong 2024.
-
 ![](https://raw.githubusercontent.com/hkopenai/hk-finance-mcp-server/refs/heads/main/assets/line_chart.png)
+* Plot a column chart showing negative equity mortgage loans by quarter from 2024 to 2025.
 
 ## Setup
 
@@ -57,6 +59,9 @@ To connect this MCP server to Cline using stdio:
 
 ## Testing
 
-Tests are available in `tests/test_tools.py`. Run with:
+Tests are available in the `tests/` directory. Run with:
+```bash
+python -m unittest discover tests
+```
 ```bash
 python -m unittest tests/test_tools.py

@@ -1,12 +1,13 @@
 import argparse
 from fastmcp import FastMCP
 import tool_business_reg
+import tool_neg_resident_mortgage
 from typing import Dict, Annotated
 from pydantic import Field
 
 def create_mcp_server():
     """Create and configure the MCP server"""
-    mcp = FastMCP(name="HK OpenAI Finance aServer")
+    mcp = FastMCP(name="HK OpenAI Finance Server")
 
     @mcp.tool(
         description="Get monthly statistics on the number of new business registrations in Hong Kong"
@@ -18,6 +19,17 @@ def create_mcp_server():
         end_month: Annotated[int, Field(description="End Month")]  = None
         ) -> Dict:
         return tool_business_reg.get_business_stats(start_year, start_month, end_year, end_month)
+
+    @mcp.tool(
+        description="Get statistics on residential mortgage loans in negative equity in Hong Kong"
+    )
+    def get_neg_equity_stats(
+        start_year: Annotated[int, Field(description="Start Year")] = None,
+        start_month: Annotated[int, Field(description="Start Month")] = None,
+        end_year: Annotated[int, Field(description="End Year")] = None,
+        end_month: Annotated[int, Field(description="End Month")] = None
+    ) -> Dict:
+        return tool_neg_resident_mortgage.get_neg_equity_stats(start_year, start_month, end_year, end_month)
 
     return mcp
 
