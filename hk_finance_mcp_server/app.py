@@ -1,8 +1,8 @@
 import argparse
 from fastmcp import FastMCP
-import tool_business_reg
-import tool_neg_resident_mortgage
-import tool_credit_card
+from . import tool_business_reg
+from . import tool_neg_resident_mortgage
+from . import tool_credit_card
 from typing import Dict, Annotated, Optional
 from pydantic import Field
 

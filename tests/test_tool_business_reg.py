@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, mock_open
-import tool_business_reg
+from hk_finance_mcp_server import tool_business_reg
 
 class TestBusinessReturns(unittest.TestCase):
     CSV_DATA = """RUN_DATE,ACTIVE_MAIN_BUS,NEW_REG_MAIN_BUS

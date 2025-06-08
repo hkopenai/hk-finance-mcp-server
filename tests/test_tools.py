@@ -1,5 +1,7 @@
 import unittest
 from tests.test_tool_business_reg import TestBusinessReturns
+from tests.test_tool_credit_card import TestCreditCardLending
+from tests.test_tool_neg_resident_mortgage import TestNegativeEquityMortgage
 from tests.test_tool_neg_resident_mortgage import TestNegativeEquityMortgage
 from tests.test_tool_credit_card import TestCreditCardLending
 

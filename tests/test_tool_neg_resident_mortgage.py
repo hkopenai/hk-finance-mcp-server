@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open
 import json
-import tool_neg_resident_mortgage
+from hk_finance_mcp_server import tool_neg_resident_mortgage
 
 class TestNegativeEquityMortgage(unittest.TestCase):
     JSON_DATA = """{
