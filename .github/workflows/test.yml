@@ -24,7 +24,7 @@ jobs:
     - name: Run tests with coverage
       id: coverage
       run: |
-        python -m coverage run -m unittest tests/test_tools.py
+        python -m coverage run -m unittest tests/test_tool_business_reg.py
         python -m coverage xml
         COVERAGE=$(python -m coverage report -m | awk '/TOTAL/ {print $4}')
         echo "coverage=${COVERAGE}" >> $GITHUB_OUTPUT
