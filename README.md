@@ -1,4 +1,4 @@
-# HKO MCP Server
+# Hong Kong Finance Data MCP Server
 
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue.svg)](https://github.com/hkopenai/hk-finance-mcp-server)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -7,14 +7,16 @@ This is an MCP server that provides access to finance related data in Hong Kong 
 
 ## Features
 
-1. Monthly statistics on the number of new and active business registrations
-2. Quarterly statistics on residential mortgage loans in negative equity
+1. Monthly statistics on the number of new and active business registrations in Hong Kong
+2. Quarterly statistics on residential mortgage loans in negative equity in Hong Kong
+3. Credit card lending survey results in Hong Kong
 
 ## Examples
 
 * What is the number of new business registered in Hong Kong 2024?
 * What is the negative loan situation in Hong Kong Q1 2025 compare with Q1 2024?
 * Write a commentary about the latest residential mortgage loans in negative equity in Hong Kong
+* How is current Hong Kong economy by referencing credit lending data and residential mortgage loans in negative equity?
 
 Assume chart tool is available:
 
@@ -45,13 +47,13 @@ To connect this MCP server to Cline using stdio:
 1. Add this configuration to your Cline MCP settings (cline_mcp_settings.json):
 ```json
 {
-  "hko-server": {
+  "hk-finance": {
     "disabled": false,
     "timeout": 3,
     "type": "stdio",
     "command": "python",
     "args": [
-      "c:/Projects/hko-mcp-server/hko_mcp_server.py"
+      "c:/Projects/hk-finance-mcp-server/app.py"
     ]
   }
 }

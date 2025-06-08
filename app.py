@@ -2,6 +2,7 @@ import argparse
 from fastmcp import FastMCP
 import tool_business_reg
 import tool_neg_resident_mortgage
+import tool_credit_card
 from typing import Dict, Annotated, Optional
 from pydantic import Field
 
@@ -30,6 +31,17 @@ def create_mcp_server():
         end_month: Annotated[Optional[int], Field(description="End Month")] = None
     ) -> Dict:
         return tool_neg_resident_mortgage.get_neg_equity_stats(start_year, start_month, end_year, end_month)
+
+    @mcp.tool(
+        description="Get credit card lending survey results in Hong Kong"
+    )
+    def get_credit_card_stats(
+        start_year: Annotated[Optional[int], Field(description="Start Year")] = None,
+        start_month: Annotated[Optional[int], Field(description="Start Month")] = None,
+        end_year: Annotated[Optional[int], Field(description="End Year")] = None,
+        end_month: Annotated[Optional[int], Field(description="End Month")] = None
+    ) -> Dict:
+        return tool_credit_card.get_credit_card_stats(start_year, start_month, end_year, end_month)
 
     return mcp
 
