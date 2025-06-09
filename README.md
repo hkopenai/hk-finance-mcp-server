@@ -10,6 +10,7 @@ This is an MCP server that provides access to finance related data in Hong Kong 
 1. Monthly statistics on the number of new and active business registrations in Hong Kong
 2. Quarterly statistics on residential mortgage loans in negative equity in Hong Kong
 3. Credit card lending survey results in Hong Kong
+4. Coin cart schedule in Hong Kong
 
 ## Examples
 
@@ -22,6 +23,11 @@ Assume chart tool is available:
 
 * Plot a line chart showing trend and number of new business registered each month from Jan to Dec in Hong Kong 2024.
 ![](https://raw.githubusercontent.com/hkopenai/hk-finance-mcp-server/refs/heads/main/assets/line_chart.png)
+
+## Data Source
+
+* Hong Kong Monetary Authority
+* Hong Kong Inland Revenue Department
 
 ## Setup
 
