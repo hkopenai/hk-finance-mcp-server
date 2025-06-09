@@ -12,19 +12,8 @@ def fetch_coin_cart_schedule() -> List[Dict]:
     url = "https://api.hkma.gov.hk/public/coin-cart-schedule?lang=en"
     response = urllib.request.urlopen(url)
     data = json.loads(response.read().decode('utf-8'))
-    
-    results = []
-    for entry in data['result']['records']:
-        results.append({
-            'date': entry['date'],
-            'district': entry['district'],
-            'location': entry['location'],
-            'start_time': entry['start_time'],
-            'end_time': entry['end_time'],
-            'service_hours': entry['service_hours']
-        })
-    
-    return results
+        
+    return data
 
 def get_coin_cart_schedule() -> Dict:
     """Get coin cart schedule data in standardized format"""

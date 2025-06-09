@@ -49,7 +49,7 @@ def create_mcp_server():
     )
     def get_coin_cart(
     ) -> Dict:
-        return tool_coin_cart()
+        return tool_coin_cart.get_coin_cart_schedule()
 
     @mcp.tool(
         description="Get list of hotlines for reporting loss of credit card from Hong Kong banks."

@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["hk_finance_mcp_server"]
+include-package-data = false
+
+[project]
+name = "hk_finance_mcp_server"
+version = "0.1.6"
+description = "Hong Kong Finance MCP Server providing financial data tools"
+readme = "README.md"
+requires-python = ">=3.7"
+authors = [
+    {name = "Neo Chow", email = "neo@01man.com"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "fastmcp>=0.1.0",
+    "requests>=2.31.0",
+    "pytest>=8.2.0",
+    "pytest-cov>=6.1.1"
+]
+
+[project.scripts]
+hk_finance_mcp_server = "hk_finance_mcp_server.app:main"
