@@ -64,3 +64,23 @@ def get_credit_card_stats(
     """Get credit card lending survey statistics"""
     data = fetch_credit_card_data(start_year, start_month, end_year, end_month)
     return data
+
+def fetch_credit_card_hotlines() -> List[Dict]:
+    """Fetch and parse credit card hotline data from HKMA
+    
+    Returns:
+        List of credit card hotline information in JSON format
+    """
+    url = "https://api.hkma.gov.hk/public/bank-svf-info/hotlines-report-loss-credit-card?lang=en"
+    response = urllib.request.urlopen(url)
+    data = json.loads(response.read().decode('utf-8'))
+    
+    if not data['header']['success']:
+        return []
+
+    return data['result']['records']
+
+def get_credit_card_hotlines() -> Dict:
+    """Get list of hotlines for reporting loss of credit card"""
+    data = fetch_credit_card_hotlines()
+    return data

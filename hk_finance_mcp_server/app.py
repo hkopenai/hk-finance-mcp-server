@@ -1,9 +1,9 @@
 import argparse
 from fastmcp import FastMCP
-from . import tool_business_reg
-from . import tool_neg_resident_mortgage
-from . import tool_credit_card
-from . import tool_coin_cart
+from hk_finance_mcp_server import tool_business_reg
+from hk_finance_mcp_server import tool_neg_resident_mortgage
+from hk_finance_mcp_server import tool_credit_card
+from hk_finance_mcp_server import tool_coin_cart
 from typing import Dict, Annotated, Optional
 from pydantic import Field
 
@@ -48,9 +48,14 @@ def create_mcp_server():
         description="Get coin collection cart schedule in Hong Kong. The cart can charge your electronic wallet and you no long have to keep coins."
     )
     def get_coin_cart(
-
     ) -> Dict:
-        return tool_coin_cart() 
+        return tool_coin_cart()
+
+    @mcp.tool(
+        description="Get list of hotlines for reporting loss of credit card from Hong Kong banks."
+    )
+    def get_credit_card_hotlines() -> Dict:
+        return tool_credit_card.get_credit_card_hotlines()
 
     return mcp
 

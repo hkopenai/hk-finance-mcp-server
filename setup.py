@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 
 setup(
-    name="hk-finance-mcp-server",
+    name="hk_finance_mcp_server",
     version="0.1.5",
     description="Hong Kong Finance MCP Server providing financial data tools",
     long_description=open("README.md").read(),
@@ -18,7 +18,7 @@ setup(
     python_requires=">=3.7",
     entry_points={
         'console_scripts': [
-            'hk-finance-mcp-server=hk_finance_mcp_server.app:main',
+        'hk_finance_mcp_server=hk_finance_mcp_server.app:main',
         ],
     },
     classifiers=[
