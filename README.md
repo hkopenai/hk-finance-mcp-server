@@ -11,7 +11,8 @@ This is an MCP server that provides access to finance related data in Hong Kong 
 2. Quarterly statistics on residential mortgage loans in negative equity in Hong Kong
 3. Credit card lending survey results in Hong Kong
 4. Coin cart schedule in Hong Kong
-5. Get list of hotlines for reporting loss of credit card from Hong Kong banks.
+5. Get list of hotlines for reporting loss of credit card from Hong Kong banks
+6. Get information of Tender Invitation and Notice of Award of Contracts from Hong Kong Monetary Authority
 
 ## Examples
 

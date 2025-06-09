@@ -4,6 +4,7 @@ from hk_finance_mcp_server import tool_business_reg
 from hk_finance_mcp_server import tool_neg_resident_mortgage
 from hk_finance_mcp_server import tool_credit_card
 from hk_finance_mcp_server import tool_coin_cart
+from hk_finance_mcp_server import tool_hkma_tender
 from typing import Dict, Annotated, Optional
 from pydantic import Field
 
@@ -56,6 +57,26 @@ def create_mcp_server():
     )
     def get_credit_card_hotlines() -> Dict:
         return tool_credit_card.get_credit_card_hotlines()
+
+    @mcp.tool(
+        description="Get information of Tender Invitation and Notice of Award of Contracts from Hong Kong Monetary Authority"
+    )
+    def get_hkma_tender_invitations(
+        lang: Annotated[Optional[str], Field(description="Language (en/tc/sc)", enum=["en", "tc", "sc"])] = 'en',
+        segment: Annotated[Optional[str], Field(description="Type of records (tender/notice)", enum=["tender", "notice"])] = 'tender',
+        pagesize: Annotated[Optional[int], Field(description="Number of records per page")] = None,
+        offset: Annotated[Optional[int], Field(description="Starting record offset")] = None,
+        from_date: Annotated[Optional[str], Field(description="Filter records from date (YYYY-MM-DD)")] = None,
+        to_date: Annotated[Optional[str], Field(description="Filter records to date (YYYY-MM-DD)")] = None
+    ) -> Dict:
+        return tool_hkma_tender.get_tender_invitations(
+            lang=lang,
+            segment=segment,
+            pagesize=pagesize,
+            offset=offset,
+            from_date=from_date,
+            to_date=to_date
+        )
 
     return mcp
 
