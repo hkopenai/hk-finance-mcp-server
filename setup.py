@@ -3,12 +3,12 @@ from setuptools import setup, find_packages
 
 setup(
     name="hk-finance-mcp-server",
-    version="0.1.4",
+    version="0.1.5",
     description="Hong Kong Finance MCP Server providing financial data tools",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    author="Your Name",
-    author_email="your.email@example.com",
+    author="Neo Chow",
+    author_email="neo@01man.com",
     packages=find_packages(),
     install_requires=(
         open("requirements.txt").read().splitlines()
