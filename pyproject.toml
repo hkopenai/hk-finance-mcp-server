@@ -6,8 +6,17 @@ build-backend = "setuptools.build_meta"
 packages = ["openaihk.hk_finance_mcp_server"]
 include-package-data = false
 
+[tool.hatch.build.targets.wheel]
+packages = ["openaihk"]
+
+[tool.bandit]
+exclude_dirs = ["venv", ".venv", "tests"]
+
+[project.urls]
+repository = "https://github.com/hkopenai/hk-finance-mcp-server.git"
+
 [project]
-name = "hk_finance_mcp_server"
+name = "openaihk.hk_finance_mcp_server"
 version = "0.1.7"
 description = "Hong Kong Finance MCP Server providing financial data tools"
 readme = "README.md"
@@ -15,7 +24,7 @@ requires-python = ">=3.7"
 authors = [
     {name = "Neo Chow", email = "neo@01man.com"}
 ]
-license = {text = "MIT"}
+license = "MIT"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
