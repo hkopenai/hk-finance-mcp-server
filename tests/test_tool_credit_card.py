@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch, mock_open
-import json
-from hk_finance_mcp_server import tool_credit_card
+from openaihk.hk_finance_mcp_server import tool_credit_card
 
 class TestCreditCardLending(unittest.TestCase):
     JSON_DATA = """{

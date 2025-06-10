@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open
 import json
-from hk_finance_mcp_server import tool_hkma_tender
+from openaihk.hk_finance_mcp_server import tool_hkma_tender
 
 class TestHKMAtender(unittest.TestCase):
     MOCK_JSON = {
