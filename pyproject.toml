@@ -3,11 +3,11 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["openaihk.hk_finance_mcp_server"]
+packages = ["hkopenai.hk_finance_mcp_server"]
 include-package-data = false
 
 [tool.hatch.build.targets.wheel]
-packages = ["openaihk"]
+packages = ["hkopenai"]
 
 [tool.bandit]
 exclude_dirs = ["venv", ".venv", "tests"]
@@ -16,7 +16,7 @@ exclude_dirs = ["venv", ".venv", "tests"]
 repository = "https://github.com/hkopenai/hk-finance-mcp-server.git"
 
 [project]
-name = "openaihk.hk_finance_mcp_server"
+name = "hkopenai.hk_finance_mcp_server"
 version = "0.1.7"
 description = "Hong Kong Finance MCP Server providing financial data tools"
 readme = "README.md"
@@ -37,4 +37,4 @@ dependencies = [
 ]
 
 [project.scripts]
-hk_finance_mcp_server = "openaihk.hk_finance_mcp_server.app:main"
+hk_finance_mcp_server = "hkopenai.hk_finance_mcp_server.app:main"

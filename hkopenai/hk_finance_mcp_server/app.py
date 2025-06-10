@@ -1,10 +1,10 @@
 import argparse
 from fastmcp import FastMCP
-from openaihk.hk_finance_mcp_server import tool_business_reg
-from openaihk.hk_finance_mcp_server import tool_neg_resident_mortgage
-from openaihk.hk_finance_mcp_server import tool_credit_card
-from openaihk.hk_finance_mcp_server import tool_coin_cart
-from openaihk.hk_finance_mcp_server import tool_hkma_tender
+from hkopenai.hk_finance_mcp_server import tool_business_reg
+from hkopenai.hk_finance_mcp_server import tool_neg_resident_mortgage
+from hkopenai.hk_finance_mcp_server import tool_credit_card
+from hkopenai.hk_finance_mcp_server import tool_coin_cart
+from hkopenai.hk_finance_mcp_server import tool_hkma_tender
 from typing import Dict, Annotated, Optional
 from pydantic import Field
 

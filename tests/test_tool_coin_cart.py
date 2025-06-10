@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open
 import json
-from openaihk.hk_finance_mcp_server import tool_coin_cart
+from hkopenai.hk_finance_mcp_server import tool_coin_cart
 
 class TestCoinCartSchedule(unittest.TestCase):
     MOCK_JSON = {

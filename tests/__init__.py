@@ -1,1 +1,1 @@
-"""Tests for openaihk.hk-finance-mcp-server package."""
+"""Tests for hkopenai.hk-finance-mcp-server package."""
