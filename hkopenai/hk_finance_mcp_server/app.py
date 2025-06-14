@@ -62,8 +62,8 @@ def create_mcp_server():
         description="Get information of Tender Invitation and Notice of Award of Contracts from Hong Kong Monetary Authority"
     )
     def get_hkma_tender_invitations(
-        lang: Annotated[Optional[str], Field(description="Language (en/tc/sc)", enum=["en", "tc", "sc"])] = 'en',
-        segment: Annotated[Optional[str], Field(description="Type of records (tender/notice)", enum=["tender", "notice"])] = 'tender',
+        lang: Annotated[Optional[str], Field(description="Language (en/tc/sc)", json_schema_extra={"enum": ["en", "tc", "sc"]})] = 'en',
+        segment: Annotated[Optional[str], Field(description="Type of records (tender/notice)", json_schema_extra={"enum": ["tender", "notice"]})] = 'tender',
         pagesize: Annotated[Optional[int], Field(description="Number of records per page")] = None,
         offset: Annotated[Optional[int], Field(description="Starting record offset")] = None,
         from_date: Annotated[Optional[str], Field(description="Filter records from date (YYYY-MM-DD)")] = None,

@@ -1,34 +1,41 @@
 import unittest
 from unittest.mock import patch, Mock
-from hkopenai.hk_weather_mcp_server.app import create_mcp_server
+from hkopenai.hk_finance_mcp_server.app import create_mcp_server
+from hkopenai.hk_finance_mcp_server.tool_business_reg import get_business_stats
+
+def create_tool_decorator(expected_name, decorated_func_container):
+    """Create a tool decorator that only matches functions with the expected name.
+    
+    Args:
+        expected_name: The function name to match
+        decorated_func_container: List to store the matched function
+    """
+    def tool_decorator(description=None):
+        def decorator(f):
+            if f.__name__ == expected_name:
+                decorated_func_container.append(f)
+            return f
+        return decorator
+    return tool_decorator
 
 class TestApp(unittest.TestCase):
-    @patch('hkopenai.hk_weather_mcp_server.app.FastMCP')
-    @patch('hkopenai.hk_weather_mcp_server.app.tool_weather')
-    def test_create_mcp_server(self, mock_tool_weather, mock_fastmcp):
+
+    
+    @patch('hkopenai.hk_finance_mcp_server.app.FastMCP')
+    @patch('hkopenai.hk_finance_mcp_server.app.tool_business_reg')
+    def test_create_mcp_server(self, tool_business_reg, mock_fastmcp):
         # Setup mocks
         mock_server = unittest.mock.Mock()
         
         # Track decorator calls and capture decorated function
-        decorator_calls = []
-        decorated_func = None
+        decorated_func = []
         
-        def tool_decorator(description=None):
-            # First call: @tool(description=...)
-            decorator_calls.append(((), {'description': description}))
-            
-            def decorator(f):
-                # Second call: decorator(function)
-                nonlocal decorated_func
-                decorated_func = f
-                return f
-                
-            return decorator
+        tool_decorator = create_tool_decorator('get_business_stats', decorated_func)
             
         mock_server.tool = tool_decorator
         mock_server.tool.call_args = None  # Initialize call_args
         mock_fastmcp.return_value = mock_server
-        mock_tool_weather.get_current_weather.return_value = {'test': 'data'}
+        tool_business_reg.get_business_stats.return_value = {'test': 'data'}
 
         # Test server creation
         server = create_mcp_server()
@@ -41,12 +48,9 @@ class TestApp(unittest.TestCase):
         self.assertIsNotNone(decorated_func)
         
         # Test the actual decorated function
-        result = decorated_func(region="test")
-        mock_tool_weather.get_current_weather.assert_called_once_with("test")
+        result = decorated_func[0]()
+        tool_business_reg.get_business_stats.assert_called_once_with(None, None, None, None)
         
-        # Verify tool description was passed to decorator
-        self.assertEqual(len(decorator_calls), 1)
-        self.assertIsNotNone(decorator_calls[0][1]['description'])
 
 if __name__ == "__main__":
     unittest.main()
