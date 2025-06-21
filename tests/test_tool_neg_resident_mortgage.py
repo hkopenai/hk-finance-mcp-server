@@ -131,5 +131,127 @@ class TestNegativeEquityMortgage(unittest.TestCase):
             self.assertEqual(len(result), 5)
             self.assertEqual(result[0]['quarter'], '2025-Q1')
 
+    @patch('urllib.request.urlopen')
+    def test_invalid_json_data(self, mock_urlopen):
+        # Test handling of invalid JSON data
+        invalid_json = "{invalid json}"
+        mock_urlopen.return_value = mock_open(read_data=invalid_json.encode('utf-8'))()
+        
+        result = tool_neg_resident_mortgage.fetch_neg_equity_data()
+        self.assertEqual(len(result), 1, "Expected a single error entry for invalid JSON data")
+        self.assertIn("error", result[0], "Expected an error message in the result")
+        self.assertIn("JSON", result[0]["error"] or "", "Expected JSON decode error message in the result")
+
+    @patch('urllib.request.urlopen')
+    def test_empty_json_data(self, mock_urlopen):
+        # Test handling of empty JSON data
+        empty_json = "{}"
+        mock_urlopen.return_value = mock_open(read_data=empty_json.encode('utf-8'))()
+        
+        result = tool_neg_resident_mortgage.fetch_neg_equity_data()
+        self.assertEqual(len(result), 0, "Expected empty result for empty JSON data")
+
+    @patch('urllib.request.urlopen')
+    def test_missing_records_in_json(self, mock_urlopen):
+        # Test handling of JSON data with missing records
+        missing_records_json = {
+            "header": {"success": True},
+            "result": {
+                "datasize": 0,
+                "records": []
+            }
+        }
+        mock_urlopen.return_value = mock_open(read_data=json.dumps(missing_records_json).encode('utf-8'))()
+        
+        result = tool_neg_resident_mortgage.fetch_neg_equity_data()
+        self.assertEqual(len(result), 0, "Expected empty result for JSON with no records")
+
+    @patch('urllib.request.urlopen')
+    def test_incomplete_record_data(self, mock_urlopen):
+        # Test handling of JSON data with incomplete records
+        incomplete_record_json = {
+            "header": {"success": True},
+            "result": {
+                "datasize": 1,
+                "records": [
+                    {
+                        "end_of_quarter": "2025-Q1"
+                        # Missing other fields
+                    }
+                ]
+            }
+        }
+        mock_urlopen.return_value = mock_open(read_data=json.dumps(incomplete_record_json).encode('utf-8'))()
+        
+        result = tool_neg_resident_mortgage.fetch_neg_equity_data()
+        self.assertEqual(len(result), 1, "Expected result with partial data to be processed")
+        self.assertIn("quarter", result[0], "Expected 'quarter' to be present in result")
+        self.assertNotIn("outstanding_loans", result[0], "Expected missing fields to not be in result")
+
+    @patch('urllib.request.urlopen')
+    def test_network_failure(self, mock_urlopen):
+        # Test handling of network failure
+        mock_urlopen.side_effect = Exception("Network Error")
+        
+        with self.assertRaises(Exception) as context:
+            tool_neg_resident_mortgage.fetch_neg_equity_data()
+        self.assertTrue("Network Error" in str(context.exception), "Expected network error message")
+
+    @patch('urllib.request.urlopen')
+    def test_invalid_year_month_filters(self, mock_urlopen):
+        # Test handling of invalid year/month filters
+        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.JSON_DATA.encode('utf-8'))()):
+            # Since the function likely converts inputs to int or handles invalid types internally,
+            # we test with None instead of invalid types to avoid type checker errors.
+            # Test invalid start year (using None as a placeholder for invalid input)
+            result = tool_neg_resident_mortgage.fetch_neg_equity_data(start_year=None)
+            self.assertEqual(len(result), 5, "Expected full data set when start year is None")
+            
+
+    @patch('urllib.request.urlopen')
+    def test_invalid_year_month_filters2(self, mock_urlopen):
+        # Test invalid start month (using None as a placeholder for invalid input)
+        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.JSON_DATA.encode('utf-8'))()):
+            result = tool_neg_resident_mortgage.fetch_neg_equity_data(start_year=None, start_month=None)
+            self.assertEqual(len(result), 5, "Expected full data set when start month is None")
+
+    @patch('urllib.request.urlopen')
+    def test_invalid_year_month_filters3(self, mock_urlopen):            
+        # Test invalid end year (using None as a placeholder for invalid input)
+        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.JSON_DATA.encode('utf-8'))()):
+            result = tool_neg_resident_mortgage.fetch_neg_equity_data(end_year=None)
+            self.assertEqual(len(result), 5, "Expected full data set when end year is None")
+
+    @patch('urllib.request.urlopen')
+    def test_invalid_year_month_filters4(self, mock_urlopen):            
+        # Test invalid end month (using None as a placeholder for invalid input)
+        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.JSON_DATA.encode('utf-8'))()):
+            result = tool_neg_resident_mortgage.fetch_neg_equity_data(end_month=None)
+            self.assertEqual(len(result), 5, "Expected full data set when end month is None")
+
+    @patch('urllib.request.urlopen')
+    def test_boundary_year_month_filters(self, mock_urlopen):
+        # Test boundary conditions for year/month filters
+        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.JSON_DATA.encode('utf-8'))()):
+            # Test future date filter
+            result = tool_neg_resident_mortgage.fetch_neg_equity_data(start_year=2030)
+            self.assertEqual(len(result), 0, "Expected empty result for future start year")
+
+    @patch('urllib.request.urlopen')
+    def test_boundary_year_month_filters2(self, mock_urlopen):
+        # Test boundary conditions for year/month filters
+        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.JSON_DATA.encode('utf-8'))()):            
+            # Test very old date filter
+            result = tool_neg_resident_mortgage.fetch_neg_equity_data(end_year=2000)
+            self.assertEqual(len(result), 0, "Expected empty result for very old end year")
+
+    @patch('urllib.request.urlopen')
+    def test_boundary_year_month_filters3(self, mock_urlopen):
+        # Test boundary conditions for year/month filters
+        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.JSON_DATA.encode('utf-8'))()):              
+            # Test invalid month value (out of range)
+            result = tool_neg_resident_mortgage.fetch_neg_equity_data(start_year=2025, start_month=13)
+            self.assertEqual(len(result), 1, "Expected data for year only when month is out of range")
+
 if __name__ == '__main__':
     unittest.main()
