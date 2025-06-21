@@ -1,0 +1,87 @@
+name: Bump Version and Publish to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Type of version bump'
+        required: true
+        default: 'minor'
+        type: choice
+        options:
+        - minor_and_publish
+        - minor
+        - patch_and_publish
+        - patch
+        - publish
+
+jobs:
+  bump-version-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine toml
+
+    - name: Determine version bump type
+      run: |
+        if [[ "${{ github.event.inputs.version_type }}" == "minor_and_publish" || "${{ github.event.inputs.version_type }}" == "minor" ]]; then
+          echo "BUMP_TYPE=minor" >> $GITHUB_ENV
+        elif [[ "${{ github.event.inputs.version_type }}" == "patch_and_publish" || "${{ github.event.inputs.version_type }}" == "patch" ]]; then
+          echo "BUMP_TYPE=patch" >> $GITHUB_ENV
+        else
+          echo "BUMP_TYPE=none" >> $GITHUB_ENV
+        fi
+        if [[ "${{ github.event.inputs.version_type }}" == *"_and_publish"* || "${{ github.event.inputs.version_type }}" == "publish" ]]; then
+          echo "PUBLISH=true" >> $GITHUB_ENV
+        else
+          echo "PUBLISH=false" >> $GITHUB_ENV
+        fi
+
+    - name: Bump version
+      if: env.BUMP_TYPE != 'none'
+      run: |
+        git config --global user.name 'GitHub Action'
+        git config --global user.email 'action@github.com'
+        if [[ "${{ env.BUMP_TYPE }}" == "minor" ]]; then
+          python -c "import toml; config = toml.load('pyproject.toml'); version = config['project']['version']; major, minor, patch = map(int, version.split('.')); config['project']['version'] = f'{major}.{minor+1}.0'; toml.dump(config, open('pyproject.toml', 'w'))"
+          git add pyproject.toml
+          git commit -m 'Bump minor version'
+        elif [[ "${{ env.BUMP_TYPE }}" == "patch" ]]; then
+          python -c "import toml; config = toml.load('pyproject.toml'); version = config['project']['version']; major, minor, patch = map(int, version.split('.')); config['project']['version'] = f'{major}.{minor}.{patch+1}'; toml.dump(config, open('pyproject.toml', 'w'))"
+          git add pyproject.toml
+          git commit -m 'Bump patch version'
+        fi
+        git push origin main
+
+    - name: Create Tag
+      run: |
+        VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['project']['version'])")
+        if ! git rev-parse "refs/tags/v$VERSION" >/dev/null 2>&1; then
+          git tag v$VERSION
+          git push origin v$VERSION
+        else
+          echo "Tag v$VERSION already exists, skipping tag creation."
+        fi
+
+    - name: Build package
+      if: env.PUBLISH == 'true'
+      run: python -m build
+
+    - name: Publish to PyPI
+      if: env.PUBLISH == 'true'
+      env:
+        TWINE_USERNAME: "__token__"
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      run: python -m twine upload dist/*
