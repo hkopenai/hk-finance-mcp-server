@@ -19,7 +19,10 @@ def fetch_tender_invitations(lang: str = 'en', segment: str = 'tender',
         List of tender records with title, link and date
     """
     base_url = "https://api.hkma.gov.hk/public/tender-invitations"
-    params = [f"lang={lang}", f"segment={segment}"]
+    # Use default values if parameters are empty or invalid
+    effective_lang = lang if lang in ['en', 'tc', 'sc'] else 'en'
+    effective_segment = segment if segment and segment in ['tender', 'notice'] else 'tender'
+    params = [f"lang={effective_lang}", f"segment={effective_segment}"]
     
     if pagesize:
         params.append(f"pagesize={pagesize}")
@@ -31,10 +34,18 @@ def fetch_tender_invitations(lang: str = 'en', segment: str = 'tender',
         params.append(f"to={to_date}")
         
     url = f"{base_url}?{'&'.join(params)}"
-    response = urllib.request.urlopen(url)
-    data = json.loads(response.read().decode('utf-8'))
-    
-    return data.get('result', {}).get('records', [])
+    try:
+        response = urllib.request.urlopen(url)
+        raw_data = response.read().decode('utf-8')
+
+        if not raw_data:
+            return []
+        data = json.loads(raw_data)
+        return data.get('result', {}).get('records', [])
+    except json.JSONDecodeError as e:
+        raise Exception(f"JSON decode error: {e}")
+    except Exception as e:
+        raise Exception(f"Error fetching data: {e}")
 
 def get_tender_invitations(lang: str = 'en', segment: str = 'tender',
                           pagesize: Optional[int] = None, offset: Optional[int] = None,
