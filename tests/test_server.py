@@ -21,8 +21,8 @@ def create_tool_decorator(expected_name, decorated_func_container):
 class TestApp(unittest.TestCase):
 
     
-    @patch('hkopenai.hk_finance_mcp_server.app.FastMCP')
-    @patch('hkopenai.hk_finance_mcp_server.app.tool_business_reg')
+    @patch('hkopenai.hk_finance_mcp_server.server.FastMCP')
+    @patch('hkopenai.hk_finance_mcp_server.server.tool_business_reg')
     def test_create_mcp_server(self, tool_business_reg, mock_fastmcp):
         # Setup mocks
         mock_server = unittest.mock.Mock()
