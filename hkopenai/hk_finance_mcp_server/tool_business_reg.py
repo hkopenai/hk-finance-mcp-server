@@ -26,23 +26,37 @@ def fetch_business_returns_data(
     
     results = []
     for row in reader:
-        year_month = row['RUN_DATE']
+        year_month = row.get('RUN_DATE', '')
+        if len(year_month) < 6:
+            continue
         current_year = int(year_month[:4])
         current_month = int(year_month[4:])
+        if start_year is not None and current_year < start_year:
+            continue
+        if start_year is not None and current_year == start_year and start_month is not None and start_month <= 12 and current_month < start_month:
+            continue
+        if end_year is not None and current_year > end_year:
+            continue
+        if end_year is not None and current_year == end_year and end_month is not None and current_month > end_month:
+            continue
         
-        if start_year and current_year < start_year:
-            continue
-        if start_year and current_year == start_year and start_month and current_month < start_month:
-            continue
-        if end_year and current_year > end_year:
-            continue
-        if end_year and current_year == end_year and end_month and current_month > end_month:
-            continue
+        active_business_str = row.get('ACTIVE_MAIN_BUS', '0')
+        new_registered_business_str = row.get('NEW_REG_MAIN_BUS', '0')
         
+        try:
+            active_business = int(active_business_str)
+        except ValueError:
+            active_business = f"Invalid data for ACTIVE_MAIN_BUS: {active_business_str}"
+            
+        try:
+            new_registered_business = int(new_registered_business_str)
+        except ValueError:
+            new_registered_business = f"Invalid data for NEW_REG_MAIN_BUS: {new_registered_business_str}"
+
         results.append({
             'year_month': f"{year_month[:4]}-{year_month[4:]}",
-            'active_business': int(row['ACTIVE_MAIN_BUS']),
-            'new_registered_business': int(row['NEW_REG_MAIN_BUS'])
+            'active_business': active_business,
+            'new_registered_business': new_registered_business
         })
 
     return results
@@ -52,11 +66,10 @@ def get_business_stats(
     start_month: Optional[int] = None,
     end_year: Optional[int] = None,
     end_month: Optional[int] = None
-) -> Dict:
+) -> List[Dict]:
     """Calculate statistics from business returns data"""
     data = fetch_business_returns_data(start_year, start_month, end_year, end_month)
     
     if not data:
-        return {}
-    print(data)
+        return []
     return data

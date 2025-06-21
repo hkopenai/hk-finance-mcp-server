@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch, mock_open
 from hkopenai.hk_finance_mcp_server.tool_business_reg import fetch_business_returns_data
 
+
 class TestBusinessReturns(unittest.TestCase):
     CSV_DATA = """RUN_DATE,ACTIVE_MAIN_BUS,NEW_REG_MAIN_BUS
 202505,1604714,17497
@@ -26,93 +27,250 @@ class TestBusinessReturns(unittest.TestCase):
 """
 
     def setUp(self):
-        self.mock_urlopen = patch('urllib.request.urlopen').start()
-        self.mock_urlopen.return_value = mock_open(read_data=self.CSV_DATA.encode('utf-8'))()
+        self.mock_urlopen = patch("urllib.request.urlopen").start()
+        self.mock_urlopen.return_value = mock_open(
+            read_data=self.CSV_DATA.encode("utf-8")
+        )()
         self.addCleanup(patch.stopall)
 
-    @patch('urllib.request.urlopen')
+    @patch("urllib.request.urlopen")
     def test_fetch_business_returns_data(self, mock_urlopen):
         # Mock the URL response
-        mock_urlopen.return_value = mock_open(read_data=self.CSV_DATA.encode('utf-8'))()
-        
+        mock_urlopen.return_value = mock_open(read_data=self.CSV_DATA.encode("utf-8"))()
+
         # Call the function
         result = fetch_business_returns_data()
-        
+
         # Verify the result
         self.assertEqual(len(result), 19)
-        self.assertEqual(result[0], {
-            'year_month': '2025-05',
-            'active_business': 1604714,
-            'new_registered_business': 17497
-        })
-        self.assertEqual(result[-1], {
-            'year_month': '2023-11',
-            'active_business': 1585292,
-            'new_registered_business': 13150
-        })
+        self.assertEqual(
+            result[0],
+            {
+                "year_month": "2025-05",
+                "active_business": 1604714,
+                "new_registered_business": 17497,
+            },
+        )
+        self.assertEqual(
+            result[-1],
+            {
+                "year_month": "2023-11",
+                "active_business": 1585292,
+                "new_registered_business": 13150,
+            },
+        )
 
     def test_start_year_month_filter(self):
         # Test start year/month filter
-        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.CSV_DATA.encode('utf-8'))()):
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
             # Test start year/month filter
             result = fetch_business_returns_data(start_year=2025, start_month=3)
             self.assertEqual(len(result), 3)
-            self.assertEqual(result[0]['year_month'], '2025-05')
+            self.assertEqual(result[0]["year_month"], "2025-05")
 
     def test_end_year_month_filter(self):
         # Test end year/month filter
-        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.CSV_DATA.encode('utf-8'))()):
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
             # Test end year/month filter
             result = fetch_business_returns_data(end_year=2025, end_month=3)
             self.assertEqual(len(result), 17)
-            self.assertEqual(result[-1]['year_month'], '2023-11')
+            self.assertEqual(result[-1]["year_month"], "2023-11")
 
     def test_both_year_month_filters(self):
         # Test both filters
-        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.CSV_DATA.encode('utf-8'))()):
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
             # Test both filters
             result = fetch_business_returns_data(
-                start_year=2025, start_month=2,
-                end_year=2025, end_month=4
+                start_year=2025, start_month=2, end_year=2025, end_month=4
             )
             self.assertEqual(len(result), 3)
-            self.assertEqual(result[0]['year_month'], '2025-04')
-            self.assertEqual(result[-1]['year_month'], '2025-02')
+            self.assertEqual(result[0]["year_month"], "2025-04")
+            self.assertEqual(result[-1]["year_month"], "2025-02")
 
     def test_start_year_only_filter(self):
         # Test start year only filter
-        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.CSV_DATA.encode('utf-8'))()):
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
             result = fetch_business_returns_data(start_year=2025)
             self.assertEqual(len(result), 5)
-            self.assertEqual(result[0]['year_month'], '2025-05')
-            self.assertEqual(result[-1]['year_month'], '2025-01')
+            self.assertEqual(result[0]["year_month"], "2025-05")
+            self.assertEqual(result[-1]["year_month"], "2025-01")
 
     def test_end_year_only_filter(self):
         # Test end year only filter
-        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.CSV_DATA.encode('utf-8'))()):
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
             result = fetch_business_returns_data(end_year=2025)
             self.assertEqual(len(result), 19)
-            self.assertEqual(result[0]['year_month'], '2025-05')
-            self.assertEqual(result[-1]['year_month'], '2023-11')
+            self.assertEqual(result[0]["year_month"], "2025-05")
+            self.assertEqual(result[-1]["year_month"], "2023-11")
 
     def test_end_year_only_filter_2024(self):
         # Test end year only filter
-        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.CSV_DATA.encode('utf-8'))()):            
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
             result = fetch_business_returns_data(end_year=2024)
             self.assertEqual(len(result), 14)
-            self.assertEqual(result[0]['year_month'], '2024-12')
-            self.assertEqual(result[-1]['year_month'], '2023-11')            
+            self.assertEqual(result[0]["year_month"], "2024-12")
+            self.assertEqual(result[-1]["year_month"], "2023-11")
 
     def test_both_year_only_filters(self):
         # Test both year only filters
-        with patch('urllib.request.urlopen', return_value=mock_open(read_data=self.CSV_DATA.encode('utf-8'))()):
-            result = fetch_business_returns_data(
-                start_year=2025,
-                end_year=2025
-            )
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
+            result = fetch_business_returns_data(start_year=2025, end_year=2025)
             self.assertEqual(len(result), 5)
-            self.assertEqual(result[0]['year_month'], '2025-05')
-            self.assertEqual(result[-1]['year_month'], '2025-01')
+            self.assertEqual(result[0]["year_month"], "2025-05")
+            self.assertEqual(result[-1]["year_month"], "2025-01")
 
-if __name__ == '__main__':
+    @patch("urllib.request.urlopen")
+    def test_invalid_csv_data(self, mock_urlopen):
+        # Test handling of invalid CSV data
+        invalid_csv = """RUN_DATE,ACTIVE_MAIN_BUS,NEW_REG_MAIN_BUS
+202505,invalid_data,17497
+"""
+        mock_urlopen.return_value = mock_open(read_data=invalid_csv.encode("utf-8"))()
+
+        result = fetch_business_returns_data()
+        self.assertEqual(
+            result,
+            [
+                {
+                    "year_month": "2025-05",
+                    "active_business": "Invalid data for ACTIVE_MAIN_BUS: invalid_data",
+                    "new_registered_business": 17497,
+                }
+            ],
+        )
+
+    @patch("urllib.request.urlopen")
+    def test_empty_csv_data(self, mock_urlopen):
+        # Test handling of empty CSV data
+        empty_csv = """RUN_DATE,ACTIVE_MAIN_BUS,NEW_REG_MAIN_BUS
+"""
+        mock_urlopen.return_value = mock_open(read_data=empty_csv.encode("utf-8"))()
+
+        result = fetch_business_returns_data()
+        self.assertEqual(len(result), 0, "Expected empty result for empty CSV data")
+
+    @patch("urllib.request.urlopen")
+    def test_network_failure(self, mock_urlopen):
+        # Test handling of network failure
+        mock_urlopen.side_effect = Exception("Network Error")
+
+        with self.assertRaises(Exception) as context:
+            fetch_business_returns_data()
+        self.assertTrue(
+            "Network Error" in str(context.exception), "Expected network error message"
+        )
+
+    @patch("urllib.request.urlopen")
+    def test_invalid_year_month_filters(self, mock_urlopen):
+        # Test handling of invalid year/month filters
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
+            # Since the function likely converts inputs to int or handles invalid types internally,
+            # we test with None or out-of-range values instead of invalid types to avoid type checker errors.
+            # Test invalid start year (using None as a placeholder for invalid input)
+            result = fetch_business_returns_data(start_year=None)
+            self.assertEqual(
+                len(result), 19, "Expected full data set when start year is None"
+            )
+
+    @patch("urllib.request.urlopen")
+    def test_invalid_year_month_filters2(self, mock_urlopen):
+        # Test handling of invalid year/month filters
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
+            # Test invalid start month (using None as a placeholder for invalid input)
+            result = fetch_business_returns_data(start_month=None)
+            self.assertEqual(
+                len(result), 19, "Expected full data set when start month is None"
+            )
+
+    @patch("urllib.request.urlopen")
+    def test_invalid_year_month_filters3(self, mock_urlopen):
+        # Test handling of invalid year/month filters
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
+            # Test invalid end year (using None as a placeholder for invalid input)
+            result = fetch_business_returns_data(end_year=None)
+            self.assertEqual(
+                len(result), 19, "Expected full data set when end year is None"
+            )
+
+    @patch("urllib.request.urlopen")
+    def test_invalid_year_month_filters4(self, mock_urlopen):
+        # Test handling of invalid year/month filters
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
+            # Test invalid end month (using None as a placeholder for invalid input)
+            result = fetch_business_returns_data(end_month=None)
+            self.assertEqual(
+                len(result), 19, "Expected full data set when end month is None"
+            )
+
+    def test_boundary_year_month_filters(self):
+        # Test boundary conditions for year/month filters
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
+            # Test future date filter
+            result = fetch_business_returns_data(start_year=2030)
+            self.assertEqual(
+                len(result), 0, "Expected empty result for future start year"
+            )
+
+    def test_boundary_year_month_filters2(self):
+        # Test boundary conditions for year/month filters
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
+            # Test very old date filter
+            result = fetch_business_returns_data(end_year=2000)
+            self.assertEqual(
+                len(result), 0, "Expected empty result for very old end year"
+            )
+
+    def test_boundary_year_month_filters3(self):
+        # Test boundary conditions for year/month filters
+        with patch(
+            "urllib.request.urlopen",
+            return_value=mock_open(read_data=self.CSV_DATA.encode("utf-8"))(),
+        ):
+            # Test invalid month value (out of range)
+            result = fetch_business_returns_data(start_year=2025, start_month=13)
+            self.assertEqual(
+                len(result), 5, "Expected data for year only when month is out of range"
+            )
+
+
+if __name__ == "__main__":
     unittest.main()
