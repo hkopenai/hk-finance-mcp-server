@@ -40,13 +40,13 @@ Assume chart tool is available:
    ```
 3. Run the server:
    ```bash
-   python app.py
+   python server.py
    ```
 
 ### Running Options
 
-- Default stdio mode: `python app.py`
-- SSE mode (port 8000): `python app.py --sse`
+- Default stdio mode: `python server.py`
+- SSE mode (port 8000): `python server.py --sse`
 
 ## Cline Integration
 

@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, Mock
-from hkopenai.hk_finance_mcp_server.app import create_mcp_server
+from hkopenai.hk_finance_mcp_server.server import create_mcp_server
 from hkopenai.hk_finance_mcp_server.tool_business_reg import get_business_stats
 
 def create_tool_decorator(expected_name, decorated_func_container):

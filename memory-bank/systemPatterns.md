@@ -2,7 +2,7 @@
 
 ## System Architecture
 The HK Finance MCP Server is designed as a Model Context Protocol (MCP) server, focusing on providing financial data and services specific to Hong Kong. The architecture follows a modular structure to facilitate the integration of various financial tools within the MCP ecosystem:
-- **Core Server Module**: Handles the primary MCP server functionality using the FastMCP library, managing tool registration, request routing, and response handling through functions defined in 'app.py'.
+- **Core Server Module**: Handles the primary MCP server functionality using the FastMCP library, managing tool registration, request routing, and response handling through functions defined in 'server.py'.
 - **Tool Modules**: Individual modules for each financial data tool:
   - **Business Registration (`tool_business_reg.py`)**: Fetches and processes business return data from IRD Hong Kong CSV files, with filtering by year and month.
   - **Credit Card Information (`tool_credit_card.py`)**: Retrieves credit card lending survey data and loss reporting hotlines from HKMA APIs, with quarterly data filtering.
@@ -26,14 +26,14 @@ The HK Finance MCP Server is designed as a Model Context Protocol (MCP) server, 
 - **Observer Pattern**: Considered for future implementation to notify subscribed clients of updates to financial data, enhancing real-time data delivery capabilities.
 
 ## Component Relationships
-- **Server to Tools**: The core server module in 'app.py' acts as the entry point, delegating requests to specific tool modules (e.g., `tool_business_reg.py`, `tool_credit_card.py`, `tool_hkma_tender.py`) based on the MCP tool name specified in the request.
+- **Server to Tools**: The core server module in 'server.py' acts as the entry point, delegating requests to specific tool modules (e.g., `tool_business_reg.py`, `tool_credit_card.py`, `tool_hkma_tender.py`) based on the MCP tool name specified in the request.
 - **Tools to Data Access**: Each tool module interacts with the data access layer to retrieve or process financial data, ensuring separation of concerns between business logic (e.g., data filtering by date ranges, formatting quarterly data) and data fetching.
 - **Data Access to External Sources**: The data access layer connects to external APIs or data sources (e.g., public CSV files from IRD for business data, JSON APIs from HKMA for credit card, coin cart, tender, and mortgage data), handling request formatting and response parsing without additional authentication in most cases.
 - **Integration Layer**: Wraps the entire system, providing the MCP interface that clients interact with, ensuring that all communications conform to MCP protocols through tool decorators and schema definitions.
 
 ## Critical Implementation Paths
-- **Request Handling Flow**: Client request → MCP Integration Layer → Core Server Module (`app.py`) → Specific Tool Module (e.g., `tool_business_reg.py`) → Data Access Layer → External Data Source (e.g., IRD CSV, HKMA API) → Reverse path for response delivery with formatted data.
-- **Tool Registration**: During server startup, each tool is registered with the core server in 'app.py' using `@mcp.tool` decorators, providing metadata about the tools (e.g., input schemas with Pydantic fields, descriptions) to be exposed via MCP.
+- **Request Handling Flow**: Client request → MCP Integration Layer → Core Server Module (`server.py`) → Specific Tool Module (e.g., `tool_business_reg.py`) → Data Access Layer → External Data Source (e.g., IRD CSV, HKMA API) → Reverse path for response delivery with formatted data.
+- **Tool Registration**: During server startup, each tool is registered with the core server in 'server.py' using `@mcp.tool` decorators, providing metadata about the tools (e.g., input schemas with Pydantic fields, descriptions) to be exposed via MCP.
 - **Error Handling**: Implemented across all layers to catch and log errors, ensuring that failures in data retrieval or processing are communicated back to the client in a standardized MCP error format, though specific implementations vary by tool.
 - **Security Measures**: Currently, minimal security measures are evident in the data access layer as most data sources are public; future updates may integrate authentication and data encryption to protect sensitive financial information during transmission if non-public sources are added.
 

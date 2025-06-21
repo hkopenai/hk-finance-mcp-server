@@ -5,7 +5,7 @@ from hkopenai.hk_finance_mcp_server import tool_neg_resident_mortgage
 from hkopenai.hk_finance_mcp_server import tool_credit_card
 from hkopenai.hk_finance_mcp_server import tool_coin_cart
 from hkopenai.hk_finance_mcp_server import tool_hkma_tender
-from typing import Dict, Annotated, Optional
+from typing import Dict, Annotated, Optional, List
 from pydantic import Field
 
 def create_mcp_server():
@@ -20,7 +20,7 @@ def create_mcp_server():
         start_month: Annotated[Optional[int], Field(description="Start Month")]  = None,
         end_year: Annotated[Optional[int], Field(description="End Year")]  = None,
         end_month: Annotated[Optional[int], Field(description="End Month")]  = None
-        ) -> Dict:
+        ) -> List[Dict]:
         return tool_business_reg.get_business_stats(start_year, start_month, end_year, end_month)
 
     @mcp.tool(
@@ -31,7 +31,7 @@ def create_mcp_server():
         start_month: Annotated[Optional[int], Field(description="Start Month")] = None,
         end_year: Annotated[Optional[int], Field(description="End Year")] = None,
         end_month: Annotated[Optional[int], Field(description="End Month")] = None
-    ) -> Dict:
+    ) -> List[Dict]:
         return tool_neg_resident_mortgage.get_neg_equity_stats(start_year, start_month, end_year, end_month)
 
     @mcp.tool(
@@ -70,8 +70,8 @@ def create_mcp_server():
         to_date: Annotated[Optional[str], Field(description="Filter records to date (YYYY-MM-DD)")] = None
     ) -> Dict:
         return tool_hkma_tender.get_tender_invitations(
-            lang=lang,
-            segment=segment,
+            lang=lang if lang is not None else 'en',
+            segment=segment if segment is not None else 'tender',
             pagesize=pagesize,
             offset=offset,
             from_date=from_date,

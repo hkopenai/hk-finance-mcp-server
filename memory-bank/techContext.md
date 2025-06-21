@@ -19,7 +19,7 @@
 - **Performance**: Needs to handle potentially high volumes of requests for financial data without significant latency, requiring optimization of data retrieval and processing.
 
 ## Dependencies
-- **Internal Dependencies**: The project structure indicates dependencies between core server modules (`app.py`) and individual tool modules (e.g., `tool_business_reg.py`, `tool_credit_card.py`, `tool_hkma_tender.py`), managed within the `hkopenai/hk_finance_mcp_server` directory.
+- **Internal Dependencies**: The project structure indicates dependencies between core server modules (`server.py`) and individual tool modules (e.g., `tool_business_reg.py`, `tool_credit_card.py`, `tool_hkma_tender.py`), managed within the `hkopenai/hk_finance_mcp_server` directory.
 - **External Libraries**: Includes standard Python libraries like `urllib.request` for HTTP requests and `json` for parsing API responses. Testing is supported by `unittest` and `unittest.mock`. Additional dependencies are specified in `pyproject.toml`, likely managed by a tool like Poetry, potentially including Pydantic for input schema validation.
 - **MCP Server Tools**: Relies on the broader MCP ecosystem for client interactions, requiring compatibility with MCP server libraries like FastMCP for Python, ensuring proper tool registration and request handling.
 
