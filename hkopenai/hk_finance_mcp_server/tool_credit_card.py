@@ -20,10 +20,15 @@ def fetch_credit_card_data(
         List of credit card lending data in JSON format
     """
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/banking/credit-card-lending-survey"
-    response = urllib.request.urlopen(url)
-    data = json.loads(response.read().decode('utf-8'))
+    try:
+        response = urllib.request.urlopen(url)
+        data = json.loads(response.read().decode('utf-8'))
+    except json.JSONDecodeError as e:
+        raise Exception(f"JSON decode error: {e}")
+    except Exception as e:
+        raise Exception(f"Error fetching data: {e}")
     
-    if not data['header']['success']:
+    if not data.get('header', {}).get('success', False):
         return []
     
     results = []
@@ -37,20 +42,31 @@ def fetch_credit_card_data(
         
         if start_year and year < start_year:
             continue
-        if start_year and year == start_year and start_month and month < start_month:
-            continue
-        if end_year and year > end_year:
-            continue
-        if end_year and year == end_year and end_month and month > end_month:
-            continue
+        if start_year and year == start_year and start_month:
+            if start_month < 1 or start_month > 12:
+                start_month = 1  # Ignore invalid month, treat as start of year
+            if month < start_month:
+                continue
+        if end_year:
+            if year > end_year:
+                continue
+            if end_month is not None:
+                if end_month < 1 and year <= end_year:
+                    continue  # Treat as before any data, exclude all records up to end_year
+                elif year == end_year and end_month > 12:
+                    end_month = 12  # Treat as end of year
+                    if month > end_month:
+                        continue
+                elif year == end_year and month > end_month:
+                    continue
             
         results.append({
             'quarter': quarter,
-            'accounts_count': record['endperiod_noofaccts'],
-            'delinquent_amount': record['endperiod_delinquent_amt'],
-            'chargeoff_amount': record['during_chargeoff_amt'],
-            'rollover_amount': record['during_rollover_amt'],
-            'avg_receivables': record['during_avg_total_receivables']
+            'accounts_count': record.get('endperiod_noofaccts', 'invalid data'),
+            'delinquent_amount': record.get('endperiod_delinquent_amt', 'invalid data'),
+            'chargeoff_amount': record.get('during_chargeoff_amt', 'invalid data'),
+            'rollover_amount': record.get('during_rollover_amt', 'invalid data'),
+            'avg_receivables': record.get('during_avg_total_receivables', 'invalid data')
         })
 
     return results
@@ -60,7 +76,7 @@ def get_credit_card_stats(
     start_month: Optional[int] = None,
     end_year: Optional[int] = None,
     end_month: Optional[int] = None
-) -> Dict:
+) -> List[Dict]:
     """Get credit card lending survey statistics"""
     data = fetch_credit_card_data(start_year, start_month, end_year, end_month)
     return data
@@ -72,15 +88,20 @@ def fetch_credit_card_hotlines() -> List[Dict]:
         List of credit card hotline information in JSON format
     """
     url = "https://api.hkma.gov.hk/public/bank-svf-info/hotlines-report-loss-credit-card?lang=en"
-    response = urllib.request.urlopen(url)
-    data = json.loads(response.read().decode('utf-8'))
+    try:
+        response = urllib.request.urlopen(url)
+        data = json.loads(response.read().decode('utf-8'))
+    except json.JSONDecodeError as e:
+        raise Exception(f"JSON decode error: {e}")
+    except Exception as e:
+        raise Exception(f"Error fetching data: {e}")
     
-    if not data['header']['success']:
+    if not data.get('header', {}).get('success', False):
         return []
 
     return data['result']['records']
 
-def get_credit_card_hotlines() -> Dict:
+def get_credit_card_hotlines() -> List[Dict]:
     """Get list of hotlines for reporting loss of credit card"""
     data = fetch_credit_card_hotlines()
     return data
