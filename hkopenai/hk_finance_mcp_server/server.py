@@ -6,6 +6,7 @@ from hkopenai.hk_finance_mcp_server import tool_credit_card
 from hkopenai.hk_finance_mcp_server import tool_coin_cart
 from hkopenai.hk_finance_mcp_server import tool_hkma_tender
 from hkopenai.hk_finance_mcp_server import tool_hibor_daily
+from hkopenai.hk_finance_mcp_server import tool_atm_locator
 from typing import Dict, Annotated, Optional, List
 from pydantic import Field
 
@@ -87,6 +88,17 @@ def create_mcp_server():
         end_date: Annotated[Optional[str], Field(description="End date (YYYY-MM-DD)")] = None
     ) -> List[Dict]:
         return tool_hibor_daily.get_hibor_stats(start_date, end_date)
+
+    @mcp.tool(
+        description="Get information on Automated Teller Machines (ATMs) of retail banks in Hong Kong"
+    )
+    def get_atm_locations(
+        district: Annotated[Optional[str], Field(description="District name to filter results")] = None,
+        bank_name: Annotated[Optional[str], Field(description="Bank name to filter results")] = None,
+        pagesize: Annotated[Optional[int], Field(description="Number of records per page")] = 100,
+        offset: Annotated[Optional[int], Field(description="Starting record offset")] = 0
+    ) -> List[Dict]:
+        return tool_atm_locator.get_atm_locations(district, bank_name, pagesize, offset)
 
     return mcp
 
