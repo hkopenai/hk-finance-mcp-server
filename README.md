@@ -16,6 +16,7 @@ This is an MCP server that provides access to finance related data in Hong Kong 
 7. Daily figures of Hong Kong Interbank Interest Rates (HIBOR)
 8. Information on Automated Teller Machines (ATMs) of retail banks in Hong Kong
 9. Monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)
+10. Information on bank branch locations of retail banks in Hong Kong
 
 ## Examples
 
@@ -36,6 +37,8 @@ Assume chart tool is available:
 * Hong Kong Monetary Authority
 * Hong Kong Inland Revenue Department
   - Stamp Duty Statistics: [IRD DataGovHK Page](https://www.ird.gov.hk/eng/dat/dat_gov.htm)
+* Hong Kong Monetary Authority
+  - Bank Branch Locator: [HKMA DataGovHK Page](https://data.gov.hk/en-data/dataset/hk-hkma-bankatm-banks-branch-locator)
 
 ## Setup
 
