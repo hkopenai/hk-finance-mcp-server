@@ -37,11 +37,11 @@ Assume chart tool is available:
 ## Data Source
 
 * Hong Kong Monetary Authority
-* Hong Kong Inland Revenue Department
-  - Stamp Duty Statistics: [IRD DataGovHK Page](https://www.ird.gov.hk/eng/dat/dat_gov.htm)
-* Hong Kong Monetary Authority
   - Bank Branch Locator: [HKMA DataGovHK Page](https://data.gov.hk/en-data/dataset/hk-hkma-bankatm-banks-branch-locator)
   - Fraudulent Bank Websites and Phishing Scams: [HKMA DataGovHK Page](https://data.gov.hk/en-data/dataset/hk-hkma-banksvf-fraudulent-bank-scams)
+  - Credit Card Lending Survey Results: [HKMA DataGovHK Page](https://data.gov.hk/en-data/dataset/hk-hkma-t03-t0308credit-card-lending-survey)
+* Hong Kong Inland Revenue Department
+  - Stamp Duty Statistics: [IRD DataGovHK Page](https://www.ird.gov.hk/eng/dat/dat_gov.htm)
 
 ## Setup
 
