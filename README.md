@@ -17,6 +17,7 @@ This is an MCP server that provides access to finance related data in Hong Kong 
 8. Information on Automated Teller Machines (ATMs) of retail banks in Hong Kong
 9. Monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)
 10. Information on bank branch locations of retail banks in Hong Kong
+11. Information on fraudulent bank websites and phishing scams reported to HKMA
 
 ## Examples
 
@@ -26,6 +27,7 @@ This is an MCP server that provides access to finance related data in Hong Kong 
 * How is current Hong Kong economy by referencing credit lending data and residential mortgage loans in negative equity?
 * What are the recent trends in HIBOR rates over the past month?
 * Where can I find ATMs in Yuen Long district that support HKD and RMB currencies?
+* Can you list the recent fraudulent bank websites reported to HKMA?
 
 Assume chart tool is available:
 
@@ -39,6 +41,7 @@ Assume chart tool is available:
   - Stamp Duty Statistics: [IRD DataGovHK Page](https://www.ird.gov.hk/eng/dat/dat_gov.htm)
 * Hong Kong Monetary Authority
   - Bank Branch Locator: [HKMA DataGovHK Page](https://data.gov.hk/en-data/dataset/hk-hkma-bankatm-banks-branch-locator)
+  - Fraudulent Bank Websites and Phishing Scams: [HKMA DataGovHK Page](https://data.gov.hk/en-data/dataset/hk-hkma-banksvf-fraudulent-bank-scams)
 
 ## Setup
 

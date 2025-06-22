@@ -8,6 +8,8 @@ from hkopenai.hk_finance_mcp_server import tool_hkma_tender
 from hkopenai.hk_finance_mcp_server import tool_hibor_daily
 from hkopenai.hk_finance_mcp_server import tool_atm_locator
 from hkopenai.hk_finance_mcp_server import tool_stamp_duty_statistics
+from hkopenai.hk_finance_mcp_server import tool_bank_branch_locator
+from hkopenai.hk_finance_mcp_server import tool_fraudulent_bank_scams
 
 from typing import Dict, Annotated, Optional, List
 from pydantic import Field
@@ -110,6 +112,26 @@ def create_mcp_server():
         end_period: Annotated[Optional[str], Field(description="End period in YYYYMM format to filter results")] = None
     ) -> List[Dict]:
         return tool_stamp_duty_statistics.get_stamp_duty_statistics(start_period, end_period)
+
+    @mcp.tool(
+        description="Get information on bank branch locations of retail banks in Hong Kong"
+    )
+    def get_bank_branch_locations(
+        district: Annotated[Optional[str], Field(description="District name to filter results")] = None,
+        bank_name: Annotated[Optional[str], Field(description="Bank name to filter results")] = None,
+        lang: Annotated[Optional[str], Field(description="Language for data output (en, tc, sc)", json_schema_extra={"enum": ["en", "tc", "sc"]})] = "en",
+        pagesize: Annotated[Optional[int], Field(description="Number of records per page")] = 100,
+        offset: Annotated[Optional[int], Field(description="Starting record offset")] = 0
+    ) -> List[Dict]:
+        return tool_bank_branch_locator.get_bank_branch_locations(district, bank_name, lang, pagesize, offset)
+
+    @mcp.tool(
+        description="Get information on fraudulent bank websites and phishing scams reported to HKMA"
+    )
+    def get_fraudulent_bank_scams(
+        lang: Annotated[Optional[str], Field(description="Language (en/tc/sc)", json_schema_extra={"enum": ["en", "tc", "sc"]})] = "en"
+    ) -> List[Dict]:
+        return tool_fraudulent_bank_scams.get_fraudulent_bank_scams(lang if lang is not None else "en")
 
     return mcp
 
