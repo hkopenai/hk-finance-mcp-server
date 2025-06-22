@@ -13,6 +13,7 @@ This is an MCP server that provides access to finance related data in Hong Kong 
 4. Coin cart schedule in Hong Kong
 5. Get list of hotlines for reporting loss of credit card from Hong Kong banks
 6. Get information of Tender Invitation and Notice of Award of Contracts from Hong Kong Monetary Authority
+7. Daily figures of Hong Kong Interbank Interest Rates (HIBOR)
 
 ## Examples
 
@@ -20,6 +21,7 @@ This is an MCP server that provides access to finance related data in Hong Kong 
 * What is the negative loan situation in Hong Kong Q1 2025 compare with Q1 2024?
 * Write a commentary about the latest residential mortgage loans in negative equity in Hong Kong
 * How is current Hong Kong economy by referencing credit lending data and residential mortgage loans in negative equity?
+* What are the recent trends in HIBOR rates over the past month?
 
 Assume chart tool is available:
 
@@ -73,4 +75,3 @@ Tests are available in the `tests/` directory. Run with:
 ```bash
 pytest
 ```
-
