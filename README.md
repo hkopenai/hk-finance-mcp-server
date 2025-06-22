@@ -15,6 +15,7 @@ This is an MCP server that provides access to finance related data in Hong Kong 
 6. Get information of Tender Invitation and Notice of Award of Contracts from Hong Kong Monetary Authority
 7. Daily figures of Hong Kong Interbank Interest Rates (HIBOR)
 8. Information on Automated Teller Machines (ATMs) of retail banks in Hong Kong
+9. Monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)
 
 ## Examples
 
@@ -34,6 +35,7 @@ Assume chart tool is available:
 
 * Hong Kong Monetary Authority
 * Hong Kong Inland Revenue Department
+  - Stamp Duty Statistics: [IRD DataGovHK Page](https://www.ird.gov.hk/eng/dat/dat_gov.htm)
 
 ## Setup
 

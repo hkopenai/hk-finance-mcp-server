@@ -7,6 +7,8 @@ from hkopenai.hk_finance_mcp_server import tool_coin_cart
 from hkopenai.hk_finance_mcp_server import tool_hkma_tender
 from hkopenai.hk_finance_mcp_server import tool_hibor_daily
 from hkopenai.hk_finance_mcp_server import tool_atm_locator
+from hkopenai.hk_finance_mcp_server import tool_stamp_duty_statistics
+
 from typing import Dict, Annotated, Optional, List
 from pydantic import Field
 
@@ -99,6 +101,15 @@ def create_mcp_server():
         offset: Annotated[Optional[int], Field(description="Starting record offset")] = 0
     ) -> List[Dict]:
         return tool_atm_locator.get_atm_locations(district, bank_name, pagesize, offset)
+
+    @mcp.tool(
+        description="Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"
+    )
+    def get_stamp_duty_statistics(
+        start_period: Annotated[Optional[str], Field(description="Start period in YYYYMM format to filter results")] = None,
+        end_period: Annotated[Optional[str], Field(description="End period in YYYYMM format to filter results")] = None
+    ) -> List[Dict]:
+        return tool_stamp_duty_statistics.get_stamp_duty_statistics(start_period, end_period)
 
     return mcp
 
