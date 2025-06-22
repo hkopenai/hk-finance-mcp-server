@@ -5,6 +5,7 @@ from hkopenai.hk_finance_mcp_server import tool_neg_resident_mortgage
 from hkopenai.hk_finance_mcp_server import tool_credit_card
 from hkopenai.hk_finance_mcp_server import tool_coin_cart
 from hkopenai.hk_finance_mcp_server import tool_hkma_tender
+from hkopenai.hk_finance_mcp_server import tool_hibor_daily
 from typing import Dict, Annotated, Optional, List
 from pydantic import Field
 
@@ -42,7 +43,7 @@ def create_mcp_server():
         start_month: Annotated[Optional[int], Field(description="Start Month")] = None,
         end_year: Annotated[Optional[int], Field(description="End Year")] = None,
         end_month: Annotated[Optional[int], Field(description="End Month")] = None
-    ) -> Dict:
+    ) -> List[Dict]:
         return tool_credit_card.get_credit_card_stats(start_year, start_month, end_year, end_month)
     
     @mcp.tool(
@@ -55,7 +56,7 @@ def create_mcp_server():
     @mcp.tool(
         description="Get list of hotlines for reporting loss of credit card from Hong Kong banks."
     )
-    def get_credit_card_hotlines() -> Dict:
+    def get_credit_card_hotlines() -> List[Dict]:
         return tool_credit_card.get_credit_card_hotlines()
 
     @mcp.tool(
@@ -77,6 +78,15 @@ def create_mcp_server():
             from_date=from_date,
             to_date=to_date
         )
+
+    @mcp.tool(
+        description="Get daily figures of Hong Kong Interbank Interest Rates (HIBOR) from HKMA"
+    )
+    def get_hibor_daily_stats(
+        start_date: Annotated[Optional[str], Field(description="Start date (YYYY-MM-DD)")] = None,
+        end_date: Annotated[Optional[str], Field(description="End date (YYYY-MM-DD)")] = None
+    ) -> List[Dict]:
+        return tool_hibor_daily.get_hibor_stats(start_date, end_date)
 
     return mcp
 
