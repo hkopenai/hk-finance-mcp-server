@@ -25,3 +25,10 @@ jobs:
       id: coverage
       run: |
         pytest
+
+    - name: Run live tests
+      if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+      env:
+        RUN_LIVE_TESTS: 'true'
+      run: |
+        pytest -m live --reruns 5 --reruns-delay 2 --ignore=tests/test_server.py
