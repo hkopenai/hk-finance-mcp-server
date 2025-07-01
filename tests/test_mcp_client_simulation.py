@@ -1,4 +1,3 @@
-# IMPORTANT: This test file must run sequentially and not in parallel to avoid conflicts with the MCP server subprocess.
 import unittest
 import subprocess
 import json
