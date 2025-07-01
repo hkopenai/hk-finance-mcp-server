@@ -18,6 +18,7 @@ from mcp.client.streamable_http import streamablehttp_client # Added for MCP SDK
 from mcp import ClientSession
 
 
+@unittest.skipUnless(os.environ.get('RUN_LIVE_TESTS') == 'true', "Set RUN_LIVE_TESTS=true to run live tests")
 class TestMCPClientSimulation(unittest.TestCase):
     server_process = None
     SERVER_URL = "http://127.0.0.1:8000/mcp/" # Updated server URL for MCP API
