@@ -42,7 +42,10 @@ dependencies = [
 hk_finance_mcp_server = "hkopenai.hk_finance_mcp_server.app:main"
 
 [tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+asyncio_mode = "auto"
 markers = [
     "live: marks tests as live (external API calls)",
 ]
