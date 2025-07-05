@@ -6,6 +6,7 @@ These tests interact with the actual HKMA API.
 import unittest
 from hkopenai.hk_finance_mcp_server import tool_fraudulent_bank_scams
 
+
 class TestFraudulentBankScamsIntegration(unittest.TestCase):
     def test_get_fraudulent_bank_scams(self):
         """Test fetching fraudulent bank scams data from HKMA API"""
@@ -29,7 +30,10 @@ class TestFraudulentBankScamsIntegration(unittest.TestCase):
             result = tool_fraudulent_bank_scams.get_fraudulent_bank_scams(lang="tc")
             self.assertIsInstance(result, list)
         except Exception as e:
-            self.fail(f"Failed to fetch fraudulent bank scams data in Traditional Chinese: {str(e)}")
+            self.fail(
+                f"Failed to fetch fraudulent bank scams data in Traditional Chinese: {str(e)}"
+            )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
