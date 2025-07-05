@@ -1,3 +1,9 @@
+"""
+Module for fetching and processing bank branch location data from the Hong Kong Monetary Authority (HKMA).
+
+This module provides functions to retrieve bank branch location information from the HKMA API with filtering options for district and bank name.
+"""
+
 import json
 import urllib.request
 from typing import List, Dict, Optional

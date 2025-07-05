@@ -1,9 +1,10 @@
 """
-Tool for fetching information about fraudulent bank websites and phishing scams from HKMA.
+Module for fetching and processing information about fraudulent bank websites and phishing scams from the Hong Kong Monetary Authority (HKMA).
+
+This module provides functions to retrieve data on reported fraudulent bank scams from the HKMA API, including details on scam types, alleged bank names, and related press releases.
 """
 
-import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 import requests
 
 API_URL = "https://api.hkma.gov.hk/public/bank-svf-info/fraudulent-bank-scams"

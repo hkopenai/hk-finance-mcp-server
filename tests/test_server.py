@@ -1,9 +1,17 @@
+"""
+Module for testing the HK OpenAI Finance MCP Server creation.
+
+This module contains unit tests to verify the correct initialization and configuration
+of the MCP server with various financial data tools.
+"""
+
 import unittest
 from unittest.mock import patch, Mock
 from hkopenai.hk_finance_mcp_server.server import create_mcp_server
 
 
 class TestApp(unittest.TestCase):
+    """Test case class for verifying MCP server functionality."""
     @patch("hkopenai.hk_finance_mcp_server.server.FastMCP")
     @patch("hkopenai.hk_finance_mcp_server.server.tool_business_reg")
     @patch("hkopenai.hk_finance_mcp_server.server.tool_neg_resident_mortgage")
@@ -29,6 +37,11 @@ class TestApp(unittest.TestCase):
         mock_tool_business_reg,
         mock_fastmcp,
     ):
+        """Test the creation and configuration of the MCP server with mocked tools.
+        
+        Verifies that the server is created correctly and all tools are properly registered
+        and functional when called.
+        """
         # Setup mocks
         mock_server = Mock()
 

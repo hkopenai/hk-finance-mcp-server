@@ -1,3 +1,10 @@
+"""
+Module for testing the Bank Branch Locator tool functionality.
+
+This module contains unit tests to verify the correct fetching and filtering
+of bank branch location data from the HKMA API using the tool_bank_branch_locator module.
+"""
+
 import unittest
 import json
 from unittest.mock import patch, Mock
@@ -5,7 +12,9 @@ from hkopenai.hk_finance_mcp_server import tool_bank_branch_locator
 
 
 class TestBankBranchLocatorTool(unittest.TestCase):
+    """Test case class for verifying Bank Branch Locator tool functionality."""
     def setUp(self):
+        """Set up test fixtures before each test method."""
         self.sample_data = """
 {
     "result": {
@@ -38,6 +47,11 @@ class TestBankBranchLocatorTool(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_fetch_bank_branch_data_no_filter(self, mock_urlopen):
+        """Test fetching bank branch data without filters.
+        
+        Verifies that the fetch_bank_branch_data function returns all available data
+        when no filters are applied.
+        """
         # Arrange
         mock_response = Mock()
         mock_response.read.return_value = self.sample_data.encode("utf-8")
@@ -53,6 +67,11 @@ class TestBankBranchLocatorTool(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_fetch_bank_branch_data_with_district_filter(self, mock_urlopen):
+        """Test fetching bank branch data with district filter.
+        
+        Verifies that the fetch_bank_branch_data function correctly filters results
+        based on the specified district.
+        """
         # Arrange
         mock_response = Mock()
         mock_response.read.return_value = self.sample_data.encode("utf-8")
@@ -67,6 +86,11 @@ class TestBankBranchLocatorTool(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_fetch_bank_branch_data_with_bank_name_filter(self, mock_urlopen):
+        """Test fetching bank branch data with bank name filter.
+        
+        Verifies that the fetch_bank_branch_data function correctly filters results
+        based on the specified bank name.
+        """
         # Arrange
         mock_response = Mock()
         mock_response.read.return_value = self.sample_data.encode("utf-8")
@@ -83,6 +107,11 @@ class TestBankBranchLocatorTool(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_get_bank_branch_locations_empty_result(self, mock_urlopen):
+        """Test fetching bank branch locations with empty result.
+        
+        Verifies that the get_bank_branch_locations function returns an empty list
+        when no data is available from the API.
+        """
         # Arrange
         empty_data = {"result": {"datasize": 0, "records": []}}
         mock_response = Mock()

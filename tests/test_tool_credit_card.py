@@ -1,3 +1,10 @@
+"""
+Module for testing the Credit Card Lending tool functionality.
+
+This module contains unit tests to verify the correct fetching and filtering
+of credit card lending survey data from the HKMA API using the tool_credit_card module.
+"""
+
 import unittest
 import json
 from unittest.mock import patch, mock_open
@@ -5,6 +12,7 @@ from hkopenai.hk_finance_mcp_server import tool_credit_card
 
 
 class TestCreditCardLending(unittest.TestCase):
+    """Test case class for verifying Credit Card Lending tool functionality."""
     JSON_DATA = """{
         "header": {"success": true},
         "result": {
@@ -55,6 +63,7 @@ class TestCreditCardLending(unittest.TestCase):
     }"""
 
     def setUp(self):
+        """Set up test fixtures before each test method."""
         self.mock_urlopen = patch("urllib.request.urlopen").start()
         self.mock_urlopen.return_value = mock_open(
             read_data=self.JSON_DATA.encode("utf-8")
@@ -63,6 +72,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_fetch_credit_card_data(self, mock_urlopen):
+        """Test fetching credit card lending data without filters.
+        
+        Verifies that the fetch_credit_card_data function returns the expected data
+        when no filters are applied.
+        """
         mock_urlopen.return_value = mock_open(
             read_data=self.JSON_DATA.encode("utf-8")
         )()
@@ -94,6 +108,11 @@ class TestCreditCardLending(unittest.TestCase):
         )
 
     def test_start_year_month_filter(self):
+        """Test fetching credit card lending data with start year and month filter.
+        
+        Verifies that the fetch_credit_card_data function correctly filters results
+        based on the specified start year and month.
+        """
         with patch(
             "urllib.request.urlopen",
             return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
@@ -105,6 +124,11 @@ class TestCreditCardLending(unittest.TestCase):
             self.assertEqual(result[0]["quarter"], "2025-Q1")
 
     def test_end_year_month_filter(self):
+        """Test fetching credit card lending data with end year and month filter.
+        
+        Verifies that the fetch_credit_card_data function correctly filters results
+        based on the specified end year and month.
+        """
         with patch(
             "urllib.request.urlopen",
             return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
@@ -115,6 +139,11 @@ class TestCreditCardLending(unittest.TestCase):
             self.assertEqual(result[-1]["quarter"], "2024-Q1")
 
     def test_both_year_month_filters(self):
+        """Test fetching credit card lending data with both start and end year/month filters.
+        
+        Verifies that the fetch_credit_card_data function correctly filters results
+        within the specified date range.
+        """
         with patch(
             "urllib.request.urlopen",
             return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
@@ -127,6 +156,11 @@ class TestCreditCardLending(unittest.TestCase):
             self.assertEqual(result[-1]["quarter"], "2024-Q2")
 
     def test_start_year_only_filter(self):
+        """Test fetching credit card lending data with start year only filter.
+        
+        Verifies that the fetch_credit_card_data function correctly filters results
+        based on the specified start year.
+        """
         with patch(
             "urllib.request.urlopen",
             return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
@@ -136,6 +170,11 @@ class TestCreditCardLending(unittest.TestCase):
             self.assertEqual(result[0]["quarter"], "2025-Q1")
 
     def test_end_year_only_filter(self):
+        """Test fetching credit card lending data with end year only filter.
+        
+        Verifies that the fetch_credit_card_data function correctly filters results
+        based on the specified end year.
+        """
         with patch(
             "urllib.request.urlopen",
             return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
@@ -146,6 +185,10 @@ class TestCreditCardLending(unittest.TestCase):
             self.assertEqual(result[-1]["quarter"], "2024-Q1")
 
     def test_get_credit_card_stats(self):
+        """Test getting credit card lending statistics.
+        
+        Verifies that the get_credit_card_stats function returns the expected data.
+        """
         with patch(
             "urllib.request.urlopen",
             return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
@@ -156,6 +199,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_invalid_json_data(self, mock_urlopen):
+        """Test handling of invalid JSON data.
+        
+        Verifies that the fetch_credit_card_data function raises an exception
+        when invalid JSON data is received.
+        """
         # Test handling of invalid JSON data
         invalid_json = "{invalid json}"
         mock_urlopen.return_value = mock_open(read_data=invalid_json.encode("utf-8"))()
@@ -169,6 +217,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_empty_json_data(self, mock_urlopen):
+        """Test handling of empty JSON data.
+        
+        Verifies that the fetch_credit_card_data function returns an empty list
+        when empty JSON data is received.
+        """
         # Test handling of empty JSON data
         empty_json = "{}"
         mock_urlopen.return_value = mock_open(read_data=empty_json.encode("utf-8"))()
@@ -178,6 +231,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_missing_records_in_json(self, mock_urlopen):
+        """Test handling of JSON data with missing records.
+        
+        Verifies that the fetch_credit_card_data function returns an empty list
+        when no records are present in the JSON data.
+        """
         # Test handling of JSON data with missing records
         missing_records_json = {
             "header": {"success": True},
@@ -194,6 +252,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_incomplete_record_data(self, mock_urlopen):
+        """Test handling of JSON data with incomplete records.
+        
+        Verifies that the fetch_credit_card_data function processes partial data
+        and sets 'invalid data' for missing fields.
+        """
         # Test handling of JSON data with incomplete records
         incomplete_record_json = {
             "header": {"success": True},
@@ -246,6 +309,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_network_failure(self, mock_urlopen):
+        """Test handling of network failure.
+        
+        Verifies that the fetch_credit_card_data function raises an exception
+        when a network error occurs.
+        """
         # Test handling of network failure
         mock_urlopen.side_effect = Exception("Network Error")
 
@@ -257,6 +325,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_invalid_year_month_filters(self, mock_urlopen):
+        """Test handling of invalid year/month filters (start year None).
+        
+        Verifies that the fetch_credit_card_data function returns full data set
+        when start year is None.
+        """
         # Test handling of invalid year/month filters
         with patch(
             "urllib.request.urlopen",
@@ -272,6 +345,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_invalid_year_month_filters2(self, mock_urlopen):
+        """Test handling of invalid year/month filters (start month None).
+        
+        Verifies that the fetch_credit_card_data function returns full data set
+        when start month is None.
+        """
         # Test handling of invalid year/month filters
         with patch(
             "urllib.request.urlopen",
@@ -285,6 +363,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_invalid_year_month_filters3(self, mock_urlopen):
+        """Test handling of invalid year/month filters (end year None).
+        
+        Verifies that the fetch_credit_card_data function returns full data set
+        when end year is None.
+        """
         # Test handling of invalid year/month filters
         with patch(
             "urllib.request.urlopen",
@@ -298,6 +381,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_invalid_year_month_filters4(self, mock_urlopen):
+        """Test handling of invalid year/month filters (end month None).
+        
+        Verifies that the fetch_credit_card_data function returns full data set
+        when end month is None.
+        """
         # Test handling of invalid year/month filters
         with patch(
             "urllib.request.urlopen",
@@ -311,6 +399,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_invalid_year_month_filters5(self, mock_urlopen):
+        """Test handling of invalid year/month filters (start month out of range).
+        
+        Verifies that the fetch_credit_card_data function uses only the year
+        when start month is out of range.
+        """
         # Test handling of invalid year/month filters
         with patch(
             "urllib.request.urlopen",
@@ -328,6 +421,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_invalid_year_month_filters6(self, mock_urlopen):
+        """Test handling of invalid year/month filters (end month out of range).
+        
+        Verifies that the fetch_credit_card_data function returns no data
+        when end month is out of range and before any data.
+        """
         # Test handling of invalid year/month filters
         with patch(
             "urllib.request.urlopen",
@@ -342,6 +440,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_boundary_year_month_filters(self, mock_urlopen):
+        """Test boundary conditions for year/month filters (future date).
+        
+        Verifies that the fetch_credit_card_data function returns an empty result
+        for a future start year.
+        """
         # Test boundary conditions for year/month filters
         with patch(
             "urllib.request.urlopen",
@@ -355,6 +458,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_boundary_year_month_filters2(self, mock_urlopen):
+        """Test boundary conditions for year/month filters (very old date).
+        
+        Verifies that the fetch_credit_card_data function returns an empty result
+        for a very old end year.
+        """
         # Test boundary conditions for year/month filters
         with patch(
             "urllib.request.urlopen",
@@ -368,6 +476,11 @@ class TestCreditCardLending(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_boundary_year_month_filters3(self, mock_urlopen):
+        """Test boundary conditions for year/month filters (invalid month value).
+        
+        Verifies that the fetch_credit_card_data function uses only the year
+        when the month value is out of range.
+        """
         # Test boundary conditions for year/month filters
         with patch(
             "urllib.request.urlopen",

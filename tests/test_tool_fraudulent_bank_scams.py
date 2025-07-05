@@ -1,5 +1,8 @@
 """
-Unit tests for the fraudulent bank scams tool.
+Module for testing the Fraudulent Bank Scams tool functionality.
+
+This module contains unit tests to verify the correct fetching of fraudulent bank scam
+alerts from the HKMA API using the tool_fraudulent_bank_scams module.
 """
 
 import unittest
@@ -8,11 +11,18 @@ from hkopenai.hk_finance_mcp_server import tool_fraudulent_bank_scams
 
 
 class TestFraudulentBankScamsTool(unittest.TestCase):
+    """Test case class for verifying Fraudulent Bank Scams tool functionality."""
     def setUp(self):
+        """Set up test fixtures before each test method."""
         self.api_url = tool_fraudulent_bank_scams.API_URL
 
     @patch("requests.get")
     def test_get_fraudulent_bank_scams_success(self, mock_get):
+        """Test fetching fraudulent bank scams data with successful API response.
+        
+        Verifies that the get_fraudulent_bank_scams function returns the expected data
+        when the API responds successfully.
+        """
         # Mock successful API response
         mock_response = Mock()
         mock_response.json.return_value = {
@@ -54,6 +64,11 @@ class TestFraudulentBankScamsTool(unittest.TestCase):
 
     @patch("requests.get")
     def test_get_fraudulent_bank_scams_api_error(self, mock_get):
+        """Test handling of API error response for fraudulent bank scams data.
+        
+        Verifies that the get_fraudulent_bank_scams function raises an exception
+        when the API returns an error.
+        """
         # Mock API error response
         mock_response = Mock()
         mock_response.json.return_value = {

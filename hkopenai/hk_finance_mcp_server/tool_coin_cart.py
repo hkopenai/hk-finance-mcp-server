@@ -1,6 +1,13 @@
+"""
+Module for fetching and processing Hong Kong Monetary Authority (HKMA) Coin Cart Schedule data.
+
+This module provides functions to retrieve coin cart schedule information from the HKMA API
+and format it for further use.
+"""
+
 import json
 import urllib.request
-from typing import List, Dict
+from typing import Dict
 
 
 def fetch_coin_cart_schedule() -> Dict:

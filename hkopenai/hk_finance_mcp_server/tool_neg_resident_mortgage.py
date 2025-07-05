@@ -1,3 +1,9 @@
+"""
+Module for fetching and processing negative equity residential mortgage data from the Hong Kong Monetary Authority (HKMA).
+
+This module provides functions to retrieve statistics on residential mortgage loans in negative equity from the HKMA API.
+"""
+
 import json
 import urllib.request
 from typing import List, Dict, Optional
@@ -27,7 +33,7 @@ def fetch_neg_equity_data(
     except json.JSONDecodeError as e:
         return [{"error": f"Invalid JSON data received: {e}"}]
     except Exception as e:
-        raise Exception(f"Error fetching data: {e}")
+        raise Exception(f"Error fetching data: {str(e)}")
 
     if not data.get("header", {}).get("success", False):
         return []

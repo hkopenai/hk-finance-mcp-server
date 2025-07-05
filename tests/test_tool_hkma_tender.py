@@ -1,3 +1,10 @@
+"""
+Module for testing the HKMA Tender Invitations tool functionality.
+
+This module contains unit tests to verify the correct fetching and processing
+of tender invitation data from the HKMA API using the tool_hkma_tender module.
+"""
+
 import unittest
 from unittest.mock import patch, mock_open
 import json
@@ -5,6 +12,7 @@ from hkopenai.hk_finance_mcp_server import tool_hkma_tender
 
 
 class TestHKMAtender(unittest.TestCase):
+    """Test case class for verifying HKMA Tender Invitations tool functionality."""
     MOCK_JSON = {
         "header": {"success": True, "err_code": "0000", "err_msg": "No error found"},
         "result": {
@@ -25,29 +33,47 @@ class TestHKMAtender(unittest.TestCase):
     }
 
     def setUp(self):
+        """Set up test fixtures before each test method."""
         self.mock_urlopen = patch("urllib.request.urlopen").start()
         mock_response = mock_open(read_data=json.dumps(self.MOCK_JSON).encode("utf-8"))
         self.mock_urlopen.return_value = mock_response()
         self.addCleanup(patch.stopall)
 
     def test_fetch_tender_invitations(self):
+        """Test fetching tender invitations data without parameters.
+        
+        Verifies that the fetch_tender_invitations function returns the expected data.
+        """
         result = tool_hkma_tender.fetch_tender_invitations()
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]["title"], "Provision of BI Application Support")
 
     def test_fetch_tender_invitations_with_params(self):
+        """Test fetching tender invitations data with parameters.
+        
+        Verifies that the fetch_tender_invitations function returns data when parameters are provided.
+        """
         result = tool_hkma_tender.fetch_tender_invitations(
             lang="tc", segment="notice", pagesize=10, from_date="2025-01-01"
         )
         self.assertEqual(len(result), 2)
 
     def test_get_tender_invitations(self):
+        """Test getting tender invitations data in standardized format.
+        
+        Verifies that the get_tender_invitations function returns data with the expected key.
+        """
         result = tool_hkma_tender.get_tender_invitations()
         self.assertIn("tender_invitations", result)
         self.assertEqual(len(result["tender_invitations"]), 2)
 
     @patch("urllib.request.urlopen")
     def test_api_error_handling(self, mock_urlopen):
+        """Test handling of API errors.
+        
+        Verifies that the fetch_tender_invitations function raises an exception
+        when an API error occurs.
+        """
         mock_urlopen.side_effect = Exception("API Error")
 
         with self.assertRaises(Exception):
@@ -55,6 +81,11 @@ class TestHKMAtender(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_invalid_json_data(self, mock_urlopen):
+        """Test handling of invalid JSON data.
+        
+        Verifies that the fetch_tender_invitations function raises an exception
+        when invalid JSON data is received.
+        """
         # Test handling of invalid JSON data
         invalid_json = "{invalid json}"
         mock_urlopen.return_value = mock_open(read_data=invalid_json.encode("utf-8"))()
@@ -68,6 +99,11 @@ class TestHKMAtender(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_empty_json_data(self, mock_urlopen):
+        """Test handling of empty JSON data.
+        
+        Verifies that the fetch_tender_invitations function returns an empty list
+        when empty JSON data is received.
+        """
         # Test handling of empty JSON data
         empty_json = "{}"
         mock_urlopen.return_value = mock_open(read_data=empty_json.encode("utf-8"))()
@@ -77,6 +113,11 @@ class TestHKMAtender(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_missing_records_in_json(self, mock_urlopen):
+        """Test handling of JSON data with missing records.
+        
+        Verifies that the fetch_tender_invitations function returns an empty list
+        when no records are present in the JSON data.
+        """
         # Test handling of JSON data with missing records
         missing_records_json = {
             "header": {"success": True},
@@ -93,6 +134,11 @@ class TestHKMAtender(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_incomplete_record_data(self, mock_urlopen):
+        """Test handling of JSON data with incomplete records.
+        
+        Verifies that the fetch_tender_invitations function processes partial data
+        and includes only the available fields in the result.
+        """
         # Test handling of JSON data with incomplete records
         incomplete_record_json = {
             "header": {"success": True},
@@ -120,6 +166,11 @@ class TestHKMAtender(unittest.TestCase):
         )
 
     def test_invalid_parameters(self):
+        """Test handling of invalid parameters.
+        
+        Verifies that the fetch_tender_invitations function handles invalid parameters
+        gracefully and returns the full data set.
+        """
         # Test handling of invalid parameters
         def create_mock_response():
             return mock_open(read_data=json.dumps(self.MOCK_JSON).encode("utf-8"))()
@@ -159,6 +210,11 @@ class TestHKMAtender(unittest.TestCase):
             )
 
     def test_boundary_parameters(self):
+        """Test boundary conditions for parameters.
+        
+        Verifies that the fetch_tender_invitations function handles boundary values
+        for parameters like large pagesize and zero offset correctly.
+        """
         # Test boundary conditions for parameters.
         def create_mock_response():
             return mock_open(read_data=json.dumps(self.MOCK_JSON).encode("utf-8"))()

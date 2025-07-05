@@ -1,7 +1,13 @@
+"""
+Module for fetching and processing Hong Kong Interbank Interest Rates (HIBOR) daily data from the Hong Kong Monetary Authority (HKMA).
+
+This module provides functions to retrieve HIBOR daily figures from the HKMA API and format them for further use.
+"""
+
 import json
 import urllib.request
 from typing import List, Dict, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 def fetch_hibor_daily_data(

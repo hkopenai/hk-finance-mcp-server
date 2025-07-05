@@ -1,3 +1,10 @@
+"""
+Module for fetching and processing credit card related data from Hong Kong Monetary Authority (HKMA).
+
+This module provides functions to retrieve credit card lending survey statistics and hotline information
+for reporting lost credit cards from the HKMA API.
+"""
+
 import json
 import urllib.request
 from typing import List, Dict, Optional
@@ -25,9 +32,9 @@ def fetch_credit_card_data(
         response = urllib.request.urlopen(url)
         data = json.loads(response.read().decode("utf-8"))
     except json.JSONDecodeError as e:
-        raise Exception(f"JSON decode error: {e}")
+        raise Exception(f"JSON decode error: {str(e)}")
     except Exception as e:
-        raise Exception(f"Error fetching data: {e}")
+        raise Exception(f"Error fetching data: {str(e)}")
 
     if not data.get("header", {}).get("success", False):
         return []

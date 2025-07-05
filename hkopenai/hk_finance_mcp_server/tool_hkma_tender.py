@@ -1,3 +1,9 @@
+"""
+Module for fetching and processing tender invitations data from the Hong Kong Monetary Authority (HKMA).
+
+This module provides functions to retrieve tender invitations and notices from the HKMA API with various filtering options.
+"""
+
 import json
 import urllib.request
 from typing import Dict, List, Optional

@@ -1,3 +1,9 @@
+"""
+Module for fetching and processing business registration statistics from the Inland Revenue Department (IRD) of Hong Kong.
+
+This module provides functions to retrieve data on active and newly registered businesses from the IRD API with date range filtering options.
+"""
+
 import csv
 import urllib.request
 from typing import List, Dict, Optional
@@ -63,9 +69,7 @@ def fetch_business_returns_data(
         try:
             new_registered_business = int(new_registered_business_str)
         except ValueError:
-            new_registered_business = (
-                f"Invalid data for NEW_REG_MAIN_BUS: {new_registered_business_str}"
-            )
+            new_registered_business = f"Invalid data for NEW_REG_MAIN_BUS: {new_registered_business_str}"
 
         results.append(
             {

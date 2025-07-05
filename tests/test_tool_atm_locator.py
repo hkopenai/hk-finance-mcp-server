@@ -1,3 +1,10 @@
+"""
+Module for testing the ATM Locator tool functionality.
+
+This module contains unit tests to verify the correct fetching and filtering
+of ATM location data from the HKMA API using the tool_atm_locator module.
+"""
+
 import unittest
 import json
 from unittest.mock import patch, Mock
@@ -5,7 +12,9 @@ from hkopenai.hk_finance_mcp_server import tool_atm_locator
 
 
 class TestAtmLocatorTool(unittest.TestCase):
+    """Test case class for verifying ATM Locator tool functionality."""
     def setUp(self):
+        """Set up test fixtures before each test method."""
         self.sample_data = {
             "result": {
                 "records": [
@@ -28,6 +37,11 @@ class TestAtmLocatorTool(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_fetch_atm_locator_data(self, mock_urlopen):
+        """Test fetching ATM location data without filters.
+        
+        Verifies that the fetch_atm_locator_data function returns the expected data
+        when no filters are applied.
+        """
         mock_response = Mock()
         mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
         mock_urlopen.return_value = mock_response
@@ -43,6 +57,11 @@ class TestAtmLocatorTool(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_fetch_atm_locator_data_with_filters(self, mock_urlopen):
+        """Test fetching ATM location data with filters.
+        
+        Verifies that the fetch_atm_locator_data function correctly applies filters
+        for district and bank name, returning matching and non-matching results as expected.
+        """
         mock_response = Mock()
         mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
         mock_urlopen.return_value = mock_response

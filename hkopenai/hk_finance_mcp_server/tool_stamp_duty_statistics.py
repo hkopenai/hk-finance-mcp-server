@@ -1,3 +1,9 @@
+"""
+Module for fetching and processing monthly stamp duty statistics from the Inland Revenue Department (IRD) of Hong Kong.
+
+This module provides functions to retrieve stamp duty data related to listed and unlisted securities from the IRD API.
+"""
+
 import csv
 import urllib.request
 from typing import List, Dict, Optional
