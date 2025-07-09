@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/hkopenai-hk-finance-mcp-server-badge.png)](https://mseep.ai/app/hkopenai-hk-finance-mcp-server)
+
 # Hong Kong Finance Data MCP Server
 
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue.svg)](https://github.com/hkopenai/hk-finance-mcp-server)
