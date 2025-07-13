@@ -12,6 +12,7 @@ from pydantic import Field
 
 def register(mcp):
     """Registers the negative equity residential mortgage statistics tool with the FastMCP server."""
+
     @mcp.tool(
         description="Get statistics on residential mortgage loans in negative equity in Hong Kong"
     )
@@ -44,7 +45,7 @@ def fetch_neg_equity_data(
     """
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/banking/residential-mortgage-loans-neg-equity"
     try:
-        response = urllib.request.urlopen(url)
+        with urllib.request.urlopen(url) as response:
         data = json.loads(response.read().decode("utf-8"))
     except json.JSONDecodeError as e:
         return [{"error": f"Invalid JSON data received: {e}"}]
@@ -69,8 +70,8 @@ def fetch_neg_equity_data(
         if start_year and year < start_year:
             include_record = False
         if (
-            include_record and
-            start_year
+            include_record
+            and start_year
             and year == start_year
             and start_month is not None
             and 1 <= start_month <= 12
@@ -80,8 +81,8 @@ def fetch_neg_equity_data(
         if include_record and end_year and year > end_year:
             include_record = False
         if (
-            include_record and
-            end_year
+            include_record
+            and end_year
             and year == end_year
             and end_month is not None
             and 1 <= end_month <= 12

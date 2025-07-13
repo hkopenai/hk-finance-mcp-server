@@ -6,6 +6,7 @@ import hkopenai.hk_finance_mcp_server.tool_bank_branch_locator as tool_bank_bran
 
 class TestBankBranchLocatorTool(unittest.TestCase):
     """Test case class for verifying Bank Branch Locator tool functionality."""
+
     def setUp(self):
         """Set up test fixtures before each test method."""
         self.sample_data = """
@@ -41,7 +42,12 @@ class TestBankBranchLocatorTool(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_fetch_bank_branch_data_no_filter(self, mock_urlopen):
         """Test fetching bank branch data without filters.
-        
+
+        Verifies that the fetch_bank_branch_data function returns all available data
+        when no filters are applied.
+        """
+        """Test fetching bank branch data without filters.
+
         Verifies that the fetch_bank_branch_data function returns all available data
         when no filters are applied.
         """
@@ -60,9 +66,14 @@ class TestBankBranchLocatorTool(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_fetch_bank_branch_data_with_district_filter(self, mock_urlopen):
+        """Test fetching bank branch data with district filter.
+
+        Verifies that the fetch_bank_branch_data function correctly filters results
+        based on the specified district.
+        """
         """
         Test fetching bank branch data with district filter.
-        
+
         Verifies that the fetch_bank_branch_data function correctly filters results
         based on the specified district.
         """
@@ -82,7 +93,7 @@ class TestBankBranchLocatorTool(unittest.TestCase):
     def test_fetch_bank_branch_data_with_bank_name_filter(self, mock_urlopen):
         """
         Test fetching bank branch data with bank name filter.
-        
+
         Verifies that the fetch_bank_branch_data function correctly filters results
         based on the specified bank name.
         """
@@ -104,7 +115,7 @@ class TestBankBranchLocatorTool(unittest.TestCase):
     def test_get_bank_branch_locations_empty_result(self, mock_urlopen):
         """
         Test fetching bank branch locations with empty result.
-        
+
         Verifies that the get_bank_branch_locations function returns an empty list
         when no data is available from the API.
         """
@@ -115,7 +126,9 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         mock_urlopen.return_value = mock_response
 
         # Act
-        result = tool_bank_branch_locator._get_bank_branch_locations(district=None, bank_name=None, lang="en", pagesize=100, offset=0)
+        result = tool_bank_branch_locator._get_bank_branch_locations(
+            district=None, bank_name=None, lang="en", pagesize=100, offset=0
+        )
 
         # Assert
         self.assertEqual(result, [])
@@ -151,9 +164,19 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         self.assertEqual(decorated_function.__name__, "get_bank_branch_locations")
 
         # Call the decorated function and verify it calls _get_bank_branch_locations
-        with patch("hkopenai.hk_finance_mcp_server.tool_bank_branch_locator._get_bank_branch_locations") as mock_get_bank_branch_locations:
-            decorated_function(district="Central", bank_name="Test Bank 1", lang="en", pagesize=1, offset=0)
-            mock_get_bank_branch_locations.assert_called_once_with("Central", "Test Bank 1", "en", 1, 0)
+        with patch(
+            "hkopenai.hk_finance_mcp_server.tool_bank_branch_locator._get_bank_branch_locations"
+        ) as mock_get_bank_branch_locations:
+            decorated_function(
+                district="Central",
+                bank_name="Test Bank 1",
+                lang="en",
+                pagesize=1,
+                offset=0,
+            )
+            mock_get_bank_branch_locations.assert_called_once_with(
+                "Central", "Test Bank 1", "en", 1, 0
+            )
 
 
 if __name__ == "__main__":

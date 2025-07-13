@@ -8,7 +8,11 @@ import unittest
 from unittest.mock import patch, MagicMock
 import json
 
-from hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage import _get_neg_equity_stats, register, fetch_neg_equity_data
+from hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage import (
+    _get_neg_equity_stats,
+    register,
+    fetch_neg_equity_data,
+)
 
 
 class TestNegResidentMortgage(unittest.TestCase):
@@ -81,7 +85,9 @@ class TestNegResidentMortgage(unittest.TestCase):
         Test handling of API errors during data fetching.
         """
         mock_urlopen.side_effect = Exception("Connection failed")
-        with self.assertRaisesRegex(Exception, "Error fetching data: Connection failed"):
+        with self.assertRaisesRegex(
+            Exception, "Error fetching data: Connection failed"
+        ):
             fetch_neg_equity_data()
 
     @patch("urllib.request.urlopen")
@@ -99,8 +105,6 @@ class TestNegResidentMortgage(unittest.TestCase):
         self.assertIn("error", data[0])
         self.assertIn("Invalid JSON data received", data[0]["error"])
 
-    
-
     def test_register_tool(self):
         """
         Test the registration of the get_neg_equity_stats tool.
@@ -116,9 +120,12 @@ class TestNegResidentMortgage(unittest.TestCase):
         decorated_function = mock_decorator.call_args[0][0]
         self.assertEqual(decorated_function.__name__, "get_neg_equity_stats")
 
-        with patch("hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage._get_neg_equity_stats") as mock_get_neg_equity_stats:
+        with patch(
+            "hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage._get_neg_equity_stats"
+        ) as mock_get_neg_equity_stats:
             decorated_function(start_year=2023, end_year=2023)
             mock_get_neg_equity_stats.assert_called_once_with(2023, None, 2023, None)
+
 
 if __name__ == "__main__":
     unittest.main()

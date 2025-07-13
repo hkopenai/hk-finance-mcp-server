@@ -14,6 +14,7 @@ from typing_extensions import Annotated
 
 def register(mcp):
     """Registers the credit card tools with the FastMCP server."""
+
     @mcp.tool(description="Get credit card lending survey results in Hong Kong")
     def get_credit_card_stats(
         start_year: Annotated[Optional[int], Field(description="Start Year")] = None,
@@ -51,7 +52,7 @@ def fetch_credit_card_data(
     """
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/banking/credit-card-lending-survey"
     try:
-        response = urllib.request.urlopen(url)
+        with urllib.request.urlopen(url) as response:
         data = json.loads(response.read().decode("utf-8"))
     except json.JSONDecodeError as e:
         raise Exception(f"JSON decode error: {str(e)}")
@@ -127,7 +128,7 @@ def fetch_credit_card_hotlines() -> List[Dict]:
     """
     url = "https://api.hkma.gov.hk/public/bank-svf-info/hotlines-report-loss-credit-card?lang=en"
     try:
-        response = urllib.request.urlopen(url)
+        with urllib.request.urlopen(url) as response:
         data = json.loads(response.read().decode("utf-8"))
     except json.JSONDecodeError as e:
         raise Exception(f"JSON decode error: {e}")
@@ -144,4 +145,3 @@ def _get_credit_card_hotlines() -> List[Dict]:
     """Get list of hotlines for reporting loss of credit card"""
     data = fetch_credit_card_hotlines()
     return data
-

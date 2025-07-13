@@ -17,7 +17,7 @@ def fetch_stamp_duty_data() -> List[Dict]:
         List of stamp duty statistics data in JSON format
     """
     url = "https://www.ird.gov.hk/datagovhk/Stamp_Col_ST.csv"
-    response = urllib.request.urlopen(url)
+    with urllib.request.urlopen(url) as response:
     data = response.read().decode("utf-8")
 
     # Parse CSV data

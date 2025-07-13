@@ -8,12 +8,11 @@ and format it for further use.
 import json
 import urllib.request
 from typing import Dict
-from pydantic import Field
-from typing_extensions import Annotated
 
 
 def register(mcp):
     """Registers the coin cart tool with the FastMCP server."""
+
     @mcp.tool(
         description="Get coin collection cart schedule in Hong Kong. The cart can charge your electronic wallet and you no long have to keep coins."
     )
@@ -30,7 +29,7 @@ def fetch_coin_cart_schedule() -> Dict:
     """
     url = "https://api.hkma.gov.hk/public/coin-cart-schedule?lang=en"
     try:
-        response = urllib.request.urlopen(url)
+        with urllib.request.urlopen(url) as response:
         data = json.loads(response.read().decode("utf-8"))
         return data
     except json.JSONDecodeError as e:

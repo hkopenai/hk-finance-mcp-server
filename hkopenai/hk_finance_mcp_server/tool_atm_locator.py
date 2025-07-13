@@ -13,6 +13,7 @@ from typing_extensions import Annotated
 
 def register(mcp):
     """Registers the ATM locator tool with the FastMCP server."""
+
     @mcp.tool(
         description="Get information on Automated Teller Machines (ATMs) of retail banks in Hong Kong"
     )
@@ -52,7 +53,7 @@ def fetch_atm_locator_data(
         List of ATM location data in JSON format
     """
     url = f"https://api.hkma.gov.hk/public/bank-svf-info/banks-atm-locator?lang=en&pagesize={pagesize}&offset={offset}"
-    response = urllib.request.urlopen(url)
+    with urllib.request.urlopen(url) as response:
     data = json.loads(response.read().decode("utf-8"))
 
     records = data.get("result", {}).get("records", [])

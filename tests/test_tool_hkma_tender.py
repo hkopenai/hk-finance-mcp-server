@@ -8,7 +8,11 @@ import unittest
 from unittest.mock import patch, MagicMock
 import json
 
-from hkopenai.hk_finance_mcp_server.tool_hkma_tender import _get_tender_invitations, register, fetch_tender_invitations
+from hkopenai.hk_finance_mcp_server.tool_hkma_tender import (
+    _get_tender_invitations,
+    register,
+    fetch_tender_invitations,
+)
 
 
 class TestHkmaTender(unittest.TestCase):
@@ -60,7 +64,9 @@ class TestHkmaTender(unittest.TestCase):
         Test handling of API errors during data fetching.
         """
         mock_urlopen.side_effect = Exception("Connection failed")
-        with self.assertRaisesRegex(Exception, "Error fetching data: Connection failed"):
+        with self.assertRaisesRegex(
+            Exception, "Error fetching data: Connection failed"
+        ):
             fetch_tender_invitations()
 
     @patch("urllib.request.urlopen")
@@ -96,19 +102,19 @@ class TestHkmaTender(unittest.TestCase):
                 "title": "Tender for Cleaning Services",
                 "link": "http://example.com/tender1",
                 "issue_date": "2023-01-15",
-                "segment": "tender"
+                "segment": "tender",
             },
             {
                 "title": "Notice of Award for IT Services",
                 "link": "http://example.com/award1",
                 "issue_date": "2023-02-20",
-                "segment": "notice"
+                "segment": "notice",
             },
             {
                 "title": "Tender for Security System",
                 "link": "http://example.com/tender2",
                 "issue_date": "2022-11-01",
-                "segment": "tender"
+                "segment": "tender",
             },
         ]
         result = _get_tender_invitations(segment="tender", fetch_func=mock_fetch_data)
@@ -116,17 +122,23 @@ class TestHkmaTender(unittest.TestCase):
         self.assertEqual(result[0]["title"], "Tender for Cleaning Services")
 
         # Test with from_date filter
-        result = _get_tender_invitations(from_date="2023-01-01", fetch_func=mock_fetch_data)
+        result = _get_tender_invitations(
+            from_date="2023-01-01", fetch_func=mock_fetch_data
+        )
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]["title"], "Tender for Cleaning Services")
 
         # Test with to_date filter
-        result = _get_tender_invitations(to_date="2023-01-31", fetch_func=mock_fetch_data)
+        result = _get_tender_invitations(
+            to_date="2023-01-31", fetch_func=mock_fetch_data
+        )
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]["title"], "Tender for Cleaning Services")
 
         # Test with from_date and to_date filter
-        result = _get_tender_invitations(from_date="2022-01-01", to_date="2022-12-31", fetch_func=mock_fetch_data)
+        result = _get_tender_invitations(
+            from_date="2022-01-01", to_date="2022-12-31", fetch_func=mock_fetch_data
+        )
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["title"], "Tender for Security System")
 
@@ -145,9 +157,26 @@ class TestHkmaTender(unittest.TestCase):
         decorated_function = mock_decorator.call_args[0][0]
         self.assertEqual(decorated_function.__name__, "get_hkma_tender_invitations")
 
-        with patch("hkopenai.hk_finance_mcp_server.tool_hkma_tender._get_tender_invitations") as mock_get_tender_invitations:
-            decorated_function(lang="en", segment="tender", pagesize=1, offset=0, from_date="2023-01-01", to_date="2023-12-31")
-            mock_get_tender_invitations.assert_called_once_with(lang="en", segment="tender", pagesize=1, offset=0, from_date="2023-01-01", to_date="2023-12-31")
+        with patch(
+            "hkopenai.hk_finance_mcp_server.tool_hkma_tender._get_tender_invitations"
+        ) as mock_get_tender_invitations:
+            decorated_function(
+                lang="en",
+                segment="tender",
+                pagesize=1,
+                offset=0,
+                from_date="2023-01-01",
+                to_date="2023-12-31",
+            )
+            mock_get_tender_invitations.assert_called_once_with(
+                lang="en",
+                segment="tender",
+                pagesize=1,
+                offset=0,
+                from_date="2023-01-01",
+                to_date="2023-12-31",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

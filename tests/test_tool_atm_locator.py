@@ -17,6 +17,7 @@ from hkopenai.hk_finance_mcp_server.tool_atm_locator import (
 
 class TestAtmLocatorTool(unittest.TestCase):
     """Test case class for verifying ATM Locator tool functionality."""
+
     def setUp(self):
         """Set up test fixtures before each test method."""
         self.sample_data = {
@@ -46,6 +47,11 @@ class TestAtmLocatorTool(unittest.TestCase):
         Verifies that the fetch_atm_locator_data function returns the expected data
         when no filters are applied.
         """
+        """Test fetching ATM location data without filters.
+
+        Verifies that the fetch_atm_locator_data function returns the expected data
+        when no filters are applied.
+        """
         mock_response = Mock()
         mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
         mock_urlopen.return_value = mock_response
@@ -66,6 +72,11 @@ class TestAtmLocatorTool(unittest.TestCase):
         Verifies that the fetch_atm_locator_data function correctly applies filters
         for district and bank name, returning matching and non-matching results as expected.
         """
+        """Test fetching ATM location data with filters.
+
+        Verifies that the fetch_atm_locator_data function correctly applies filters
+        for district and bank name, returning matching and non-matching results as expected.
+        """
         mock_response = Mock()
         mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
         mock_urlopen.return_value = mock_response
@@ -80,14 +91,14 @@ class TestAtmLocatorTool(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["district"], "YuenLong")
 
-        result = fetch_atm_locator_data(
-            district="Central", pagesize=1, offset=0
-        )
+        result = fetch_atm_locator_data(district="Central", pagesize=1, offset=0)
         self.assertEqual(len(result), 0)
 
     def test_get_atm_locations(self):
         """Test retrieving ATM locations with optional filtering."""
-        with patch("hkopenai.hk_finance_mcp_server.tool_atm_locator.fetch_atm_locator_data") as mock_fetch:
+        with patch(
+            "hkopenai.hk_finance_mcp_server.tool_atm_locator.fetch_atm_locator_data"
+        ) as mock_fetch:
             mock_fetch.return_value = [
                 {
                     "district": "YuenLong",
@@ -133,9 +144,21 @@ class TestAtmLocatorTool(unittest.TestCase):
         self.assertEqual(decorated_function.__name__, "get_atm_locations")
 
         # Call the decorated function and verify it calls _get_atm_locations
-        with patch("hkopenai.hk_finance_mcp_server.tool_atm_locator._get_atm_locations") as mock_get_atm_locations:
-            decorated_function(district="YuenLong", bank_name="Industrial and Commercial Bank of China (Asia) Limited", pagesize=1, offset=0)
-            mock_get_atm_locations.assert_called_once_with("YuenLong", "Industrial and Commercial Bank of China (Asia) Limited", 1, 0)
+        with patch(
+            "hkopenai.hk_finance_mcp_server.tool_atm_locator._get_atm_locations"
+        ) as mock_get_atm_locations:
+            decorated_function(
+                district="YuenLong",
+                bank_name="Industrial and Commercial Bank of China (Asia) Limited",
+                pagesize=1,
+                offset=0,
+            )
+            mock_get_atm_locations.assert_called_once_with(
+                "YuenLong",
+                "Industrial and Commercial Bank of China (Asia) Limited",
+                1,
+                0,
+            )
 
 
 if __name__ == "__main__":

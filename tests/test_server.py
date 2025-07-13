@@ -12,6 +12,8 @@ from hkopenai.hk_finance_mcp_server.server import create_mcp_server
 
 class TestApp(unittest.TestCase):
     """Test case class for verifying MCP server functionality."""
+    """Test case class for verifying MCP server functionality."""
+
     @patch("hkopenai.hk_finance_mcp_server.server.FastMCP")
     @patch("hkopenai.hk_finance_mcp_server.tool_business_reg.register")
     @patch("hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage.register")
@@ -20,9 +22,13 @@ class TestApp(unittest.TestCase):
     @patch("hkopenai.hk_finance_mcp_server.tool_hkma_tender.register")
     @patch("hkopenai.hk_finance_mcp_server.tool_hibor_daily.get_hibor_stats")
     @patch("hkopenai.hk_finance_mcp_server.tool_atm_locator.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics.get_stamp_duty_statistics")
+    @patch(
+        "hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics.get_stamp_duty_statistics"
+    )
     @patch("hkopenai.hk_finance_mcp_server.tool_bank_branch_locator.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_fraudulent_bank_scams.get_fraudulent_bank_scams")
+    @patch(
+        "hkopenai.hk_finance_mcp_server.tool_fraudulent_bank_scams.get_fraudulent_bank_scams"
+    )
     def test_create_mcp_server(
         self,
         mock_get_fraudulent_bank_scams,
@@ -35,7 +41,7 @@ class TestApp(unittest.TestCase):
         mock_credit_card_register,
         mock_get_neg_equity_stats,
         mock_business_reg_register,
-        mock_fastmcp
+        mock_fastmcp,
     ):
         """Test the creation and configuration of the MCP server with mocked tools.
 
@@ -50,7 +56,7 @@ class TestApp(unittest.TestCase):
 
         # Verify server creation
         mock_fastmcp.assert_called_once()
-        
+
         mock_business_reg_register.assert_called_once_with(mock_server)
         mock_credit_card_register.assert_called_once_with(mock_server)
         mock_coin_cart_register.assert_called_once_with(mock_server)

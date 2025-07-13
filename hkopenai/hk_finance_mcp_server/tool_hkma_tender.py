@@ -6,13 +6,14 @@ This module provides functions to retrieve tender invitations and notices from t
 
 import json
 import urllib.request
+from datetime import datetime
 from typing import Dict, List, Optional, Annotated
 from pydantic import Field
-from datetime import datetime
 
 
 def register(mcp):
     """Registers the HKMA tender invitations tool with the FastMCP server."""
+
     @mcp.tool(
         description="Get information of Tender Invitation and Notice of Award of Contracts from Hong Kong Monetary Authority"
     )
@@ -95,8 +96,8 @@ def fetch_tender_invitations(
 
     url = f"{base_url}?{'&'.join(params)}"
     try:
-        response = urllib.request.urlopen(url)
-        raw_data = response.read().decode("utf-8")
+        with urllib.request.urlopen(url) as response:
+            raw_data = response.read().decode("utf-8")
 
         if not raw_data:
             return []
@@ -115,7 +116,7 @@ def _get_tender_invitations(
     offset: Optional[int] = None,
     from_date: Optional[str] = None,
     to_date: Optional[str] = None,
-    fetch_func=fetch_tender_invitations # Add fetch_func as an argument
+    fetch_func=fetch_tender_invitations,  # Add fetch_func as an argument
 ) -> List[Dict]:
     """Fetch tender invitations from HKMA API
 
@@ -169,10 +170,10 @@ def _get_tender_invitations(
                     to_dt = datetime.strptime(to_date, "%Y-%m-%d")
                     if record_date > to_dt:
                         include_record = False
-            
+
             if include_record:
                 filtered_records.append(record)
-        
+
         return filtered_records
     except Exception as e:
         raise Exception(f"Error fetching data: {e}")

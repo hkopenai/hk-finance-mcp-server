@@ -11,9 +11,10 @@ from hkopenai.hk_finance_mcp_server import tool_hibor_daily
 
 class TestHiborDailyTool(unittest.TestCase):
     """Test case class for verifying HIBOR Daily tool functionality."""
+
     def test_fetch_hibor_daily_data(self):
         """Test fetching HIBOR daily data without filters.
-        
+
         Verifies that the fetch_hibor_daily_data function returns a list of data
         with expected keys when no filters are applied.
         """
@@ -26,7 +27,7 @@ class TestHiborDailyTool(unittest.TestCase):
 
     def test_fetch_hibor_daily_data_with_date_range(self):
         """Test fetching HIBOR daily data with date range filter.
-        
+
         Verifies that the fetch_hibor_daily_data function returns a list of data
         within the specified date range.
         """
@@ -43,7 +44,7 @@ class TestHiborDailyTool(unittest.TestCase):
 
     def test_get_hibor_stats(self):
         """Test getting HIBOR stats without filters.
-        
+
         Verifies that the get_hibor_stats function returns a list of statistical data
         with expected keys.
         """

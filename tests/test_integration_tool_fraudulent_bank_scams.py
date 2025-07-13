@@ -1,15 +1,13 @@
-"""
-Integration tests for the fraudulent bank scams tool.
-These tests interact with the actual HKMA API.
-"""
+"""Integration tests for the fraudulent bank scams tool."""
 
 import unittest
 from hkopenai.hk_finance_mcp_server import tool_fraudulent_bank_scams
 
 
 class TestFraudulentBankScamsIntegration(unittest.TestCase):
+    """Integration test class for verifying fraudulent bank scams tool functionality."""
     def test_get_fraudulent_bank_scams(self):
-        """Test fetching fraudulent bank scams data from HKMA API"""
+        """Test fetching fraudulent bank scams data from HKMA API."""
         try:
             result = tool_fraudulent_bank_scams.get_fraudulent_bank_scams(lang="en")
             self.assertIsInstance(result, list)
@@ -25,7 +23,7 @@ class TestFraudulentBankScamsIntegration(unittest.TestCase):
             self.fail(f"Failed to fetch fraudulent bank scams data: {str(e)}")
 
     def test_get_fraudulent_bank_scams_different_language(self):
-        """Test fetching data in a different language"""
+        """Test fetching data in a different language."""
         try:
             result = tool_fraudulent_bank_scams.get_fraudulent_bank_scams(lang="tc")
             self.assertIsInstance(result, list)

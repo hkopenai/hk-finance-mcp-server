@@ -1,10 +1,13 @@
+"""Integration tests for the HIBOR Daily tool."""
+
 import unittest
 from hkopenai.hk_finance_mcp_server import tool_hibor_daily
 
 
 class TestHiborDailyIntegration(unittest.TestCase):
+    """Integration test class for verifying HIBOR Daily tool functionality."""
     def test_integration_fetch_hibor_daily_data(self):
-        """Test integration of fetching HIBOR daily data"""
+        """Test integration of fetching HIBOR daily data."""
         data = tool_hibor_daily.fetch_hibor_daily_data()
         self.assertIsInstance(data, list)
         if data:
@@ -13,7 +16,7 @@ class TestHiborDailyIntegration(unittest.TestCase):
             self.assertIn("overnight", data[0])
 
     def test_integration_fetch_hibor_daily_data_with_date_range(self):
-        """Test integration of fetching HIBOR daily data with date range"""
+        """Test integration of fetching HIBOR daily data with date range."""
         data = tool_hibor_daily.fetch_hibor_daily_data(
             start_date="2025-05-01", end_date="2025-05-31"
         )
@@ -26,7 +29,7 @@ class TestHiborDailyIntegration(unittest.TestCase):
                 self.assertTrue(date_str >= "2025-05-01" and date_str <= "2025-05-31")
 
     def test_integration_get_hibor_stats(self):
-        """Test integration of getting HIBOR stats"""
+        """Test integration of getting HIBOR stats."""
         stats = tool_hibor_daily.get_hibor_stats()
         self.assertIsInstance(stats, list)
         if stats:

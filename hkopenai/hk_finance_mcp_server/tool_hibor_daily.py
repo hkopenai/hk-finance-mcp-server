@@ -23,7 +23,7 @@ def fetch_hibor_daily_data(
         List of HIBOR daily data in JSON format with date and interest rates for various tenors
     """
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/er-ir/hk-interbank-ir-daily?segment=hibor.fixing"
-    response = urllib.request.urlopen(url)
+    with urllib.request.urlopen(url) as response:
     data = json.loads(response.read().decode("utf-8"))
 
     records = data.get("result", {}).get("records", [])

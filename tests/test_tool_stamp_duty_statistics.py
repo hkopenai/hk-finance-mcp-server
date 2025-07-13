@@ -14,6 +14,7 @@ from hkopenai.hk_finance_mcp_server import tool_stamp_duty_statistics
 
 class TestStampDutyStatisticsTool(unittest.TestCase):
     """Test case class for verifying Stamp Duty Statistics tool functionality."""
+
     def setUp(self):
         """Set up test fixtures before each test method."""
         self.sample_data = [
@@ -29,7 +30,7 @@ class TestStampDutyStatisticsTool(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_fetch_stamp_duty_data(self, mock_urlopen):
         """Test fetching stamp duty statistics data.
-        
+
         Verifies that the fetch_stamp_duty_data function returns the expected data
         from the provided CSV content.
         """
@@ -47,7 +48,7 @@ class TestStampDutyStatisticsTool(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_get_stamp_duty_statistics_with_filters(self, mock_urlopen):
         """Test getting stamp duty statistics with period filters.
-        
+
         Verifies that the get_stamp_duty_statistics function correctly filters results
         based on the specified start and end periods.
         """

@@ -13,6 +13,7 @@ from typing_extensions import Annotated
 
 def register(mcp):
     """Registers the bank branch locator tool with the FastMCP server."""
+
     @mcp.tool(
         description="Get information on bank branch locations of retail banks in Hong Kong"
     )
@@ -61,7 +62,7 @@ def fetch_bank_branch_data(
         List of bank branch location data in JSON format
     """
     url = f"https://api.hkma.gov.hk/public/bank-svf-info/banks-branch-locator?lang={lang}&pagesize={pagesize}&offset={offset}"
-    response = urllib.request.urlopen(url)
+    with urllib.request.urlopen(url) as response:
     data = json.loads(response.read().decode("utf-8"))
 
     records = data.get("result", {}).get("records", [])

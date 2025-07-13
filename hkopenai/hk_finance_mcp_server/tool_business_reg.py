@@ -13,6 +13,7 @@ from typing_extensions import Annotated
 
 def register(mcp):
     """Registers the business registration tool with the FastMCP server."""
+
     @mcp.tool(
         description="Get monthly statistics on the number of new business registrations in Hong Kong"
     )
@@ -44,7 +45,7 @@ def fetch_business_returns_data(
         List of business data in JSON format with year_month, active_business, new_registered_business
     """
     url = "https://www.ird.gov.hk/datagovhk/BRFMBUSC.csv"
-    response = urllib.request.urlopen(url)
+    with urllib.request.urlopen(url) as response:
     lines = [l.decode("utf-8") for l in response.readlines()]
     reader = csv.DictReader(lines)
 
@@ -86,7 +87,9 @@ def fetch_business_returns_data(
         try:
             new_registered_business = int(new_registered_business_str)
         except ValueError:
-            new_registered_business = f"Invalid data for NEW_REG_MAIN_BUS: {new_registered_business_str}"
+            new_registered_business = (
+                f"Invalid data for NEW_REG_MAIN_BUS: {new_registered_business_str}"
+            )
 
         results.append(
             {

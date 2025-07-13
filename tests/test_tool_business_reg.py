@@ -7,11 +7,16 @@ of business registration data from the IRD API using the tool_business_reg modul
 
 import unittest
 from unittest.mock import patch, mock_open
-from hkopenai.hk_finance_mcp_server.tool_business_reg import fetch_business_returns_data, _get_business_stats, register
+from hkopenai.hk_finance_mcp_server.tool_business_reg import (
+    fetch_business_returns_data,
+    _get_business_stats,
+    register,
+)
 
 
 class TestBusinessReturns(unittest.TestCase):
     """Test case class for verifying Business Registration Returns tool functionality."""
+
     CSV_DATA = """RUN_DATE,ACTIVE_MAIN_BUS,NEW_REG_MAIN_BUS
 202505,1604714,17497
 202504,1598085,16982
@@ -45,7 +50,7 @@ class TestBusinessReturns(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_fetch_business_returns_data(self, mock_urlopen):
         """Test fetching business returns data without filters.
-        
+
         Verifies that the fetch_business_returns_data function returns the expected data
         when no filters are applied.
         """
@@ -76,7 +81,7 @@ class TestBusinessReturns(unittest.TestCase):
 
     def test_start_year_month_filter(self):
         """Test fetching business returns data with start year and month filter.
-        
+
         Verifies that the fetch_business_returns_data function correctly filters results
         based on the specified start year and month.
         """
@@ -92,7 +97,7 @@ class TestBusinessReturns(unittest.TestCase):
 
     def test_end_year_month_filter(self):
         """Test fetching business returns data with end year and month filter.
-        
+
         Verifies that the fetch_business_returns_data function correctly filters results
         based on the specified end year and month.
         """
@@ -108,7 +113,7 @@ class TestBusinessReturns(unittest.TestCase):
 
     def test_both_year_month_filters(self):
         """Test fetching business returns data with both start and end year/month filters.
-        
+
         Verifies that the fetch_business_returns_data function correctly filters results
         within the specified date range.
         """
@@ -127,7 +132,7 @@ class TestBusinessReturns(unittest.TestCase):
 
     def test_start_year_only_filter(self):
         """Test fetching business returns data with start year only filter.
-        
+
         Verifies that the fetch_business_returns_data function correctly filters results
         based on the specified start year.
         """
@@ -143,7 +148,7 @@ class TestBusinessReturns(unittest.TestCase):
 
     def test_end_year_only_filter(self):
         """Test fetching business returns data with end year only filter.
-        
+
         Verifies that the fetch_business_returns_data function correctly filters results
         based on the specified end year.
         """
@@ -159,7 +164,7 @@ class TestBusinessReturns(unittest.TestCase):
 
     def test_end_year_only_filter_2024(self):
         """Test fetching business returns data with end year only filter for 2024.
-        
+
         Verifies that the fetch_business_returns_data function correctly filters results
         based on the specified end year of 2024.
         """
@@ -175,7 +180,7 @@ class TestBusinessReturns(unittest.TestCase):
 
     def test_both_year_only_filters(self):
         """Test fetching business returns data with both start and end year only filters.
-        
+
         Verifies that the fetch_business_returns_data function correctly filters results
         within the specified year range.
         """
@@ -192,7 +197,7 @@ class TestBusinessReturns(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_invalid_csv_data(self, mock_urlopen):
         """Test handling of invalid CSV data.
-        
+
         Verifies that the fetch_business_returns_data function handles invalid CSV data
         by returning a result with an error message for the invalid field.
         """
@@ -217,7 +222,7 @@ class TestBusinessReturns(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_empty_csv_data(self, mock_urlopen):
         """Test handling of empty CSV data.
-        
+
         Verifies that the fetch_business_returns_data function returns an empty list
         when the CSV data is empty.
         """
@@ -232,7 +237,7 @@ class TestBusinessReturns(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_network_failure(self, mock_urlopen):
         """Test handling of network failure.
-        
+
         Verifies that the fetch_business_returns_data function raises an exception
         when a network error occurs.
         """
@@ -248,7 +253,7 @@ class TestBusinessReturns(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_invalid_year_month_filters(self, mock_urlopen):
         """Test handling of invalid year/month filters (start year None).
-        
+
         Verifies that the fetch_business_returns_data function returns full data set
         when start year is None.
         """
@@ -268,7 +273,7 @@ class TestBusinessReturns(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_invalid_year_month_filters2(self, mock_urlopen):
         """Test handling of invalid year/month filters (start month None).
-        
+
         Verifies that the fetch_business_returns_data function returns full data set
         when start month is None.
         """
@@ -286,7 +291,7 @@ class TestBusinessReturns(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_invalid_year_month_filters3(self, mock_urlopen):
         """Test handling of invalid year/month filters (end year None).
-        
+
         Verifies that the fetch_business_returns_data function returns full data set
         when end year is None.
         """
@@ -304,7 +309,7 @@ class TestBusinessReturns(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_invalid_year_month_filters4(self, mock_urlopen):
         """Test handling of invalid year/month filters (end month None).
-        
+
         Verifies that the fetch_business_returns_data function returns full data set
         when end month is None.
         """
@@ -321,7 +326,7 @@ class TestBusinessReturns(unittest.TestCase):
 
     def test_boundary_year_month_filters(self):
         """Test boundary conditions for year/month filters (future date).
-        
+
         Verifies that the fetch_business_returns_data function returns an empty result
         for a future start year.
         """
@@ -338,7 +343,7 @@ class TestBusinessReturns(unittest.TestCase):
 
     def test_boundary_year_month_filters2(self):
         """Test boundary conditions for year/month filters (very old date).
-        
+
         Verifies that the fetch_business_returns_data function returns an empty result
         for a very old end year.
         """
@@ -355,7 +360,7 @@ class TestBusinessReturns(unittest.TestCase):
 
     def test_boundary_year_month_filters3(self):
         """Test boundary conditions for year/month filters (invalid month value).
-        
+
         Verifies that the fetch_business_returns_data function uses only the year
         when the month value is out of range.
         """

@@ -4,7 +4,7 @@ Module for creating and running the HK OpenAI Finance MCP Server.
 This module configures and initializes a FastMCP server with various financial data tools provided by the Hong Kong Monetary Authority (HKMA) and other sources. It includes functionality to run the server in different modes (stdio or SSE).
 """
 
-import argparse
+
 from typing import Dict, Annotated, Optional, List
 from fastmcp import FastMCP
 from pydantic import Field
@@ -89,7 +89,7 @@ def create_mcp_server():
 
 def main(host: str, port: int, sse: bool):
     """Main entry point for the HK OpenAI Finance MCP Server.
-    
+
     Args:
         args: Command line arguments passed to the function.
     """
@@ -97,7 +97,9 @@ def main(host: str, port: int, sse: bool):
 
     if sse:
         server.run(transport="streamable-http", host=host, port=port)
-        print(f"MCP Server running in SSE mode on port {args.port}, bound to {args.host}")
+        print(
+            f"MCP Server running in SSE mode on port {args.port}, bound to {args.host}"
+        )
     else:
         server.run()
         print("MCP Server running in stdio mode")

@@ -13,6 +13,7 @@ import hkopenai.hk_finance_mcp_server.tool_coin_cart as tool_coin_cart
 
 class TestCoinCartSchedule(unittest.TestCase):
     """Test case class for verifying Coin Cart Schedule tool functionality."""
+
     MOCK_JSON = {
         "header": {"success": "true", "err_code": "0000", "err_msg": "No error found"},
         "result": {
@@ -51,7 +52,7 @@ class TestCoinCartSchedule(unittest.TestCase):
 
     def test_fetch_coin_cart_schedule(self):
         """Test fetching coin cart schedule data.
-        
+
         Verifies that the fetch_coin_cart_schedule function returns the expected data structure
         with header and result information.
         """
@@ -64,7 +65,7 @@ class TestCoinCartSchedule(unittest.TestCase):
 
     def test_get_coin_cart_schedule(self):
         """Test getting coin cart schedule data in standardized format.
-        
+
         Verifies that the get_coin_cart_schedule function returns data with the expected key.
         """
         result = tool_coin_cart._get_coin_cart_schedule()
@@ -74,7 +75,7 @@ class TestCoinCartSchedule(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_api_error_handling(self, mock_urlopen):
         """Test handling of API errors.
-        
+
         Verifies that the fetch_coin_cart_schedule function raises an exception
         when an API error occurs.
         """
@@ -86,7 +87,7 @@ class TestCoinCartSchedule(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_invalid_json_data(self, mock_urlopen):
         """Test handling of invalid JSON data.
-        
+
         Verifies that the fetch_coin_cart_schedule function raises an exception
         when invalid JSON data is received.
         """
@@ -104,7 +105,7 @@ class TestCoinCartSchedule(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_empty_json_data(self, mock_urlopen):
         """Test handling of empty JSON data.
-        
+
         Verifies that the fetch_coin_cart_schedule function returns an empty dict
         when empty JSON data is received.
         """
@@ -118,7 +119,7 @@ class TestCoinCartSchedule(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_missing_records_in_json(self, mock_urlopen):
         """Test handling of JSON data with missing records.
-        
+
         Verifies that the fetch_coin_cart_schedule function returns a result
         with an empty records list when no records are present in the JSON data.
         """
@@ -139,7 +140,7 @@ class TestCoinCartSchedule(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_incomplete_record_data(self, mock_urlopen):
         """Test handling of JSON data with incomplete records.
-        
+
         Verifies that the fetch_coin_cart_schedule function processes partial data
         and includes only the available fields in the result.
         """

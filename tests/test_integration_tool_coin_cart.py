@@ -1,9 +1,11 @@
+"""Integration tests for the Coin Cart tool."""
+
 import unittest
-import os
 from hkopenai.hk_finance_mcp_server.tool_coin_cart import fetch_coin_cart_schedule
 
 
 class TestCoinCartIntegration(unittest.TestCase):
+    """Integration test class for verifying Coin Cart tool functionality."""
     def setUp(self):
         # Temporarily bypass environment variable check for debugging
         self.run_integration_tests = True

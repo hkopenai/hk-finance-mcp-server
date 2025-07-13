@@ -1,9 +1,13 @@
+"""Integration tests for the Stamp Duty Statistics tool."""
+
 import unittest
 from hkopenai.hk_finance_mcp_server import tool_stamp_duty_statistics
 
 
 class TestStampDutyStatisticsIntegration(unittest.TestCase):
+    """Integration test class for verifying Stamp Duty Statistics tool functionality."""
     def test_fetch_stamp_duty_data_integration(self):
+        """Test fetching stamp duty data from the live API."""
         result = tool_stamp_duty_statistics.fetch_stamp_duty_data()
 
         self.assertTrue(
@@ -16,6 +20,7 @@ class TestStampDutyStatisticsIntegration(unittest.TestCase):
         )
 
     def test_get_stamp_duty_statistics_with_period_filter(self):
+        """Test fetching stamp duty statistics with period filter from the live API."""
         result = tool_stamp_duty_statistics.get_stamp_duty_statistics(
             start_period="202501", end_period="202502"
         )
