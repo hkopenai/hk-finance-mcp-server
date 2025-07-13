@@ -7,6 +7,23 @@ This module provides functions to retrieve data on active and newly registered b
 import csv
 import urllib.request
 from typing import List, Dict, Optional
+from pydantic import Field
+from typing_extensions import Annotated
+
+
+def register(mcp):
+    """Registers the business registration tool with the FastMCP server."""
+    @mcp.tool(
+        description="Get monthly statistics on the number of new business registrations in Hong Kong"
+    )
+    def get_business_stats(
+        start_year: Annotated[Optional[int], Field(description="Start Year")] = None,
+        start_month: Annotated[Optional[int], Field(description="Start Month")] = None,
+        end_year: Annotated[Optional[int], Field(description="End Year")] = None,
+        end_month: Annotated[Optional[int], Field(description="End Month")] = None,
+    ) -> List[Dict]:
+        """Get monthly statistics on the number of new business registrations in Hong Kong"""
+        return _get_business_stats(start_year, start_month, end_year, end_month)
 
 
 def fetch_business_returns_data(
@@ -82,7 +99,7 @@ def fetch_business_returns_data(
     return results
 
 
-def get_business_stats(
+def _get_business_stats(
     start_year: Optional[int] = None,
     start_month: Optional[int] = None,
     end_year: Optional[int] = None,

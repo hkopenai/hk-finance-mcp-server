@@ -8,6 +8,18 @@ and format it for further use.
 import json
 import urllib.request
 from typing import Dict
+from pydantic import Field
+from typing_extensions import Annotated
+
+
+def register(mcp):
+    """Registers the coin cart tool with the FastMCP server."""
+    @mcp.tool(
+        description="Get coin collection cart schedule in Hong Kong. The cart can charge your electronic wallet and you no long have to keep coins."
+    )
+    def get_coin_cart() -> Dict:
+        """Get coin cart schedule data in standardized format"""
+        return _get_coin_cart_schedule()
 
 
 def fetch_coin_cart_schedule() -> Dict:
@@ -27,7 +39,7 @@ def fetch_coin_cart_schedule() -> Dict:
         raise Exception(f"Error fetching data: {e}")
 
 
-def get_coin_cart_schedule() -> Dict:
+def _get_coin_cart_schedule() -> Dict:
     """Get coin cart schedule data in standardized format"""
     data = fetch_coin_cart_schedule()
     return {"coin_cart_schedule": data}

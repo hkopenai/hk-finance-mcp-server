@@ -1,11 +1,11 @@
 import unittest
-from hkopenai.hk_finance_mcp_server import tool_bank_branch_locator
+from hkopenai.hk_finance_mcp_server.tool_bank_branch_locator import _get_bank_branch_locations
 
 
 class TestBankBranchLocatorIntegration(unittest.TestCase):
     def test_get_bank_branch_locations_no_filter(self):
         # Act
-        result = tool_bank_branch_locator.get_bank_branch_locations(pagesize=10)
+        result = _get_bank_branch_locations(pagesize=10)
 
         # Assert
         self.assertTrue(len(result) > 0)
@@ -20,7 +20,7 @@ class TestBankBranchLocatorIntegration(unittest.TestCase):
     def test_get_bank_branch_locations_with_district_filter(self):
         # Act
         # Using "Central" as a common district; adjust if API uses different naming
-        result = tool_bank_branch_locator.get_bank_branch_locations(
+        result = _get_bank_branch_locations(
             district="Central", pagesize=10
         )
 
@@ -32,7 +32,7 @@ class TestBankBranchLocatorIntegration(unittest.TestCase):
 
     def test_get_bank_branch_locations_with_bank_name_filter(self):
         # Act
-        result = tool_bank_branch_locator.get_bank_branch_locations(
+        result = _get_bank_branch_locations(
             bank_name="Hang Seng Bank Limited", pagesize=10
         )
 
@@ -45,7 +45,7 @@ class TestBankBranchLocatorIntegration(unittest.TestCase):
         for lang in ["en", "tc", "sc"]:
             with self.subTest(lang=lang):
                 # Act
-                result = tool_bank_branch_locator.get_bank_branch_locations(
+                result = _get_bank_branch_locations(
                     lang=lang, pagesize=5
                 )
 

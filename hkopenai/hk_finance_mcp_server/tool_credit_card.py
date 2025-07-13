@@ -8,6 +8,28 @@ for reporting lost credit cards from the HKMA API.
 import json
 import urllib.request
 from typing import List, Dict, Optional
+from pydantic import Field
+from typing_extensions import Annotated
+
+
+def register(mcp):
+    """Registers the credit card tools with the FastMCP server."""
+    @mcp.tool(description="Get credit card lending survey results in Hong Kong")
+    def get_credit_card_stats(
+        start_year: Annotated[Optional[int], Field(description="Start Year")] = None,
+        start_month: Annotated[Optional[int], Field(description="Start Month")] = None,
+        end_year: Annotated[Optional[int], Field(description="End Year")] = None,
+        end_month: Annotated[Optional[int], Field(description="End Month")] = None,
+    ) -> List[Dict]:
+        """Get credit card lending survey results in Hong Kong"""
+        return _get_credit_card_stats(start_year, start_month, end_year, end_month)
+
+    @mcp.tool(
+        description="Get list of hotlines for reporting loss of credit card from Hong Kong banks."
+    )
+    def get_credit_card_hotlines() -> List[Dict]:
+        """Get list of hotlines for reporting loss of credit card"""
+        return _get_credit_card_hotlines()
 
 
 def fetch_credit_card_data(
@@ -86,7 +108,7 @@ def fetch_credit_card_data(
     return results
 
 
-def get_credit_card_stats(
+def _get_credit_card_stats(
     start_year: Optional[int] = None,
     start_month: Optional[int] = None,
     end_year: Optional[int] = None,
@@ -118,7 +140,8 @@ def fetch_credit_card_hotlines() -> List[Dict]:
     return data["result"]["records"]
 
 
-def get_credit_card_hotlines() -> List[Dict]:
+def _get_credit_card_hotlines() -> List[Dict]:
     """Get list of hotlines for reporting loss of credit card"""
     data = fetch_credit_card_hotlines()
     return data
+

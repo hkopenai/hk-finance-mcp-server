@@ -24,18 +24,7 @@ def create_mcp_server():
     """Create and configure the MCP server"""
     mcp = FastMCP(name="HK OpenAI Finance Server")
 
-    @mcp.tool(
-        description="Get monthly statistics on the number of new business registrations in Hong Kong"
-    )
-    def get_business_stats(
-        start_year: Annotated[Optional[int], Field(description="Start Year")] = None,
-        start_month: Annotated[Optional[int], Field(description="Start Month")] = None,
-        end_year: Annotated[Optional[int], Field(description="End Year")] = None,
-        end_month: Annotated[Optional[int], Field(description="End Month")] = None,
-    ) -> List[Dict]:
-        return tool_business_reg.get_business_stats(
-            start_year, start_month, end_year, end_month
-        )
+    tool_business_reg.register(mcp)
 
     @mcp.tool(
         description="Get statistics on residential mortgage loans in negative equity in Hong Kong"
@@ -50,28 +39,9 @@ def create_mcp_server():
             start_year, start_month, end_year, end_month
         )
 
-    @mcp.tool(description="Get credit card lending survey results in Hong Kong")
-    def get_credit_card_stats(
-        start_year: Annotated[Optional[int], Field(description="Start Year")] = None,
-        start_month: Annotated[Optional[int], Field(description="Start Month")] = None,
-        end_year: Annotated[Optional[int], Field(description="End Year")] = None,
-        end_month: Annotated[Optional[int], Field(description="End Month")] = None,
-    ) -> List[Dict]:
-        return tool_credit_card.get_credit_card_stats(
-            start_year, start_month, end_year, end_month
-        )
+    tool_credit_card.register(mcp)
 
-    @mcp.tool(
-        description="Get coin collection cart schedule in Hong Kong. The cart can charge your electronic wallet and you no long have to keep coins."
-    )
-    def get_coin_cart() -> Dict:
-        return tool_coin_cart.get_coin_cart_schedule()
-
-    @mcp.tool(
-        description="Get list of hotlines for reporting loss of credit card from Hong Kong banks."
-    )
-    def get_credit_card_hotlines() -> List[Dict]:
-        return tool_credit_card.get_credit_card_hotlines()
+    tool_coin_cart.register(mcp)
 
     @mcp.tool(
         description="Get information of Tender Invitation and Notice of Award of Contracts from Hong Kong Monetary Authority"
@@ -126,24 +96,7 @@ def create_mcp_server():
     ) -> List[Dict]:
         return tool_hibor_daily.get_hibor_stats(start_date, end_date)
 
-    @mcp.tool(
-        description="Get information on Automated Teller Machines (ATMs) of retail banks in Hong Kong"
-    )
-    def get_atm_locations(
-        district: Annotated[
-            Optional[str], Field(description="District name to filter results")
-        ] = None,
-        bank_name: Annotated[
-            Optional[str], Field(description="Bank name to filter results")
-        ] = None,
-        pagesize: Annotated[
-            Optional[int], Field(description="Number of records per page")
-        ] = 100,
-        offset: Annotated[
-            Optional[int], Field(description="Starting record offset")
-        ] = 0,
-    ) -> List[Dict]:
-        return tool_atm_locator.get_atm_locations(district, bank_name, pagesize, offset)
+    tool_atm_locator.register(mcp)
 
     @mcp.tool(
         description="Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"
@@ -162,33 +115,7 @@ def create_mcp_server():
             start_period, end_period
         )
 
-    @mcp.tool(
-        description="Get information on bank branch locations of retail banks in Hong Kong"
-    )
-    def get_bank_branch_locations(
-        district: Annotated[
-            Optional[str], Field(description="District name to filter results")
-        ] = None,
-        bank_name: Annotated[
-            Optional[str], Field(description="Bank name to filter results")
-        ] = None,
-        lang: Annotated[
-            Optional[str],
-            Field(
-                description="Language for data output (en, tc, sc)",
-                json_schema_extra={"enum": ["en", "tc", "sc"]},
-            ),
-        ] = "en",
-        pagesize: Annotated[
-            Optional[int], Field(description="Number of records per page")
-        ] = 100,
-        offset: Annotated[
-            Optional[int], Field(description="Starting record offset")
-        ] = 0,
-    ) -> List[Dict]:
-        return tool_bank_branch_locator.get_bank_branch_locations(
-            district, bank_name, lang, pagesize, offset
-        )
+    tool_bank_branch_locator.register(mcp)
 
     @mcp.tool(
         description="Get information on fraudulent bank websites and phishing scams reported to HKMA"
@@ -209,7 +136,7 @@ def create_mcp_server():
     return mcp
 
 
-def main(args):
+def main(host: str, port: int, sse: bool):
     """Main entry point for the HK OpenAI Finance MCP Server.
     
     Args:
@@ -217,8 +144,8 @@ def main(args):
     """
     server = create_mcp_server()
 
-    if args.sse:
-        server.run(transport="streamable-http", host=args.host, port=args.port)
+    if sse:
+        server.run(transport="streamable-http", host=host, port=port)
         print(f"MCP Server running in SSE mode on port {args.port}, bound to {args.host}")
     else:
         server.run()

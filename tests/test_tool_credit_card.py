@@ -8,7 +8,7 @@ of credit card lending survey data from the HKMA API using the tool_credit_card 
 import unittest
 import json
 from unittest.mock import patch, mock_open
-from hkopenai.hk_finance_mcp_server import tool_credit_card
+import hkopenai.hk_finance_mcp_server.tool_credit_card as tool_credit_card
 
 
 class TestCreditCardLending(unittest.TestCase):
@@ -185,15 +185,12 @@ class TestCreditCardLending(unittest.TestCase):
             self.assertEqual(result[-1]["quarter"], "2024-Q1")
 
     def test_get_credit_card_stats(self):
-        """Test getting credit card lending statistics.
-        
-        Verifies that the get_credit_card_stats function returns the expected data.
-        """
+        """Test getting credit card lending statistics."""
         with patch(
             "urllib.request.urlopen",
             return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
         ):
-            result = tool_credit_card.get_credit_card_stats()
+            result = tool_credit_card._get_credit_card_stats()
             self.assertEqual(len(result), 5)
             self.assertEqual(result[0]["quarter"], "2025-Q1")
 

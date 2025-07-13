@@ -8,7 +8,7 @@ of coin cart schedule data from the HKMA API using the tool_coin_cart module.
 import unittest
 from unittest.mock import patch, mock_open
 import json
-from hkopenai.hk_finance_mcp_server import tool_coin_cart
+import hkopenai.hk_finance_mcp_server.tool_coin_cart as tool_coin_cart
 
 
 class TestCoinCartSchedule(unittest.TestCase):
@@ -67,7 +67,7 @@ class TestCoinCartSchedule(unittest.TestCase):
         
         Verifies that the get_coin_cart_schedule function returns data with the expected key.
         """
-        result = tool_coin_cart.get_coin_cart_schedule()
+        result = tool_coin_cart._get_coin_cart_schedule()
 
         self.assertIn("coin_cart_schedule", result)
 

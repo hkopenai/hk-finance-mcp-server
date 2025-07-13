@@ -25,18 +25,8 @@ authors = [
     {name = "Neo Chow", email = "neo@01man.com"}
 ]
 license = "MIT"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent",
-]
-dependencies = [
-    "fastmcp>=2.10.2",
-    "requests>=2.31.0",
-    "pytest>=8.2.0",
-    "pytest-cov>=6.1.1",
-    "pytest-xdist>=3.5.0",
-    "pytest-rerunfailures>=12.0"
-]
+classifiers = [ "Programming Language :: Python :: 3", "Operating System :: OS Independent",]
+dependencies = [ "fastmcp>=2.10.2", "requests>=2.31.0", "pytest>=8.2.0", "pytest-cov>=6.1.1", "modelcontextprotocol", "hkopenai_common",]
 
 [project.scripts]
 hk_finance_mcp_server = "hkopenai.hk_finance_mcp_server.app:main"

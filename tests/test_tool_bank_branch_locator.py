@@ -1,14 +1,7 @@
-"""
-Module for testing the Bank Branch Locator tool functionality.
-
-This module contains unit tests to verify the correct fetching and filtering
-of bank branch location data from the HKMA API using the tool_bank_branch_locator module.
-"""
-
 import unittest
 import json
-from unittest.mock import patch, Mock
-from hkopenai.hk_finance_mcp_server import tool_bank_branch_locator
+from unittest.mock import patch, Mock, MagicMock
+import hkopenai.hk_finance_mcp_server.tool_bank_branch_locator as tool_bank_branch_locator
 
 
 class TestBankBranchLocatorTool(unittest.TestCase):
@@ -67,7 +60,8 @@ class TestBankBranchLocatorTool(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_fetch_bank_branch_data_with_district_filter(self, mock_urlopen):
-        """Test fetching bank branch data with district filter.
+        """
+        Test fetching bank branch data with district filter.
         
         Verifies that the fetch_bank_branch_data function correctly filters results
         based on the specified district.
@@ -86,7 +80,8 @@ class TestBankBranchLocatorTool(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_fetch_bank_branch_data_with_bank_name_filter(self, mock_urlopen):
-        """Test fetching bank branch data with bank name filter.
+        """
+        Test fetching bank branch data with bank name filter.
         
         Verifies that the fetch_bank_branch_data function correctly filters results
         based on the specified bank name.
@@ -107,7 +102,8 @@ class TestBankBranchLocatorTool(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_get_bank_branch_locations_empty_result(self, mock_urlopen):
-        """Test fetching bank branch locations with empty result.
+        """
+        Test fetching bank branch locations with empty result.
         
         Verifies that the get_bank_branch_locations function returns an empty list
         when no data is available from the API.
@@ -119,10 +115,45 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         mock_urlopen.return_value = mock_response
 
         # Act
-        result = tool_bank_branch_locator.get_bank_branch_locations()
+        result = tool_bank_branch_locator._get_bank_branch_locations(district=None, bank_name=None, lang="en", pagesize=100, offset=0)
 
         # Assert
         self.assertEqual(result, [])
+
+    def test_register_tool(self):
+        """
+        Test the registration of the get_bank_branch_locations tool.
+
+        This test verifies that the register function correctly registers the tool
+        with the FastMCP server and that the registered tool calls the underlying
+        _get_bank_branch_locations function.
+        """
+        mock_mcp = MagicMock()
+
+        # Call the register function
+        tool_bank_branch_locator.register(mock_mcp)
+
+        # Verify that mcp.tool was called with the correct description
+        mock_mcp.tool.assert_called_once_with(
+            description="Get information on bank branch locations of retail banks in Hong Kong"
+        )
+
+        # Get the mock that represents the decorator returned by mcp.tool
+        mock_decorator = mock_mcp.tool.return_value
+
+        # Verify that the mock decorator was called once (i.e., the function was decorated)
+        mock_decorator.assert_called_once()
+
+        # The decorated function is the first argument of the first call to the mock_decorator
+        decorated_function = mock_decorator.call_args[0][0]
+
+        # Verify the name of the decorated function
+        self.assertEqual(decorated_function.__name__, "get_bank_branch_locations")
+
+        # Call the decorated function and verify it calls _get_bank_branch_locations
+        with patch("hkopenai.hk_finance_mcp_server.tool_bank_branch_locator._get_bank_branch_locations") as mock_get_bank_branch_locations:
+            decorated_function(district="Central", bank_name="Test Bank 1", lang="en", pagesize=1, offset=0)
+            mock_get_bank_branch_locations.assert_called_once_with(district="Central", bank_name="Test Bank 1", lang="en", pagesize=1, offset=0)
 
 
 if __name__ == "__main__":

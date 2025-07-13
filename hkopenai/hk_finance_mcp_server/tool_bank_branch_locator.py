@@ -7,6 +7,38 @@ This module provides functions to retrieve bank branch location information from
 import json
 import urllib.request
 from typing import List, Dict, Optional
+from pydantic import Field
+from typing_extensions import Annotated
+
+
+def register(mcp):
+    """Registers the bank branch locator tool with the FastMCP server."""
+    @mcp.tool(
+        description="Get information on bank branch locations of retail banks in Hong Kong"
+    )
+    def get_bank_branch_locations(
+        district: Annotated[
+            Optional[str], Field(description="District name to filter results")
+        ] = None,
+        bank_name: Annotated[
+            Optional[str], Field(description="Bank name to filter results")
+        ] = None,
+        lang: Annotated[
+            Optional[str],
+            Field(
+                description="Language for data output (en, tc, sc)",
+                json_schema_extra={"enum": ["en", "tc", "sc"]},
+            ),
+        ] = "en",
+        pagesize: Annotated[
+            Optional[int], Field(description="Number of records per page")
+        ] = 100,
+        offset: Annotated[
+            Optional[int], Field(description="Starting record offset")
+        ] = 0,
+    ) -> List[Dict]:
+        """Retrieve bank branch locations with optional filtering"""
+        return _get_bank_branch_locations(district, bank_name, lang, pagesize, offset)
 
 
 def fetch_bank_branch_data(
@@ -56,7 +88,7 @@ def fetch_bank_branch_data(
     return filtered_records
 
 
-def get_bank_branch_locations(
+def _get_bank_branch_locations(
     district: Optional[str] = None,
     bank_name: Optional[str] = None,
     lang: Optional[str] = "en",
