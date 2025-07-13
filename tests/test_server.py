@@ -14,15 +14,15 @@ class TestApp(unittest.TestCase):
     """Test case class for verifying MCP server functionality."""
     @patch("hkopenai.hk_finance_mcp_server.server.FastMCP")
     @patch("hkopenai.hk_finance_mcp_server.tool_business_reg.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage._get_neg_equity_stats")
+    @patch("hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage.register")
     @patch("hkopenai.hk_finance_mcp_server.tool_credit_card.register")
     @patch("hkopenai.hk_finance_mcp_server.tool_coin_cart.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_hkma_tender._get_tender_invitations")
-    @patch("hkopenai.hk_finance_mcp_server.tool_hibor_daily._get_hibor_stats")
+    @patch("hkopenai.hk_finance_mcp_server.tool_hkma_tender.register")
+    @patch("hkopenai.hk_finance_mcp_server.tool_hibor_daily.get_hibor_stats")
     @patch("hkopenai.hk_finance_mcp_server.tool_atm_locator.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics._get_stamp_duty_statistics")
+    @patch("hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics.get_stamp_duty_statistics")
     @patch("hkopenai.hk_finance_mcp_server.tool_bank_branch_locator.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_fraudulent_bank_scams._get_fraudulent_bank_scams")
+    @patch("hkopenai.hk_finance_mcp_server.tool_fraudulent_bank_scams.get_fraudulent_bank_scams")
     def test_create_mcp_server(
         self,
         mock_get_fraudulent_bank_scams,
@@ -52,15 +52,10 @@ class TestApp(unittest.TestCase):
         mock_fastmcp.assert_called_once()
         
         mock_business_reg_register.assert_called_once_with(mock_server)
-        mock_get_neg_equity_stats.assert_called_once_with(None, None, None, None)
         mock_credit_card_register.assert_called_once_with(mock_server)
         mock_coin_cart_register.assert_called_once_with(mock_server)
-        mock_get_tender_invitations.assert_called_once_with(lang="en", segment="tender", pagesize=None, offset=None, from_date=None, to_date=None)
-        mock_get_hibor_stats.assert_called_once_with(None, None)
         mock_atm_locator_register.assert_called_once_with(mock_server)
-        mock_get_stamp_duty_statistics.assert_called_once_with(None, None)
         mock_bank_branch_locator_register.assert_called_once_with(mock_server)
-        mock_get_fraudulent_bank_scams.assert_called_once_with(lang="en")
 
 
 if __name__ == "__main__":

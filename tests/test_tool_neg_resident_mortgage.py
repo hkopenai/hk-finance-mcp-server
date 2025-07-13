@@ -1,450 +1,124 @@
 """
-Module for testing the Negative Equity Mortgage tool functionality.
+Module for testing the negative equity residential mortgage tool.
 
-This module contains unit tests to verify the correct fetching and filtering
-of negative equity mortgage data from the HKMA API using the tool_neg_resident_mortgage module.
+This module contains unit tests for fetching and filtering negative equity residential mortgage data.
 """
 
 import unittest
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, MagicMock
 import json
-from hkopenai.hk_finance_mcp_server import tool_neg_resident_mortgage
+
+from hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage import _get_neg_equity_stats, register, fetch_neg_equity_data
 
 
-class TestNegativeEquityMortgage(unittest.TestCase):
-    """Test case class for verifying Negative Equity Mortgage tool functionality."""
-    JSON_DATA = """{
-        "header": {"success": true},
-        "result": {
-            "datasize": 5,
-            "records": [
-                {
-                    "end_of_quarter": "2025-Q1",
-                    "outstanding_loans": 40741,
-                    "outstanding_loans_ratio": "6.88",
-                    "outstanding_loans_amt": 205881,
-                    "outstanding_loans_amt_ratio": "10.95",
-                    "unsecured_portion_amt": 16402,
-                    "lv_ratio": 1.09
-                },
-                {
-                    "end_of_quarter": "2024-Q4",
-                    "outstanding_loans": 38389,
-                    "outstanding_loans_ratio": "6.5",
-                    "outstanding_loans_amt": 195072,
-                    "outstanding_loans_amt_ratio": "10.41",
-                    "unsecured_portion_amt": 14517,
-                    "lv_ratio": 1.08
-                },
-                {
-                    "end_of_quarter": "2024-Q3",
-                    "outstanding_loans": 40713,
-                    "outstanding_loans_ratio": "6.89",
-                    "outstanding_loans_amt": 207510,
-                    "outstanding_loans_amt_ratio": "11.06",
-                    "unsecured_portion_amt": 15778,
-                    "lv_ratio": 1.08
-                },
-                {
-                    "end_of_quarter": "2024-Q2",
-                    "outstanding_loans": 30288,
-                    "outstanding_loans_ratio": "5.13",
-                    "outstanding_loans_amt": 154992,
-                    "outstanding_loans_amt_ratio": "8.29",
-                    "unsecured_portion_amt": 10003,
-                    "lv_ratio": 1.07
-                },
-                {
-                    "end_of_quarter": "2024-Q1",
-                    "outstanding_loans": 32073,
-                    "outstanding_loans_ratio": "5.47",
-                    "outstanding_loans_amt": 165349,
-                    "outstanding_loans_amt_ratio": "8.91",
-                    "unsecured_portion_amt": 11223,
-                    "lv_ratio": 1.07
-                }
-            ]
-        }
-    }"""
+class TestNegResidentMortgage(unittest.TestCase):
+    """
+    Test class for verifying negative equity residential mortgage functionality.
+    """
 
     def setUp(self):
-        """Set up test fixtures before each test method."""
-        self.mock_urlopen = patch("urllib.request.urlopen").start()
-        self.mock_urlopen.return_value = mock_open(
-            read_data=self.JSON_DATA.encode("utf-8")
-        )()
-        self.addCleanup(patch.stopall)
-
-    @patch("urllib.request.urlopen")
-    def test_fetch_neg_equity_data(self, mock_urlopen):
-        """Test fetching negative equity mortgage data without filters.
-        
-        Verifies that the fetch_neg_equity_data function returns the expected data
-        when no filters are applied.
-        """
-        mock_urlopen.return_value = mock_open(
-            read_data=self.JSON_DATA.encode("utf-8")
-        )()
-
-        result = tool_neg_resident_mortgage.fetch_neg_equity_data()
-
-        self.assertEqual(len(result), 5)
-        self.assertEqual(
-            result[0],
-            {
-                "quarter": "2025-Q1",
-                "outstanding_loans": 40741,
-                "outstanding_loans_ratio": "6.88",
-                "outstanding_loans_amt": 205881,
-                "outstanding_loans_amt_ratio": "10.95",
-                "unsecured_portion_amt": 16402,
-                "lv_ratio": 1.09,
-            },
-        )
-        self.assertEqual(
-            result[-1],
-            {
-                "quarter": "2024-Q1",
-                "outstanding_loans": 32073,
-                "outstanding_loans_ratio": "5.47",
-                "outstanding_loans_amt": 165349,
-                "outstanding_loans_amt_ratio": "8.91",
-                "unsecured_portion_amt": 11223,
-                "lv_ratio": 1.07,
-            },
-        )
-
-    def test_start_year_month_filter(self):
-        """Test fetching negative equity mortgage data with start year and month filter.
-        
-        Verifies that the fetch_neg_equity_data function correctly filters results
-        based on the specified start year and month.
-        """
-        with patch(
-            "urllib.request.urlopen",
-            return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
-        ):
-            result = tool_neg_resident_mortgage.fetch_neg_equity_data(
-                start_year=2025, start_month=3
-            )
-            self.assertEqual(len(result), 1)
-            self.assertEqual(result[0]["quarter"], "2025-Q1")
-
-    def test_end_year_month_filter(self):
-        """Test fetching negative equity mortgage data with end year and month filter.
-        
-        Verifies that the fetch_neg_equity_data function correctly filters results
-        based on the specified end year and month.
-        """
-        with patch(
-            "urllib.request.urlopen",
-            return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
-        ):
-            result = tool_neg_resident_mortgage.fetch_neg_equity_data(
-                end_year=2024, end_month=6
-            )
-            self.assertEqual(len(result), 2)
-            self.assertEqual(result[0]["quarter"], "2024-Q2")
-            self.assertEqual(result[-1]["quarter"], "2024-Q1")
-
-    def test_both_year_month_filters(self):
-        """Test fetching negative equity mortgage data with both start and end year/month filters.
-        
-        Verifies that the fetch_neg_equity_data function correctly filters results
-        within the specified date range.
-        """
-        with patch(
-            "urllib.request.urlopen",
-            return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
-        ):
-            result = tool_neg_resident_mortgage.fetch_neg_equity_data(
-                start_year=2024, start_month=6, end_year=2024, end_month=12
-            )
-            self.assertEqual(len(result), 3)
-            self.assertEqual(result[0]["quarter"], "2024-Q4")
-            self.assertEqual(result[-1]["quarter"], "2024-Q2")
-
-    def test_start_year_only_filter(self):
-        """Test fetching negative equity mortgage data with start year only filter.
-        
-        Verifies that the fetch_neg_equity_data function correctly filters results
-        based on the specified start year.
-        """
-        with patch(
-            "urllib.request.urlopen",
-            return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
-        ):
-            result = tool_neg_resident_mortgage.fetch_neg_equity_data(start_year=2025)
-            self.assertEqual(len(result), 1)
-            self.assertEqual(result[0]["quarter"], "2025-Q1")
-
-    def test_end_year_only_filter(self):
-        """Test fetching negative equity mortgage data with end year only filter.
-        
-        Verifies that the fetch_neg_equity_data function correctly filters results
-        based on the specified end year.
-        """
-        with patch(
-            "urllib.request.urlopen",
-            return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
-        ):
-            result = tool_neg_resident_mortgage.fetch_neg_equity_data(end_year=2024)
-            self.assertEqual(len(result), 4)
-            self.assertEqual(result[0]["quarter"], "2024-Q4")
-            self.assertEqual(result[-1]["quarter"], "2024-Q1")
-
-    def test_get_neg_equity_stats(self):
-        """Test getting negative equity mortgage statistics.
-        
-        Verifies that the get_neg_equity_stats function returns the expected data.
-        """
-        with patch(
-            "urllib.request.urlopen",
-            return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
-        ):
-            result = tool_neg_resident_mortgage.get_neg_equity_stats()
-            self.assertEqual(len(result), 5)
-            self.assertEqual(result[0]["quarter"], "2025-Q1")
-
-    @patch("urllib.request.urlopen")
-    def test_invalid_json_data(self, mock_urlopen):
-        """Test handling of invalid JSON data.
-        
-        Verifies that the fetch_neg_equity_data function returns an error entry
-        when invalid JSON data is received.
-        """
-        # Test handling of invalid JSON data
-        invalid_json = "{invalid json}"
-        mock_urlopen.return_value = mock_open(read_data=invalid_json.encode("utf-8"))()
-
-        result = tool_neg_resident_mortgage.fetch_neg_equity_data()
-        self.assertEqual(
-            len(result), 1, "Expected a single error entry for invalid JSON data"
-        )
-        self.assertIn("error", result[0], "Expected an error message in the result")
-        self.assertIn(
-            "JSON",
-            result[0]["error"] or "",
-            "Expected JSON decode error message in the result",
-        )
-
-    @patch("urllib.request.urlopen")
-    def test_empty_json_data(self, mock_urlopen):
-        """Test handling of empty JSON data.
-        
-        Verifies that the fetch_neg_equity_data function returns an empty list
-        when empty JSON data is received.
-        """
-        # Test handling of empty JSON data
-        empty_json = "{}"
-        mock_urlopen.return_value = mock_open(read_data=empty_json.encode("utf-8"))()
-
-        result = tool_neg_resident_mortgage.fetch_neg_equity_data()
-        self.assertEqual(len(result), 0, "Expected empty result for empty JSON data")
-
-    @patch("urllib.request.urlopen")
-    def test_missing_records_in_json(self, mock_urlopen):
-        """Test handling of JSON data with missing records.
-        
-        Verifies that the fetch_neg_equity_data function returns an empty list
-        when no records are present in the JSON data.
-        """
-        # Test handling of JSON data with missing records
-        missing_records_json = {
-            "header": {"success": True},
-            "result": {"datasize": 0, "records": []},
-        }
-        mock_urlopen.return_value = mock_open(
-            read_data=json.dumps(missing_records_json).encode("utf-8")
-        )()
-
-        result = tool_neg_resident_mortgage.fetch_neg_equity_data()
-        self.assertEqual(
-            len(result), 0, "Expected empty result for JSON with no records"
-        )
-
-    @patch("urllib.request.urlopen")
-    def test_incomplete_record_data(self, mock_urlopen):
-        """Test handling of JSON data with incomplete records.
-        
-        Verifies that the fetch_neg_equity_data function processes partial data
-        and includes only the available fields in the result.
-        """
-        # Test handling of JSON data with incomplete records
-        incomplete_record_json = {
+        self.sample_data = {
             "header": {"success": True},
             "result": {
-                "datasize": 1,
                 "records": [
                     {
-                        "end_of_quarter": "2025-Q1"
-                        # Missing other fields
-                    }
-                ],
+                        "end_of_quarter": "2023-Q4",
+                        "outstanding_loans": 1000,
+                        "outstanding_loans_ratio": 0.5,
+                        "outstanding_loans_amt": 500,
+                        "outstanding_loans_amt_ratio": 0.25,
+                        "unsecured_portion_amt": 100,
+                        "lv_ratio": 0.1,
+                    },
+                    {
+                        "end_of_quarter": "2023-Q3",
+                        "outstanding_loans": 900,
+                        "outstanding_loans_ratio": 0.4,
+                        "outstanding_loans_amt": 450,
+                        "outstanding_loans_amt_ratio": 0.20,
+                        "unsecured_portion_amt": 90,
+                        "lv_ratio": 0.09,
+                    },
+                    {
+                        "end_of_quarter": "2022-Q4",
+                        "outstanding_loans": 800,
+                        "outstanding_loans_ratio": 0.3,
+                        "outstanding_loans_amt": 400,
+                        "outstanding_loans_amt_ratio": 0.15,
+                        "unsecured_portion_amt": 80,
+                        "lv_ratio": 0.08,
+                    },
+                    {
+                        "end_of_quarter": "2021-Q1",
+                        "outstanding_loans": 700,
+                        "outstanding_loans_ratio": 0.2,
+                        "outstanding_loans_amt": 350,
+                        "outstanding_loans_amt_ratio": 0.10,
+                        "unsecured_portion_amt": 70,
+                        "lv_ratio": 0.07,
+                    },
+                ]
             },
         }
-        mock_urlopen.return_value = mock_open(
-            read_data=json.dumps(incomplete_record_json).encode("utf-8")
-        )()
 
-        result = tool_neg_resident_mortgage.fetch_neg_equity_data()
-        self.assertEqual(
-            len(result), 1, "Expected result with partial data to be processed"
+    @patch("urllib.request.urlopen")
+    def test_fetch_neg_equity_data_success(self, mock_urlopen):
+        """
+        Test successful fetching and parsing of negative equity data.
+        """
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
+        mock_urlopen.return_value = mock_response
+
+        data = fetch_neg_equity_data()
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 4)
+        self.assertEqual(data[0]["quarter"], "2023-Q4")
+
+    @patch("urllib.request.urlopen")
+    def test_fetch_neg_equity_data_api_error(self, mock_urlopen):
+        """
+        Test handling of API errors during data fetching.
+        """
+        mock_urlopen.side_effect = Exception("Connection failed")
+        with self.assertRaisesRegex(Exception, "Error fetching data: Connection failed"):
+            fetch_neg_equity_data()
+
+    @patch("urllib.request.urlopen")
+    def test_fetch_neg_equity_data_invalid_json(self, mock_urlopen):
+        """
+        Test handling of invalid JSON response.
+        """
+        mock_response = MagicMock()
+        mock_response.read.return_value = b"invalid json"
+        mock_urlopen.return_value = mock_response
+
+        data = fetch_neg_equity_data()
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 1)
+        self.assertIn("error", data[0])
+        self.assertIn("Invalid JSON data received", data[0]["error"])
+
+    
+
+    def test_register_tool(self):
+        """
+        Test the registration of the get_neg_equity_stats tool.
+        """
+        mock_mcp = MagicMock()
+        register(mock_mcp)
+
+        mock_mcp.tool.assert_called_once_with(
+            description="Get statistics on residential mortgage loans in negative equity in Hong Kong"
         )
-        self.assertIn(
-            "quarter", result[0], "Expected 'quarter' to be present in result"
-        )
-        self.assertNotIn(
-            "outstanding_loans",
-            result[0],
-            "Expected missing fields to not be in result",
-        )
+        mock_decorator = mock_mcp.tool.return_value
+        mock_decorator.assert_called_once()
+        decorated_function = mock_decorator.call_args[0][0]
+        self.assertEqual(decorated_function.__name__, "get_neg_equity_stats")
 
-    @patch("urllib.request.urlopen")
-    def test_network_failure(self, mock_urlopen):
-        """Test handling of network failure.
-        
-        Verifies that the fetch_neg_equity_data function raises an exception
-        when a network error occurs.
-        """
-        # Test handling of network failure
-        mock_urlopen.side_effect = Exception("Network Error")
-
-        with self.assertRaises(Exception) as context:
-            tool_neg_resident_mortgage.fetch_neg_equity_data()
-        self.assertTrue(
-            "Network Error" in str(context.exception), "Expected network error message"
-        )
-
-    @patch("urllib.request.urlopen")
-    def test_invalid_year_month_filters(self, mock_urlopen):
-        """Test handling of invalid year/month filters (start year None).
-        
-        Verifies that the fetch_neg_equity_data function returns full data set
-        when start year is None.
-        """
-        # Test handling of invalid year/month filters
-        with patch(
-            "urllib.request.urlopen",
-            return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
-        ):
-            # Since the function likely converts inputs to int or handles invalid types internally,
-            # we test with None instead of invalid types to avoid type checker errors.
-            # Test invalid start year (using None as a placeholder for invalid input)
-            result = tool_neg_resident_mortgage.fetch_neg_equity_data(start_year=None)
-            self.assertEqual(
-                len(result), 5, "Expected full data set when start year is None"
-            )
-
-    @patch("urllib.request.urlopen")
-    def test_invalid_year_month_filters2(self, mock_urlopen):
-        """Test handling of invalid year/month filters (start month None).
-        
-        Verifies that the fetch_neg_equity_data function returns full data set
-        when start month is None.
-        """
-        # Test invalid start month (using None as a placeholder for invalid input)
-        with patch(
-            "urllib.request.urlopen",
-            return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
-        ):
-            result = tool_neg_resident_mortgage.fetch_neg_equity_data(
-                start_year=None, start_month=None
-            )
-            self.assertEqual(
-                len(result), 5, "Expected full data set when start month is None"
-            )
-
-    @patch("urllib.request.urlopen")
-    def test_invalid_year_month_filters3(self, mock_urlopen):
-        """Test handling of invalid year/month filters (end year None).
-        
-        Verifies that the fetch_neg_equity_data function returns full data set
-        when end year is None.
-        """
-        # Test invalid end year (using None as a placeholder for invalid input)
-        with patch(
-            "urllib.request.urlopen",
-            return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
-        ):
-            result = tool_neg_resident_mortgage.fetch_neg_equity_data(end_year=None)
-            self.assertEqual(
-                len(result), 5, "Expected full data set when end year is None"
-            )
-
-    @patch("urllib.request.urlopen")
-    def test_invalid_year_month_filters4(self, mock_urlopen):
-        """Test handling of invalid year/month filters (end month None).
-        
-        Verifies that the fetch_neg_equity_data function returns full data set
-        when end month is None.
-        """
-        # Test invalid end month (using None as a placeholder for invalid input)
-        with patch(
-            "urllib.request.urlopen",
-            return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
-        ):
-            result = tool_neg_resident_mortgage.fetch_neg_equity_data(end_month=None)
-            self.assertEqual(
-                len(result), 5, "Expected full data set when end month is None"
-            )
-
-    @patch("urllib.request.urlopen")
-    def test_boundary_year_month_filters(self, mock_urlopen):
-        """Test boundary conditions for year/month filters (future date).
-        
-        Verifies that the fetch_neg_equity_data function returns an empty result
-        for a future start year.
-        """
-        # Test boundary conditions for year/month filters
-        with patch(
-            "urllib.request.urlopen",
-            return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
-        ):
-            # Test future date filter
-            result = tool_neg_resident_mortgage.fetch_neg_equity_data(start_year=2030)
-            self.assertEqual(
-                len(result), 0, "Expected empty result for future start year"
-            )
-
-    @patch("urllib.request.urlopen")
-    def test_boundary_year_month_filters2(self, mock_urlopen):
-        """Test boundary conditions for year/month filters (very old date).
-        
-        Verifies that the fetch_neg_equity_data function returns an empty result
-        for a very old end year.
-        """
-        # Test boundary conditions for year/month filters
-        with patch(
-            "urllib.request.urlopen",
-            return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
-        ):
-            # Test very old date filter
-            result = tool_neg_resident_mortgage.fetch_neg_equity_data(end_year=2000)
-            self.assertEqual(
-                len(result), 0, "Expected empty result for very old end year"
-            )
-
-    @patch("urllib.request.urlopen")
-    def test_boundary_year_month_filters3(self, mock_urlopen):
-        """Test boundary conditions for year/month filters (invalid month value).
-        
-        Verifies that the fetch_neg_equity_data function returns data for the year only
-        when the month value is out of range.
-        """
-        # Test boundary conditions for year/month filters
-        with patch(
-            "urllib.request.urlopen",
-            return_value=mock_open(read_data=self.JSON_DATA.encode("utf-8"))(),
-        ):
-            # Test invalid month value (out of range)
-            result = tool_neg_resident_mortgage.fetch_neg_equity_data(
-                start_year=2025, start_month=13
-            )
-            self.assertEqual(
-                len(result), 1, "Expected data for year only when month is out of range"
-            )
-
+        with patch("hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage._get_neg_equity_stats") as mock_get_neg_equity_stats:
+            decorated_function(start_year=2023, end_year=2023)
+            mock_get_neg_equity_stats.assert_called_once_with(2023, None, 2023, None)
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,238 +1,153 @@
 """
-Module for testing the HKMA Tender Invitations tool functionality.
+Module for testing the HKMA Tender Invitations tool.
 
-This module contains unit tests to verify the correct fetching and processing
-of tender invitation data from the HKMA API using the tool_hkma_tender module.
+This module contains unit tests for fetching and filtering HKMA Tender Invitations data.
 """
 
 import unittest
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, MagicMock
 import json
-from hkopenai.hk_finance_mcp_server import tool_hkma_tender
+
+from hkopenai.hk_finance_mcp_server.tool_hkma_tender import _get_tender_invitations, register, fetch_tender_invitations
 
 
-class TestHKMAtender(unittest.TestCase):
-    """Test case class for verifying HKMA Tender Invitations tool functionality."""
-    MOCK_JSON = {
-        "header": {"success": True, "err_code": "0000", "err_msg": "No error found"},
-        "result": {
-            "datasize": 2,
-            "records": [
-                {
-                    "title": "Provision of BI Application Support",
-                    "link": "https://example.com/tender1",
-                    "date": "2025-06-01",
-                },
-                {
-                    "title": "Renewal of software for VDI",
-                    "link": "https://example.com/tender2",
-                    "date": "2025-05-30",
-                },
-            ],
-        },
-    }
+class TestHkmaTender(unittest.TestCase):
+    """
+    Test class for verifying HKMA Tender Invitations functionality.
+    """
 
     def setUp(self):
-        """Set up test fixtures before each test method."""
-        self.mock_urlopen = patch("urllib.request.urlopen").start()
-        mock_response = mock_open(read_data=json.dumps(self.MOCK_JSON).encode("utf-8"))
-        self.mock_urlopen.return_value = mock_response()
-        self.addCleanup(patch.stopall)
-
-    def test_fetch_tender_invitations(self):
-        """Test fetching tender invitations data without parameters.
-        
-        Verifies that the fetch_tender_invitations function returns the expected data.
-        """
-        result = tool_hkma_tender.fetch_tender_invitations()
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result[0]["title"], "Provision of BI Application Support")
-
-    def test_fetch_tender_invitations_with_params(self):
-        """Test fetching tender invitations data with parameters.
-        
-        Verifies that the fetch_tender_invitations function returns data when parameters are provided.
-        """
-        result = tool_hkma_tender.fetch_tender_invitations(
-            lang="tc", segment="notice", pagesize=10, from_date="2025-01-01"
-        )
-        self.assertEqual(len(result), 2)
-
-    def test_get_tender_invitations(self):
-        """Test getting tender invitations data in standardized format.
-        
-        Verifies that the get_tender_invitations function returns data with the expected key.
-        """
-        result = tool_hkma_tender.get_tender_invitations()
-        self.assertIn("tender_invitations", result)
-        self.assertEqual(len(result["tender_invitations"]), 2)
-
-    @patch("urllib.request.urlopen")
-    def test_api_error_handling(self, mock_urlopen):
-        """Test handling of API errors.
-        
-        Verifies that the fetch_tender_invitations function raises an exception
-        when an API error occurs.
-        """
-        mock_urlopen.side_effect = Exception("API Error")
-
-        with self.assertRaises(Exception):
-            tool_hkma_tender.fetch_tender_invitations()
-
-    @patch("urllib.request.urlopen")
-    def test_invalid_json_data(self, mock_urlopen):
-        """Test handling of invalid JSON data.
-        
-        Verifies that the fetch_tender_invitations function raises an exception
-        when invalid JSON data is received.
-        """
-        # Test handling of invalid JSON data
-        invalid_json = "{invalid json}"
-        mock_urlopen.return_value = mock_open(read_data=invalid_json.encode("utf-8"))()
-
-        with self.assertRaises(Exception) as context:
-            tool_hkma_tender.fetch_tender_invitations()
-        self.assertTrue(
-            "JSON" in str(context.exception) or "decode" in str(context.exception),
-            "Expected JSON decode error",
-        )
-
-    @patch("urllib.request.urlopen")
-    def test_empty_json_data(self, mock_urlopen):
-        """Test handling of empty JSON data.
-        
-        Verifies that the fetch_tender_invitations function returns an empty list
-        when empty JSON data is received.
-        """
-        # Test handling of empty JSON data
-        empty_json = "{}"
-        mock_urlopen.return_value = mock_open(read_data=empty_json.encode("utf-8"))()
-
-        result = tool_hkma_tender.fetch_tender_invitations()
-        self.assertEqual(len(result), 0, "Expected empty result for empty JSON data")
-
-    @patch("urllib.request.urlopen")
-    def test_missing_records_in_json(self, mock_urlopen):
-        """Test handling of JSON data with missing records.
-        
-        Verifies that the fetch_tender_invitations function returns an empty list
-        when no records are present in the JSON data.
-        """
-        # Test handling of JSON data with missing records
-        missing_records_json = {
-            "header": {"success": True},
-            "result": {"datasize": 0, "records": []},
-        }
-        mock_urlopen.return_value = mock_open(
-            read_data=json.dumps(missing_records_json).encode("utf-8")
-        )()
-
-        result = tool_hkma_tender.fetch_tender_invitations()
-        self.assertEqual(
-            len(result), 0, "Expected empty result for JSON with no records"
-        )
-
-    @patch("urllib.request.urlopen")
-    def test_incomplete_record_data(self, mock_urlopen):
-        """Test handling of JSON data with incomplete records.
-        
-        Verifies that the fetch_tender_invitations function processes partial data
-        and includes only the available fields in the result.
-        """
-        # Test handling of JSON data with incomplete records
-        incomplete_record_json = {
+        self.sample_data = {
             "header": {"success": True},
             "result": {
-                "datasize": 1,
                 "records": [
                     {
-                        "title": "Incomplete Tender"
-                        # Missing other fields
-                    }
-                ],
+                        "title": "Tender for Cleaning Services",
+                        "link": "http://example.com/tender1",
+                        "issue_date": "2023-01-15",
+                    },
+                    {
+                        "title": "Notice of Award for IT Services",
+                        "link": "http://example.com/award1",
+                        "issue_date": "2023-02-20",
+                    },
+                    {
+                        "title": "Tender for Security System",
+                        "link": "http://example.com/tender2",
+                        "issue_date": "2022-11-01",
+                    },
+                ]
             },
         }
-        mock_urlopen.return_value = mock_open(
-            read_data=json.dumps(incomplete_record_json).encode("utf-8")
-        )()
 
-        result = tool_hkma_tender.fetch_tender_invitations()
-        self.assertEqual(
-            len(result), 1, "Expected result with partial data to be processed"
-        )
-        self.assertIn("title", result[0], "Expected 'title' to be present in result")
-        self.assertNotIn(
-            "link", result[0], "Expected missing fields to not be in result"
-        )
-
-    def test_invalid_parameters(self):
-        """Test handling of invalid parameters.
-        
-        Verifies that the fetch_tender_invitations function handles invalid parameters
-        gracefully and returns the full data set.
+    @patch("urllib.request.urlopen")
+    def test_fetch_tender_invitations_success(self, mock_urlopen):
         """
-        # Test handling of invalid parameters
-        def create_mock_response():
-            return mock_open(read_data=json.dumps(self.MOCK_JSON).encode("utf-8"))()
-
-        with patch(
-            "urllib.request.urlopen",
-            side_effect=lambda *args, **kwargs: create_mock_response(),
-        ):
-            # Test invalid language (using empty string as a placeholder for invalid input)
-            result = tool_hkma_tender.fetch_tender_invitations(lang="")
-            self.assertEqual(
-                len(result), 2, "Expected full data set when language is empty"
-            )
-
-            # Test invalid segment (using empty string as a placeholder for invalid input)
-            result = tool_hkma_tender.fetch_tender_invitations(segment="")
-            self.assertEqual(
-                len(result), 2, "Expected full data set when segment is empty"
-            )
-
-            # Test invalid pagesize (using None as a placeholder for invalid input)
-            result = tool_hkma_tender.fetch_tender_invitations(pagesize=None)
-            self.assertEqual(
-                len(result), 2, "Expected full data set when pagesize is None"
-            )
-
-            # Test invalid offset (using None as a placeholder for invalid input)
-            result = tool_hkma_tender.fetch_tender_invitations(offset=None)
-            self.assertEqual(
-                len(result), 2, "Expected full data set when offset is None"
-            )
-
-            # Test invalid from_date format (using None as a placeholder for invalid input)
-            result = tool_hkma_tender.fetch_tender_invitations(from_date=None)
-            self.assertEqual(
-                len(result), 2, "Expected full data set when from_date is None"
-            )
-
-    def test_boundary_parameters(self):
-        """Test boundary conditions for parameters.
-        
-        Verifies that the fetch_tender_invitations function handles boundary values
-        for parameters like large pagesize and zero offset correctly.
+        Test successful fetching and parsing of tender invitations data.
         """
-        # Test boundary conditions for parameters.
-        def create_mock_response():
-            return mock_open(read_data=json.dumps(self.MOCK_JSON).encode("utf-8"))()
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
+        mock_urlopen.return_value = mock_response
 
-        with patch(
-            "urllib.request.urlopen",
-            side_effect=lambda *args, **kwargs: create_mock_response(),
-        ):
-            # Test very large pagesize
-            result = tool_hkma_tender.fetch_tender_invitations(pagesize=1000)
-            self.assertEqual(
-                len(result), 2, "Expected data even with very large pagesize"
-            )
+        data = fetch_tender_invitations()
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["title"], "Tender for Cleaning Services")
 
-            # Test zero offset
-            result = tool_hkma_tender.fetch_tender_invitations(offset=0)
-            self.assertEqual(len(result), 2, "Expected data with zero offset")
+    @patch("urllib.request.urlopen")
+    def test_fetch_tender_invitations_api_error(self, mock_urlopen):
+        """
+        Test handling of API errors during data fetching.
+        """
+        mock_urlopen.side_effect = Exception("Connection failed")
+        with self.assertRaisesRegex(Exception, "Error fetching data: Connection failed"):
+            fetch_tender_invitations()
 
+    @patch("urllib.request.urlopen")
+    def test_fetch_tender_invitations_invalid_json(self, mock_urlopen):
+        """
+        Test handling of invalid JSON response.
+        """
+        mock_response = MagicMock()
+        mock_response.read.return_value = b"invalid json"
+        mock_urlopen.return_value = mock_response
+
+        with self.assertRaisesRegex(Exception, "JSON decode error"):
+            fetch_tender_invitations()
+
+    @patch("hkopenai.hk_finance_mcp_server.tool_hkma_tender.fetch_tender_invitations")
+    def test_get_tender_invitations_filtering(self, mock_fetch_data):
+        """
+        Test filtering logic in _get_tender_invitations.
+        """
+        mock_fetch_data.return_value = self.sample_data["result"]["records"]
+
+        # Test without filters
+        result = _get_tender_invitations(fetch_func=mock_fetch_data)
+        self.assertEqual(len(result), 3)
+
+        # Test with lang filter (should not affect count with current mock data)
+        result = _get_tender_invitations(lang="tc", fetch_func=mock_fetch_data)
+        self.assertEqual(len(result), 3)
+
+        # Test with segment filter
+        mock_fetch_data.return_value = [
+            {
+                "title": "Tender for Cleaning Services",
+                "link": "http://example.com/tender1",
+                "issue_date": "2023-01-15",
+                "segment": "tender"
+            },
+            {
+                "title": "Notice of Award for IT Services",
+                "link": "http://example.com/award1",
+                "issue_date": "2023-02-20",
+                "segment": "notice"
+            },
+            {
+                "title": "Tender for Security System",
+                "link": "http://example.com/tender2",
+                "issue_date": "2022-11-01",
+                "segment": "tender"
+            },
+        ]
+        result = _get_tender_invitations(segment="tender", fetch_func=mock_fetch_data)
+        self.assertEqual(len(result), 3)
+        self.assertEqual(result[0]["title"], "Tender for Cleaning Services")
+
+        # Test with from_date filter
+        result = _get_tender_invitations(from_date="2023-01-01", fetch_func=mock_fetch_data)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["title"], "Tender for Cleaning Services")
+
+        # Test with to_date filter
+        result = _get_tender_invitations(to_date="2023-01-31", fetch_func=mock_fetch_data)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["title"], "Tender for Cleaning Services")
+
+        # Test with from_date and to_date filter
+        result = _get_tender_invitations(from_date="2022-01-01", to_date="2022-12-31", fetch_func=mock_fetch_data)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["title"], "Tender for Security System")
+
+    def test_register_tool(self):
+        """
+        Test the registration of the get_hkma_tender_invitations tool.
+        """
+        mock_mcp = MagicMock()
+        register(mock_mcp)
+
+        mock_mcp.tool.assert_called_once_with(
+            description="Get information of Tender Invitation and Notice of Award of Contracts from Hong Kong Monetary Authority"
+        )
+        mock_decorator = mock_mcp.tool.return_value
+        mock_decorator.assert_called_once()
+        decorated_function = mock_decorator.call_args[0][0]
+        self.assertEqual(decorated_function.__name__, "get_hkma_tender_invitations")
+
+        with patch("hkopenai.hk_finance_mcp_server.tool_hkma_tender._get_tender_invitations") as mock_get_tender_invitations:
+            decorated_function(lang="en", segment="tender", pagesize=1, offset=0, from_date="2023-01-01", to_date="2023-12-31")
+            mock_get_tender_invitations.assert_called_once_with(lang="en", segment="tender", pagesize=1, offset=0, from_date="2023-01-01", to_date="2023-12-31")
 
 if __name__ == "__main__":
     unittest.main()

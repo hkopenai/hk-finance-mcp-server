@@ -103,8 +103,8 @@ class TestAtmLocatorTool(unittest.TestCase):
                     "longitude": 113.997757,
                 }
             ]
-            result = _get_atm_locations(district="YuenLong", lang="en")
-            mock_fetch.assert_called_once_with(district="YuenLong", bank_name=None, lang="en", pagesize=100, offset=0)
+            result = _get_atm_locations(district="YuenLong")
+            mock_fetch.assert_called_once_with("YuenLong", None, 100, 0)
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0]["district"], "YuenLong")
 
@@ -135,7 +135,7 @@ class TestAtmLocatorTool(unittest.TestCase):
         # Call the decorated function and verify it calls _get_atm_locations
         with patch("hkopenai.hk_finance_mcp_server.tool_atm_locator._get_atm_locations") as mock_get_atm_locations:
             decorated_function(district="YuenLong", bank_name="Industrial and Commercial Bank of China (Asia) Limited", pagesize=1, offset=0)
-            mock_get_atm_locations.assert_called_once_with(district="YuenLong", bank_name="Industrial and Commercial Bank of China (Asia) Limited", lang="en", pagesize=1, offset=0)
+            mock_get_atm_locations.assert_called_once_with("YuenLong", "Industrial and Commercial Bank of China (Asia) Limited", 1, 0)
 
 
 if __name__ == "__main__":

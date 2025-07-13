@@ -153,7 +153,7 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         # Call the decorated function and verify it calls _get_bank_branch_locations
         with patch("hkopenai.hk_finance_mcp_server.tool_bank_branch_locator._get_bank_branch_locations") as mock_get_bank_branch_locations:
             decorated_function(district="Central", bank_name="Test Bank 1", lang="en", pagesize=1, offset=0)
-            mock_get_bank_branch_locations.assert_called_once_with(district="Central", bank_name="Test Bank 1", lang="en", pagesize=1, offset=0)
+            mock_get_bank_branch_locations.assert_called_once_with("Central", "Test Bank 1", "en", 1, 0)
 
 
 if __name__ == "__main__":

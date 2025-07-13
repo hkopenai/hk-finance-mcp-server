@@ -26,62 +26,13 @@ def create_mcp_server():
 
     tool_business_reg.register(mcp)
 
-    @mcp.tool(
-        description="Get statistics on residential mortgage loans in negative equity in Hong Kong"
-    )
-    def get_neg_equity_stats(
-        start_year: Annotated[Optional[int], Field(description="Start Year")] = None,
-        start_month: Annotated[Optional[int], Field(description="Start Month")] = None,
-        end_year: Annotated[Optional[int], Field(description="End Year")] = None,
-        end_month: Annotated[Optional[int], Field(description="End Month")] = None,
-    ) -> List[Dict]:
-        return tool_neg_resident_mortgage.get_neg_equity_stats(
-            start_year, start_month, end_year, end_month
-        )
+    tool_neg_resident_mortgage.register(mcp)
 
     tool_credit_card.register(mcp)
 
     tool_coin_cart.register(mcp)
 
-    @mcp.tool(
-        description="Get information of Tender Invitation and Notice of Award of Contracts from Hong Kong Monetary Authority"
-    )
-    def get_hkma_tender_invitations(
-        lang: Annotated[
-            Optional[str],
-            Field(
-                description="Language (en/tc/sc)",
-                json_schema_extra={"enum": ["en", "tc", "sc"]},
-            ),
-        ] = "en",
-        segment: Annotated[
-            Optional[str],
-            Field(
-                description="Type of records (tender/notice)",
-                json_schema_extra={"enum": ["tender", "notice"]},
-            ),
-        ] = "tender",
-        pagesize: Annotated[
-            Optional[int], Field(description="Number of records per page")
-        ] = None,
-        offset: Annotated[
-            Optional[int], Field(description="Starting record offset")
-        ] = None,
-        from_date: Annotated[
-            Optional[str], Field(description="Filter records from date (YYYY-MM-DD)")
-        ] = None,
-        to_date: Annotated[
-            Optional[str], Field(description="Filter records to date (YYYY-MM-DD)")
-        ] = None,
-    ) -> Dict:
-        return tool_hkma_tender.get_tender_invitations(
-            lang=lang if lang is not None else "en",
-            segment=segment if segment is not None else "tender",
-            pagesize=pagesize,
-            offset=offset,
-            from_date=from_date,
-            to_date=to_date,
-        )
+    tool_hkma_tender.register(mcp)
 
     @mcp.tool(
         description="Get daily figures of Hong Kong Interbank Interest Rates (HIBOR) from HKMA"
