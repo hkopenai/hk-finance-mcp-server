@@ -46,7 +46,7 @@ def fetch_neg_equity_data(
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/banking/residential-mortgage-loans-neg-equity"
     try:
         with urllib.request.urlopen(url) as response:
-        data = json.loads(response.read().decode("utf-8"))
+            data = json.loads(response.read().decode("utf-8"))
     except json.JSONDecodeError as e:
         return [{"error": f"Invalid JSON data received: {e}"}]
     except Exception as e:

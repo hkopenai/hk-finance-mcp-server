@@ -24,7 +24,7 @@ def fetch_hibor_daily_data(
     """
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/er-ir/hk-interbank-ir-daily?segment=hibor.fixing"
     with urllib.request.urlopen(url) as response:
-    data = json.loads(response.read().decode("utf-8"))
+        data = json.loads(response.read().decode("utf-8"))
 
     records = data.get("result", {}).get("records", [])
 
@@ -65,7 +65,27 @@ def fetch_hibor_daily_data(
     return results
 
 
-def get_hibor_stats(
+from pydantic import Field
+from typing_extensions import Annotated
+from fastmcp import FastMCP
+
+
+def register(mcp: FastMCP):
+    @mcp.tool(
+        description="Get daily figures of Hong Kong Interbank Interest Rates (HIBOR) from HKMA"
+    )
+    def get_hibor_daily_stats(
+        start_date: Annotated[
+            Optional[str], Field(description="Start date (YYYY-MM-DD)")
+        ] = None,
+        end_date: Annotated[
+            Optional[str], Field(description="End date (YYYY-MM-DD)")
+        ] = None,
+    ) -> List[Dict]:
+        return _get_hibor_stats(start_date, end_date)
+
+
+def _get_hibor_stats(
     start_date: Optional[str] = None, end_date: Optional[str] = None
 ) -> List[Dict]:
     """Retrieve HIBOR daily figures data"""

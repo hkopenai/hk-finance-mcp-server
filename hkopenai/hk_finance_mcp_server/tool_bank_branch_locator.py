@@ -63,7 +63,7 @@ def fetch_bank_branch_data(
     """
     url = f"https://api.hkma.gov.hk/public/bank-svf-info/banks-branch-locator?lang={lang}&pagesize={pagesize}&offset={offset}"
     with urllib.request.urlopen(url) as response:
-    data = json.loads(response.read().decode("utf-8"))
+        data = json.loads(response.read().decode("utf-8"))
 
     records = data.get("result", {}).get("records", [])
     filtered_records = []

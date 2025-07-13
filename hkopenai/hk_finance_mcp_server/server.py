@@ -34,55 +34,15 @@ def create_mcp_server():
 
     tool_hkma_tender.register(mcp)
 
-    @mcp.tool(
-        description="Get daily figures of Hong Kong Interbank Interest Rates (HIBOR) from HKMA"
-    )
-    def get_hibor_daily_stats(
-        start_date: Annotated[
-            Optional[str], Field(description="Start date (YYYY-MM-DD)")
-        ] = None,
-        end_date: Annotated[
-            Optional[str], Field(description="End date (YYYY-MM-DD)")
-        ] = None,
-    ) -> List[Dict]:
-        return tool_hibor_daily.get_hibor_stats(start_date, end_date)
+    tool_hibor_daily.register(mcp)
 
     tool_atm_locator.register(mcp)
 
-    @mcp.tool(
-        description="Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"
-    )
-    def get_stamp_duty_statistics(
-        start_period: Annotated[
-            Optional[str],
-            Field(description="Start period in YYYYMM format to filter results"),
-        ] = None,
-        end_period: Annotated[
-            Optional[str],
-            Field(description="End period in YYYYMM format to filter results"),
-        ] = None,
-    ) -> List[Dict]:
-        return tool_stamp_duty_statistics.get_stamp_duty_statistics(
-            start_period, end_period
-        )
+    tool_stamp_duty_statistics.register(mcp)
 
     tool_bank_branch_locator.register(mcp)
 
-    @mcp.tool(
-        description="Get information on fraudulent bank websites and phishing scams reported to HKMA"
-    )
-    def get_fraudulent_bank_scams(
-        lang: Annotated[
-            Optional[str],
-            Field(
-                description="Language (en/tc/sc)",
-                json_schema_extra={"enum": ["en", "tc", "sc"]},
-            ),
-        ] = "en",
-    ) -> List[Dict]:
-        return tool_fraudulent_bank_scams.get_fraudulent_bank_scams(
-            lang if lang is not None else "en"
-        )
+    tool_fraudulent_bank_scams.register(mcp)
 
     return mcp
 

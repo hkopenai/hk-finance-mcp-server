@@ -18,7 +18,7 @@ def fetch_stamp_duty_data() -> List[Dict]:
     """
     url = "https://www.ird.gov.hk/datagovhk/Stamp_Col_ST.csv"
     with urllib.request.urlopen(url) as response:
-    data = response.read().decode("utf-8")
+        data = response.read().decode("utf-8")
 
     # Parse CSV data
     csv_file = StringIO(data)
@@ -37,18 +37,32 @@ def fetch_stamp_duty_data() -> List[Dict]:
     return records
 
 
-def get_stamp_duty_statistics(
+from pydantic import Field
+from typing_extensions import Annotated
+from fastmcp import FastMCP
+
+
+def register(mcp: FastMCP):
+    @mcp.tool(
+        description="""Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"""
+    )
+    def get_stamp_duty_statistics(
+        start_period: Annotated[
+            Optional[str],
+            Field(description="""Start period in YYYYMM format to filter results"""),
+        ] = None,
+        end_period: Annotated[
+            Optional[str],
+            Field(description="""End period in YYYYMM format to filter results"""),
+        ] = None,
+    ) -> List[Dict]:
+        return _get_stamp_duty_statistics(start_period, end_period)
+
+
+def _get_stamp_duty_statistics(
     start_period: Optional[str] = None, end_period: Optional[str] = None
 ) -> List[Dict]:
-    """Retrieve monthly stamp duty statistics with optional period filtering
-
-    Args:
-        start_period: Optional start period in YYYYMM format to filter results
-        end_period: Optional end period in YYYYMM format to filter results
-
-    Returns:
-        List of stamp duty statistics data in JSON format
-    """
+    """Retrieve monthly stamp duty statistics with optional period filtering"""
     data = fetch_stamp_duty_data()
 
     if not data:

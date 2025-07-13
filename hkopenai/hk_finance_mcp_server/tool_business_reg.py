@@ -46,8 +46,8 @@ def fetch_business_returns_data(
     """
     url = "https://www.ird.gov.hk/datagovhk/BRFMBUSC.csv"
     with urllib.request.urlopen(url) as response:
-    lines = [l.decode("utf-8") for l in response.readlines()]
-    reader = csv.DictReader(lines)
+        lines = [l.decode("utf-8") for l in response.readlines()]
+        reader = csv.DictReader(lines)
 
     results = []
     for row in reader:

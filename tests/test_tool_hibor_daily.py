@@ -6,54 +6,56 @@ This module contains unit tests to verify the correct fetching of daily HIBOR
 """
 
 import unittest
-from hkopenai.hk_finance_mcp_server import tool_hibor_daily
+from unittest.mock import patch, MagicMock
+from hkopenai.hk_finance_mcp_server.tool_hibor_daily import _get_hibor_stats, register
 
 
 class TestHiborDailyTool(unittest.TestCase):
     """Test case class for verifying HIBOR Daily tool functionality."""
 
-    def test_fetch_hibor_daily_data(self):
-        """Test fetching HIBOR daily data without filters.
+    @patch('hkopenai.hk_finance_mcp_server.tool_hibor_daily.fetch_hibor_daily_data')
+    def test_get_hibor_stats(self, mock_fetch_hibor_daily_data):
+        """Test the retrieval and filtering of HIBOR daily stats."""
+        mock_fetch_hibor_daily_data.return_value = [
+            {"date": "2025-05-01", "overnight": 0.08, "1_week": 0.15},
+            {"date": "2025-05-02", "overnight": 0.09, "1_week": 0.16},
+        ]
+        
+        result = _get_hibor_stats(start_date="2025-05-01", end_date="2025-05-02")
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["date"], "2025-05-01")
+        self.assertEqual(result[1]["date"], "2025-05-02")
+        mock_fetch_hibor_daily_data.assert_called_once_with("2025-05-01", "2025-05-02")
 
-        Verifies that the fetch_hibor_daily_data function returns a list of data
-        with expected keys when no filters are applied.
-        """
-        data = tool_hibor_daily.fetch_hibor_daily_data()
-        self.assertIsInstance(data, list)
-        if data:
-            self.assertIsInstance(data[0], dict)
-            self.assertIn("date", data[0])
-            self.assertIn("overnight", data[0])
+    @patch('hkopenai.hk_finance_mcp_server.tool_hibor_daily.fetch_hibor_daily_data')
+    def test_get_hibor_stats_empty_data(self, mock_fetch_hibor_daily_data):
+        """Test _get_hibor_stats returns empty list when no data is fetched."""
+        mock_fetch_hibor_daily_data.return_value = []
+        result = _get_hibor_stats(start_date="2025-01-01", end_date="2025-01-31")
+        self.assertEqual(len(result), 0)
+        mock_fetch_hibor_daily_data.assert_called_once_with("2025-01-01", "2025-01-31")
 
-    def test_fetch_hibor_daily_data_with_date_range(self):
-        """Test fetching HIBOR daily data with date range filter.
+    def test_register_tool(self):
+        """Test the registration of the get_hibor_daily_stats tool."""
+        mock_mcp = MagicMock()
 
-        Verifies that the fetch_hibor_daily_data function returns a list of data
-        within the specified date range.
-        """
-        data = tool_hibor_daily.fetch_hibor_daily_data(
-            start_date="2025-05-01", end_date="2025-05-31"
+        register(mock_mcp)
+
+        mock_mcp.tool.assert_called_once_with(
+            description="Get daily figures of Hong Kong Interbank Interest Rates (HIBOR) from HKMA"
         )
-        self.assertIsInstance(data, list)
-        if data:
-            for record in data:
-                self.assertIsInstance(record, dict)
-                self.assertIn("date", record)
-                date_str = record["date"]
-                self.assertTrue(date_str >= "2025-05-01" and date_str <= "2025-05-31")
 
-    def test_get_hibor_stats(self):
-        """Test getting HIBOR stats without filters.
+        mock_decorator = mock_mcp.tool.return_value
+        mock_decorator.assert_called_once()
 
-        Verifies that the get_hibor_stats function returns a list of statistical data
-        with expected keys.
-        """
-        stats = tool_hibor_daily.get_hibor_stats()
-        self.assertIsInstance(stats, list)
-        if stats:
-            self.assertIsInstance(stats[0], dict)
-            self.assertIn("date", stats[0])
+        decorated_function = mock_decorator.call_args[0][0]
+        self.assertEqual(decorated_function.__name__, "get_hibor_daily_stats")
 
+        with patch(
+            "hkopenai.hk_finance_mcp_server.tool_hibor_daily._get_hibor_stats"
+        ) as mock_get_hibor_stats:
+            decorated_function(start_date="2024-01-01", end_date="2024-01-31")
+            mock_get_hibor_stats.assert_called_once_with("2024-01-01", "2024-01-31")
 
 if __name__ == "__main__":
     unittest.main()

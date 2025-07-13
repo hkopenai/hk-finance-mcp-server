@@ -54,7 +54,7 @@ def fetch_atm_locator_data(
     """
     url = f"https://api.hkma.gov.hk/public/bank-svf-info/banks-atm-locator?lang=en&pagesize={pagesize}&offset={offset}"
     with urllib.request.urlopen(url) as response:
-    data = json.loads(response.read().decode("utf-8"))
+        data = json.loads(response.read().decode("utf-8"))
 
     records = data.get("result", {}).get("records", [])
     filtered_records = []

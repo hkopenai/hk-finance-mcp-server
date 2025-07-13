@@ -30,7 +30,7 @@ def fetch_coin_cart_schedule() -> Dict:
     url = "https://api.hkma.gov.hk/public/coin-cart-schedule?lang=en"
     try:
         with urllib.request.urlopen(url) as response:
-        data = json.loads(response.read().decode("utf-8"))
+            data = json.loads(response.read().decode("utf-8"))
         return data
     except json.JSONDecodeError as e:
         raise Exception(f"JSON decode error: {e}")

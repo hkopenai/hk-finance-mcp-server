@@ -53,7 +53,7 @@ def fetch_credit_card_data(
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/banking/credit-card-lending-survey"
     try:
         with urllib.request.urlopen(url) as response:
-        data = json.loads(response.read().decode("utf-8"))
+            data = json.loads(response.read().decode("utf-8"))
     except json.JSONDecodeError as e:
         raise Exception(f"JSON decode error: {str(e)}")
     except Exception as e:
@@ -129,7 +129,7 @@ def fetch_credit_card_hotlines() -> List[Dict]:
     url = "https://api.hkma.gov.hk/public/bank-svf-info/hotlines-report-loss-credit-card?lang=en"
     try:
         with urllib.request.urlopen(url) as response:
-        data = json.loads(response.read().decode("utf-8"))
+            data = json.loads(response.read().decode("utf-8"))
     except json.JSONDecodeError as e:
         raise Exception(f"JSON decode error: {e}")
     except Exception as e:
