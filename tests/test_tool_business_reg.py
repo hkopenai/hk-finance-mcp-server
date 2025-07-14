@@ -7,11 +7,7 @@ of business registration data from the IRD API using the tool_business_reg modul
 
 import unittest
 from unittest.mock import patch, mock_open
-from hkopenai.hk_finance_mcp_server.tool_business_reg import (
-    fetch_business_returns_data,
-    _get_business_stats,
-    register,
-)
+from hkopenai.hk_finance_mcp_server.tool_business_reg import fetch_business_returns_data
 
 
 class TestBusinessReturns(unittest.TestCase):

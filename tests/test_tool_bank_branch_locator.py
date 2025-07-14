@@ -1,3 +1,5 @@
+"""Module for testing the Bank Branch Locator tool functionality."""
+
 import unittest
 import json
 from unittest.mock import patch, Mock, MagicMock
@@ -46,11 +48,6 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         Verifies that the fetch_bank_branch_data function returns all available data
         when no filters are applied.
         """
-        """Test fetching bank branch data without filters.
-
-        Verifies that the fetch_bank_branch_data function returns all available data
-        when no filters are applied.
-        """
         # Arrange
         mock_response = Mock()
         mock_response.read.return_value = self.sample_data.encode("utf-8")
@@ -72,12 +69,6 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         Verifies that the fetch_bank_branch_data function correctly filters results
         based on the specified district.
         """
-        """
-        Test fetching bank branch data with district filter.
-
-        Verifies that the fetch_bank_branch_data function correctly filters results
-        based on the specified district.
-        """
         # Arrange
         mock_response = Mock()
         mock_response.read.return_value = self.sample_data.encode("utf-8")
@@ -93,8 +84,7 @@ class TestBankBranchLocatorTool(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_fetch_bank_branch_data_with_bank_name_filter(self, mock_urlopen):
-        """
-        Test fetching bank branch data with bank name filter.
+        """Test fetching bank branch data with bank name filter.
 
         Verifies that the fetch_bank_branch_data function correctly filters results
         based on the specified bank name.

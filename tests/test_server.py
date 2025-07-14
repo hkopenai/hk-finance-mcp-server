@@ -12,7 +12,6 @@ from hkopenai.hk_finance_mcp_server.server import create_mcp_server
 
 class TestApp(unittest.TestCase):
     """Test case class for verifying MCP server functionality."""
-    """Test case class for verifying MCP server functionality."""
 
     @patch("hkopenai.hk_finance_mcp_server.server.FastMCP")
     @patch("hkopenai.hk_finance_mcp_server.tool_business_reg.register")

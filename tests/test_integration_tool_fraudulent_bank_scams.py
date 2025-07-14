@@ -2,8 +2,8 @@
 
 import unittest
 from unittest.mock import Mock
-from hkopenai.hk_finance_mcp_server import tool_fraudulent_bank_scams
 from fastmcp import FastMCP
+from hkopenai.hk_finance_mcp_server import tool_fraudulent_bank_scams
 
 
 class TestFraudulentBankScamsIntegration(unittest.TestCase):

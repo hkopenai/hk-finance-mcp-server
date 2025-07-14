@@ -8,6 +8,9 @@ import csv
 import urllib.request
 from typing import List, Dict, Optional
 from io import StringIO
+from pydantic import Field
+from typing_extensions import Annotated
+from fastmcp import FastMCP
 
 
 def fetch_stamp_duty_data() -> List[Dict]:
@@ -43,6 +46,7 @@ from fastmcp import FastMCP
 
 
 def register(mcp: FastMCP):
+    """Registers the stamp duty statistics tool with the FastMCP server."""
     @mcp.tool(
         description="""Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"""
     )
@@ -56,6 +60,7 @@ def register(mcp: FastMCP):
             Field(description="""End period in YYYYMM format to filter results"""),
         ] = None,
     ) -> List[Dict]:
+        """Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"""
         return _get_stamp_duty_statistics(start_period, end_period)
 
 

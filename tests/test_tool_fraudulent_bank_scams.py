@@ -7,7 +7,10 @@ alerts from the HKMA API using the tool_fraudulent_bank_scams module.
 
 import unittest
 from unittest.mock import patch, Mock, MagicMock
-from hkopenai.hk_finance_mcp_server.tool_fraudulent_bank_scams import _get_fraudulent_bank_scams, register
+from hkopenai.hk_finance_mcp_server.tool_fraudulent_bank_scams import (
+    _get_fraudulent_bank_scams,
+    register,
+)
 
 
 class TestFraudulentBankScamsTool(unittest.TestCase):
@@ -15,7 +18,9 @@ class TestFraudulentBankScamsTool(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures before each test method."""
-        self.api_url = "https://api.hkma.gov.hk/public/bank-svf-info/fraudulent-bank-scams"
+        self.api_url = (
+            "https://api.hkma.gov.hk/public/bank-svf-info/fraudulent-bank-scams"
+        )
 
     @patch("requests.get")
     def test_get_fraudulent_bank_scams_success(self, mock_get):

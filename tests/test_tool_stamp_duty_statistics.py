@@ -6,10 +6,13 @@ of stamp duty statistics data using the tool_stamp_duty_statistics module.
 """
 
 import unittest
-import csv
 from unittest.mock import patch, Mock, MagicMock
 from io import StringIO
-from hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics import _get_stamp_duty_statistics, register, fetch_stamp_duty_data
+from hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics import (
+    _get_stamp_duty_statistics,
+    register,
+    fetch_stamp_duty_data,
+)
 
 
 class TestStampDutyStatisticsTool(unittest.TestCase):
@@ -46,7 +49,9 @@ class TestStampDutyStatisticsTool(unittest.TestCase):
         self.assertEqual(result[0]["sd_listed"], 3554.692596)
         self.assertEqual(result[0]["sd_unlisted"], 27.088813)
 
-    @patch('hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics.fetch_stamp_duty_data')
+    @patch(
+        "hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics.fetch_stamp_duty_data"
+    )
     def test_get_stamp_duty_statistics_with_filters(self, mock_fetch_stamp_duty_data):
         """Test getting stamp duty statistics with period filters.
 

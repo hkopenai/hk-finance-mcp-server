@@ -4,10 +4,7 @@ Module for creating and running the HK OpenAI Finance MCP Server.
 This module configures and initializes a FastMCP server with various financial data tools provided by the Hong Kong Monetary Authority (HKMA) and other sources. It includes functionality to run the server in different modes (stdio or SSE).
 """
 
-
-from typing import Dict, Annotated, Optional, List
 from fastmcp import FastMCP
-from pydantic import Field
 from hkopenai.hk_finance_mcp_server import tool_business_reg
 from hkopenai.hk_finance_mcp_server import tool_neg_resident_mortgage
 from hkopenai.hk_finance_mcp_server import tool_credit_card

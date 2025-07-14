@@ -13,21 +13,21 @@ from hkopenai.hk_finance_mcp_server.tool_hibor_daily import _get_hibor_stats, re
 class TestHiborDailyTool(unittest.TestCase):
     """Test case class for verifying HIBOR Daily tool functionality."""
 
-    @patch('hkopenai.hk_finance_mcp_server.tool_hibor_daily.fetch_hibor_daily_data')
+    @patch("hkopenai.hk_finance_mcp_server.tool_hibor_daily.fetch_hibor_daily_data")
     def test_get_hibor_stats(self, mock_fetch_hibor_daily_data):
         """Test the retrieval and filtering of HIBOR daily stats."""
         mock_fetch_hibor_daily_data.return_value = [
             {"date": "2025-05-01", "overnight": 0.08, "1_week": 0.15},
             {"date": "2025-05-02", "overnight": 0.09, "1_week": 0.16},
         ]
-        
+
         result = _get_hibor_stats(start_date="2025-05-01", end_date="2025-05-02")
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]["date"], "2025-05-01")
         self.assertEqual(result[1]["date"], "2025-05-02")
         mock_fetch_hibor_daily_data.assert_called_once_with("2025-05-01", "2025-05-02")
 
-    @patch('hkopenai.hk_finance_mcp_server.tool_hibor_daily.fetch_hibor_daily_data')
+    @patch("hkopenai.hk_finance_mcp_server.tool_hibor_daily.fetch_hibor_daily_data")
     def test_get_hibor_stats_empty_data(self, mock_fetch_hibor_daily_data):
         """Test _get_hibor_stats returns empty list when no data is fetched."""
         mock_fetch_hibor_daily_data.return_value = []
@@ -56,6 +56,7 @@ class TestHiborDailyTool(unittest.TestCase):
         ) as mock_get_hibor_stats:
             decorated_function(start_date="2024-01-01", end_date="2024-01-31")
             mock_get_hibor_stats.assert_called_once_with("2024-01-01", "2024-01-31")
+
 
 if __name__ == "__main__":
     unittest.main()

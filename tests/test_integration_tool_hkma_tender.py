@@ -6,6 +6,7 @@ from hkopenai.hk_finance_mcp_server.tool_hkma_tender import fetch_tender_invitat
 
 class TestHKMATenderIntegration(unittest.TestCase):
     """Integration test class for verifying HKMA Tender Invitations tool functionality."""
+
     def setUp(self):
         # Temporarily bypass environment variable check for debugging
         self.run_integration_tests = True

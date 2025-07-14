@@ -6,6 +6,7 @@ from hkopenai.hk_finance_mcp_server.tool_credit_card import fetch_credit_card_da
 
 class TestCreditCardIntegration(unittest.TestCase):
     """Integration test class for verifying Credit Card tool functionality."""
+
     def setUp(self):
         # Temporarily bypass environment variable check for debugging
         self.run_integration_tests = True

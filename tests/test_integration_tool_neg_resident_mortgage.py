@@ -8,6 +8,7 @@ from hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage import (
 
 class TestNegResidentMortgageIntegration(unittest.TestCase):
     """Integration test class for verifying Negative Equity Residential Mortgage tool functionality."""
+
     def setUp(self):
         # Temporarily bypass environment variable check for debugging
         self.run_integration_tests = True

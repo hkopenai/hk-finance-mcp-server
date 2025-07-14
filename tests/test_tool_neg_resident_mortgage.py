@@ -9,7 +9,6 @@ from unittest.mock import patch, MagicMock
 import json
 
 from hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage import (
-    _get_neg_equity_stats,
     register,
     fetch_neg_equity_data,
 )

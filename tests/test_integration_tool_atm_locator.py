@@ -6,6 +6,7 @@ from hkopenai.hk_finance_mcp_server import tool_atm_locator
 
 class TestAtmLocatorIntegration(unittest.TestCase):
     """Integration test class for verifying ATM Locator tool functionality."""
+
     def test_fetch_atm_locator_data_integration(self):
         """Test fetching ATM location data from the live API."""
         result = tool_atm_locator.fetch_atm_locator_data(pagesize=5, offset=0)

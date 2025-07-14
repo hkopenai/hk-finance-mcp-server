@@ -2,8 +2,8 @@
 
 import unittest
 from unittest.mock import Mock
-from hkopenai.hk_finance_mcp_server import tool_hibor_daily
 from fastmcp import FastMCP
+from hkopenai.hk_finance_mcp_server import tool_hibor_daily
 
 
 class TestHiborDailyIntegration(unittest.TestCase):
@@ -38,7 +38,9 @@ class TestHiborDailyIntegration(unittest.TestCase):
                     self.assertIsInstance(record, dict)
                     self.assertIn("date", record)
                     date_str = record["date"]
-                    self.assertTrue(date_str >= "2025-01-01" and date_str <= "2025-01-31")
+                    self.assertTrue(
+                        date_str >= "2025-01-01" and date_str <= "2025-01-31"
+                    )
         except Exception as e:
             self.fail(f"Failed to fetch HIBOR daily stats with date range: {str(e)}")
 

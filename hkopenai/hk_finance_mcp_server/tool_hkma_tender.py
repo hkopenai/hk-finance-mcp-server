@@ -77,7 +77,7 @@ def fetch_tender_invitations(
     Returns:
         List of tender records with title, link and date
     """
-    base_url = "https://api.hkma.gov.hk/public/tender-invitations"
+
     # Use default values if parameters are empty or invalid
     effective_lang = lang if lang in ["en", "tc", "sc"] else "en"
     effective_segment = (
@@ -94,7 +94,7 @@ def fetch_tender_invitations(
     if to_date:
         params.append(f"to={to_date}")
 
-    url = f"{base_url}?{'&'.join(params)}"
+    url = f"https://api.hkma.gov.hk/public/tender-invitations?{'&'.join(params)}"
     try:
         with urllib.request.urlopen(url) as response:
             raw_data = response.read().decode("utf-8")
@@ -132,7 +132,7 @@ def _get_tender_invitations(
     Returns:
         List of tender records with title, link and date
     """
-    base_url = "https://api.hkma.gov.hk/public/tender-invitations"
+
     # Use default values if parameters are empty or invalid
     effective_lang = lang if lang in ["en", "tc", "sc"] else "en"
     effective_segment = (
@@ -149,7 +149,6 @@ def _get_tender_invitations(
     if to_date:
         params.append(f"to={to_date}")
 
-    url = f"{base_url}?{'&'.join(params)}"
     try:
         # Use fetch_func instead of direct urllib.request.urlopen
         records = fetch_func(lang, segment, pagesize, offset, from_date, to_date)

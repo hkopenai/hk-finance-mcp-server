@@ -8,6 +8,7 @@ from hkopenai.hk_finance_mcp_server.tool_bank_branch_locator import (
 
 class TestBankBranchLocatorIntegration(unittest.TestCase):
     """Integration test class for verifying Bank Branch Locator tool functionality."""
+
     def test_get_bank_branch_locations_no_filter(self):
         """Test fetching bank branch locations without filters from the live API."""
         # Act

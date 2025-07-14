@@ -6,8 +6,11 @@ This module provides functions to retrieve HIBOR daily figures from the HKMA API
 
 import json
 import urllib.request
-from typing import List, Dict, Optional
 from datetime import datetime
+from typing import List, Dict, Optional
+from pydantic import Field
+from typing_extensions import Annotated
+from fastmcp import FastMCP
 
 
 def fetch_hibor_daily_data(
@@ -71,6 +74,7 @@ from fastmcp import FastMCP
 
 
 def register(mcp: FastMCP):
+    """Registers the HIBOR daily stats tool with the FastMCP server."""
     @mcp.tool(
         description="Get daily figures of Hong Kong Interbank Interest Rates (HIBOR) from HKMA"
     )
@@ -82,6 +86,7 @@ def register(mcp: FastMCP):
             Optional[str], Field(description="End date (YYYY-MM-DD)")
         ] = None,
     ) -> List[Dict]:
+        """Get daily figures of Hong Kong Interbank Interest Rates (HIBOR) from HKMA."""
         return _get_hibor_stats(start_date, end_date)
 
 

@@ -12,7 +12,9 @@ from fastmcp import FastMCP
 
 API_URL = "https://api.hkma.gov.hk/public/bank-svf-info/fraudulent-bank-scams"
 
+
 def register(mcp: FastMCP):
+    """Registers the fraudulent bank scams tool with the FastMCP server."""
     @mcp.tool(
         description="Get information on fraudulent bank websites and phishing scams reported to HKMA"
     )
@@ -25,7 +27,9 @@ def register(mcp: FastMCP):
             ),
         ] = "en",
     ) -> List[Dict]:
+        """Get information on fraudulent bank websites and phishing scams reported to HKMA."""
         return _get_fraudulent_bank_scams(lang if lang is not None else "en")
+
 
 def _get_fraudulent_bank_scams(lang: str = "en") -> List[Dict[str, Any]]:
     """

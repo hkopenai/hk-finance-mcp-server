@@ -2,8 +2,8 @@
 
 import unittest
 from unittest.mock import Mock
-from hkopenai.hk_finance_mcp_server import tool_stamp_duty_statistics
 from fastmcp import FastMCP
+from hkopenai.hk_finance_mcp_server import tool_stamp_duty_statistics
 
 
 class TestStampDutyStatisticsIntegration(unittest.TestCase):
@@ -23,7 +23,9 @@ class TestStampDutyStatisticsIntegration(unittest.TestCase):
                 len(result) > 0, "Expected to fetch at least one stamp duty record"
             )
             self.assertIn("period", result[0], "Expected 'period' field in result")
-            self.assertIn("sd_listed", result[0], "Expected 'sd_listed' field in result")
+            self.assertIn(
+                "sd_listed", result[0], "Expected 'sd_listed' field in result"
+            )
             self.assertIn(
                 "sd_unlisted", result[0], "Expected 'sd_unlisted' field in result"
             )
@@ -47,7 +49,9 @@ class TestStampDutyStatisticsIntegration(unittest.TestCase):
                     "Expected all results to be within the specified period range",
                 )
         except Exception as e:
-            self.fail(f"Failed to fetch stamp duty statistics with period filter: {str(e)}")
+            self.fail(
+                f"Failed to fetch stamp duty statistics with period filter: {str(e)}"
+            )
 
 
 if __name__ == "__main__":
