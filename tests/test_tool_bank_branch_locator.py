@@ -54,7 +54,8 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         # Arrange
         mock_response = Mock()
         mock_response.read.return_value = self.sample_data.encode("utf-8")
-        mock_urlopen.return_value = mock_response
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+        mock_urlopen.return_value.__exit__.return_value = None
 
         # Act
         result = tool_bank_branch_locator.fetch_bank_branch_data()
@@ -80,7 +81,8 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         # Arrange
         mock_response = Mock()
         mock_response.read.return_value = self.sample_data.encode("utf-8")
-        mock_urlopen.return_value = mock_response
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+        mock_urlopen.return_value.__exit__.return_value = None
 
         # Act
         result = tool_bank_branch_locator.fetch_bank_branch_data(district="Central")
@@ -100,7 +102,8 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         # Arrange
         mock_response = Mock()
         mock_response.read.return_value = self.sample_data.encode("utf-8")
-        mock_urlopen.return_value = mock_response
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+        mock_urlopen.return_value.__exit__.return_value = None
 
         # Act
         result = tool_bank_branch_locator.fetch_bank_branch_data(
@@ -123,7 +126,8 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         empty_data = {"result": {"datasize": 0, "records": []}}
         mock_response = Mock()
         mock_response.read.return_value = json.dumps(empty_data).encode("utf-8")
-        mock_urlopen.return_value = mock_response
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+        mock_urlopen.return_value.__exit__.return_value = None
 
         # Act
         result = tool_bank_branch_locator._get_bank_branch_locations(

@@ -36,7 +36,8 @@ class TestStampDutyStatisticsTool(unittest.TestCase):
         """
         mock_response = Mock()
         mock_response.read.return_value = self.csv_content.encode("utf-8")
-        mock_urlopen.return_value = mock_response
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+        mock_urlopen.return_value.__exit__.return_value = None
 
         result = fetch_stamp_duty_data()
 

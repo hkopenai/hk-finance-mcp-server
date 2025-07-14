@@ -20,26 +20,22 @@ class TestApp(unittest.TestCase):
     @patch("hkopenai.hk_finance_mcp_server.tool_credit_card.register")
     @patch("hkopenai.hk_finance_mcp_server.tool_coin_cart.register")
     @patch("hkopenai.hk_finance_mcp_server.tool_hkma_tender.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_hibor_daily.get_hibor_stats")
+    @patch("hkopenai.hk_finance_mcp_server.tool_hibor_daily.register")
     @patch("hkopenai.hk_finance_mcp_server.tool_atm_locator.register")
-    @patch(
-        "hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics.get_stamp_duty_statistics"
-    )
+    @patch("hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics.register")
     @patch("hkopenai.hk_finance_mcp_server.tool_bank_branch_locator.register")
-    @patch(
-        "hkopenai.hk_finance_mcp_server.tool_fraudulent_bank_scams.get_fraudulent_bank_scams"
-    )
+    @patch("hkopenai.hk_finance_mcp_server.tool_fraudulent_bank_scams.register")
     def test_create_mcp_server(
         self,
-        mock_get_fraudulent_bank_scams,
+        mock_fraudulent_bank_scams_register,
         mock_bank_branch_locator_register,
-        mock_get_stamp_duty_statistics,
+        mock_stamp_duty_statistics_register,
         mock_atm_locator_register,
-        mock_get_hibor_stats,
-        mock_get_tender_invitations,
+        mock_hibor_daily_register,
+        mock_hkma_tender_register,
         mock_coin_cart_register,
         mock_credit_card_register,
-        mock_get_neg_equity_stats,
+        mock_neg_resident_mortgage_register,
         mock_business_reg_register,
         mock_fastmcp,
     ):
@@ -60,8 +56,13 @@ class TestApp(unittest.TestCase):
         mock_business_reg_register.assert_called_once_with(mock_server)
         mock_credit_card_register.assert_called_once_with(mock_server)
         mock_coin_cart_register.assert_called_once_with(mock_server)
+        mock_hkma_tender_register.assert_called_once_with(mock_server)
+        mock_hibor_daily_register.assert_called_once_with(mock_server)
         mock_atm_locator_register.assert_called_once_with(mock_server)
+        mock_stamp_duty_statistics_register.assert_called_once_with(mock_server)
         mock_bank_branch_locator_register.assert_called_once_with(mock_server)
+        mock_fraudulent_bank_scams_register.assert_called_once_with(mock_server)
+        mock_neg_resident_mortgage_register.assert_called_once_with(mock_server)
 
 
 if __name__ == "__main__":

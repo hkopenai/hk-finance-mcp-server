@@ -54,7 +54,8 @@ class TestAtmLocatorTool(unittest.TestCase):
         """
         mock_response = Mock()
         mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
-        mock_urlopen.return_value = mock_response
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+        mock_urlopen.return_value.__exit__.return_value = None
 
         result = fetch_atm_locator_data(pagesize=1, offset=0)
 
@@ -79,7 +80,8 @@ class TestAtmLocatorTool(unittest.TestCase):
         """
         mock_response = Mock()
         mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
-        mock_urlopen.return_value = mock_response
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+        mock_urlopen.return_value.__exit__.return_value = None
 
         result = fetch_atm_locator_data(
             district="YuenLong",

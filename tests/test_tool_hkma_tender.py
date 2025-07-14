@@ -51,7 +51,8 @@ class TestHkmaTender(unittest.TestCase):
         """
         mock_response = MagicMock()
         mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
-        mock_urlopen.return_value = mock_response
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+        mock_urlopen.return_value.__exit__.return_value = None
 
         data = fetch_tender_invitations()
         self.assertIsInstance(data, list)
@@ -75,8 +76,9 @@ class TestHkmaTender(unittest.TestCase):
         Test handling of invalid JSON response.
         """
         mock_response = MagicMock()
-        mock_response.read.return_value = b"invalid json"
-        mock_urlopen.return_value = mock_response
+        mock_response.read.return_value.decode.return_value = "invalid json"
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+        mock_urlopen.return_value.__exit__.return_value = None
 
         with self.assertRaisesRegex(Exception, "JSON decode error"):
             fetch_tender_invitations()

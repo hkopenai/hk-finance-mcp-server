@@ -1,15 +1,25 @@
 """Integration tests for the fraudulent bank scams tool."""
 
 import unittest
+from unittest.mock import Mock
 from hkopenai.hk_finance_mcp_server import tool_fraudulent_bank_scams
+from fastmcp import FastMCP
 
 
 class TestFraudulentBankScamsIntegration(unittest.TestCase):
     """Integration test class for verifying fraudulent bank scams tool functionality."""
+
+    def setUp(self):
+        self.mcp = Mock(spec=FastMCP)
+        tool_fraudulent_bank_scams.register(self.mcp)
+        # The tool decorator calls mcp.tool() which returns a callable, then that callable is called with the function.
+        # So, we need to access the call_args of the *returned* mock object.
+        self.get_fraudulent_bank_scams_tool = self.mcp.tool.return_value.call_args[0][0]
+
     def test_get_fraudulent_bank_scams(self):
         """Test fetching fraudulent bank scams data from HKMA API."""
         try:
-            result = tool_fraudulent_bank_scams.get_fraudulent_bank_scams(lang="en")
+            result = self.get_fraudulent_bank_scams_tool(lang="en")
             self.assertIsInstance(result, list)
             if result:
                 # Check if the structure of the first record is as expected
@@ -25,7 +35,7 @@ class TestFraudulentBankScamsIntegration(unittest.TestCase):
     def test_get_fraudulent_bank_scams_different_language(self):
         """Test fetching data in a different language."""
         try:
-            result = tool_fraudulent_bank_scams.get_fraudulent_bank_scams(lang="tc")
+            result = self.get_fraudulent_bank_scams_tool(lang="tc")
             self.assertIsInstance(result, list)
         except Exception as e:
             self.fail(
