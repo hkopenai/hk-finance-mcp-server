@@ -25,45 +25,14 @@ def create_mcp_server():
     mcp = FastMCP(name="HK OpenAI Finance Server")
 
     tool_business_reg.register(mcp)
-
     tool_neg_resident_mortgage.register(mcp)
-
     tool_credit_card.register(mcp)
-
     tool_coin_cart.register(mcp)
-
     tool_hkma_tender.register(mcp)
-
     tool_hibor_daily.register(mcp)
-
     tool_atm_locator.register(mcp)
-
     tool_stamp_duty_statistics.register(mcp)
-
     tool_bank_branch_locator.register(mcp)
-
     tool_fraudulent_bank_scams.register(mcp)
 
     return mcp
-
-
-def main(host: str, port: int, sse: bool):
-    """Main entry point for the HK OpenAI Finance MCP Server.
-
-    Args:
-        args: Command line arguments passed to the function.
-    """
-    server = create_mcp_server()
-
-    if sse:
-        server.run(transport="streamable-http", host=host, port=port)
-        print(
-            f"MCP Server running in SSE mode on port {args.port}, bound to {args.host}"
-        )
-    else:
-        server.run()
-        print("MCP Server running in stdio mode")
-
-
-if __name__ == "__main__":
-    main()
