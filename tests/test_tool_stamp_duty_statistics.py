@@ -7,7 +7,6 @@ of stamp duty statistics data using the tool_stamp_duty_statistics module.
 
 import unittest
 from unittest.mock import patch, Mock, MagicMock
-from io import StringIO
 from hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics import (
     _get_stamp_duty_statistics,
     register,

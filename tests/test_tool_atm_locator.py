@@ -42,16 +42,10 @@ class TestAtmLocatorTool(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_fetch_atm_locator_data(self, mock_urlopen):
-        """Test fetching ATM location data without filters.
         
-        Verifies that the fetch_atm_locator_data function returns the expected data
-        when no filters are applied.
-        """
-        """Test fetching ATM location data without filters.
+        """Test fetching ATM location data without filters."""
 
-        Verifies that the fetch_atm_locator_data function returns the expected data
-        when no filters are applied.
-        """
+
         mock_response = Mock()
         mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
         mock_urlopen.return_value.__enter__.return_value = mock_response
@@ -69,15 +63,12 @@ class TestAtmLocatorTool(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_fetch_atm_locator_data_with_filters(self, mock_urlopen):
         """Test fetching ATM location data with filters.
-        
-        Verifies that the fetch_atm_locator_data function correctly applies filters
-        for district and bank name, returning matching and non-matching results as expected.
-        """
-        """Test fetching ATM location data with filters.
 
         Verifies that the fetch_atm_locator_data function correctly applies filters
         for district and bank name, returning matching and non-matching results as expected.
         """
+
+
         mock_response = Mock()
         mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
         mock_urlopen.return_value.__enter__.return_value = mock_response

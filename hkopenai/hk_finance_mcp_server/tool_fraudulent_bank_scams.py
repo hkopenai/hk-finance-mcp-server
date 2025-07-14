@@ -15,6 +15,7 @@ API_URL = "https://api.hkma.gov.hk/public/bank-svf-info/fraudulent-bank-scams"
 
 def register(mcp: FastMCP):
     """Registers the fraudulent bank scams tool with the FastMCP server."""
+
     @mcp.tool(
         description="Get information on fraudulent bank websites and phishing scams reported to HKMA"
     )

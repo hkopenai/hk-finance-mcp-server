@@ -68,13 +68,10 @@ def fetch_hibor_daily_data(
     return results
 
 
-from pydantic import Field
-from typing_extensions import Annotated
-from fastmcp import FastMCP
-
 
 def register(mcp: FastMCP):
     """Registers the HIBOR daily stats tool with the FastMCP server."""
+
     @mcp.tool(
         description="Get daily figures of Hong Kong Interbank Interest Rates (HIBOR) from HKMA"
     )

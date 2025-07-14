@@ -40,13 +40,10 @@ def fetch_stamp_duty_data() -> List[Dict]:
     return records
 
 
-from pydantic import Field
-from typing_extensions import Annotated
-from fastmcp import FastMCP
-
 
 def register(mcp: FastMCP):
     """Registers the stamp duty statistics tool with the FastMCP server."""
+
     @mcp.tool(
         description="""Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"""
     )
