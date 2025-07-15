@@ -5,7 +5,7 @@ This module provides functions to retrieve data on active and newly registered b
 """
 
 import csv
-import urllib.request
+from hkopenai_common.csv_utils import fetch_csv_from_url
 from typing import List, Dict, Optional
 from pydantic import Field
 from typing_extensions import Annotated
@@ -45,9 +45,7 @@ def fetch_business_returns_data(
         List of business data in JSON format with year_month, active_business, new_registered_business
     """
     url = "https://www.ird.gov.hk/datagovhk/BRFMBUSC.csv"
-    with urllib.request.urlopen(url) as response:
-        lines = [l.decode("utf-8") for l in response.readlines()]
-        reader = csv.DictReader(lines)
+    reader = fetch_csv_from_url(url)
 
     results = []
     for row in reader:
