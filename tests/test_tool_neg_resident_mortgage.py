@@ -7,7 +7,7 @@ This module contains unit tests for fetching and processing negative equity resi
 import unittest
 from unittest.mock import patch, MagicMock
 
-from hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage import (
+from hkopenai.hk_finance_mcp_server.tools.neg_resident_mortgage import (
     _get_neg_equity_stats,
     register,
 )
@@ -110,7 +110,7 @@ class TestNegEquityResidentialMortgage(unittest.TestCase):
 
         # Call the decorated function and verify it calls _get_neg_equity_stats
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage._get_neg_equity_stats"
+            "hkopenai.hk_finance_mcp_server.tools.neg_resident_mortgage._get_neg_equity_stats"
         ) as mock_get_neg_equity_stats:
             decorated_function(start_year=2023, end_year=2023)
             mock_get_neg_equity_stats.assert_called_once_with(2023, None, 2023, None)

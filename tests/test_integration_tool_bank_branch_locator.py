@@ -1,7 +1,7 @@
 """Integration tests for the Bank Branch Locator tool."""
 
 import unittest
-from hkopenai.hk_finance_mcp_server.tool_bank_branch_locator import (
+from hkopenai.hk_finance_mcp_server.tools.bank_branch_locator import (
     _get_bank_branch_locations,
 )
 

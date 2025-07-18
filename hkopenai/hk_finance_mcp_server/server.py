@@ -5,31 +5,31 @@ This module configures and initializes a FastMCP server with various financial d
 """
 
 from fastmcp import FastMCP
-from hkopenai.hk_finance_mcp_server import tool_business_reg
-from hkopenai.hk_finance_mcp_server import tool_neg_resident_mortgage
-from hkopenai.hk_finance_mcp_server import tool_credit_card
-from hkopenai.hk_finance_mcp_server import tool_coin_cart
-from hkopenai.hk_finance_mcp_server import tool_hkma_tender
-from hkopenai.hk_finance_mcp_server import tool_hibor_daily
-from hkopenai.hk_finance_mcp_server import tool_atm_locator
-from hkopenai.hk_finance_mcp_server import tool_stamp_duty_statistics
-from hkopenai.hk_finance_mcp_server import tool_bank_branch_locator
-from hkopenai.hk_finance_mcp_server import tool_fraudulent_bank_scams
+from .tools import business_reg
+from .tools import neg_resident_mortgage
+from .tools import credit_card
+from .tools import coin_cart
+from .tools import hkma_tender
+from .tools import hibor_daily
+from .tools import atm_locator
+from .tools import stamp_duty_statistics
+from .tools import bank_branch_locator
+from .tools import fraudulent_bank_scams
 
 
 def server():
     """Create and configure the MCP server"""
     mcp = FastMCP(name="HK OpenAI Finance Server")
 
-    tool_business_reg.register(mcp)
-    tool_neg_resident_mortgage.register(mcp)
-    tool_credit_card.register(mcp)
-    tool_coin_cart.register(mcp)
-    tool_hkma_tender.register(mcp)
-    tool_hibor_daily.register(mcp)
-    tool_atm_locator.register(mcp)
-    tool_stamp_duty_statistics.register(mcp)
-    tool_bank_branch_locator.register(mcp)
-    tool_fraudulent_bank_scams.register(mcp)
+    business_reg.register(mcp)
+    neg_resident_mortgage.register(mcp)
+    credit_card.register(mcp)
+    coin_cart.register(mcp)
+    hkma_tender.register(mcp)
+    hibor_daily.register(mcp)
+    atm_locator.register(mcp)
+    stamp_duty_statistics.register(mcp)
+    bank_branch_locator.register(mcp)
+    fraudulent_bank_scams.register(mcp)
 
     return mcp

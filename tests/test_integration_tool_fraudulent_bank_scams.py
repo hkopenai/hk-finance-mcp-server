@@ -3,7 +3,7 @@
 import unittest
 from unittest.mock import Mock
 from fastmcp import FastMCP
-from hkopenai.hk_finance_mcp_server import tool_fraudulent_bank_scams
+from hkopenai.hk_finance_mcp_server.tools import fraudulent_bank_scams
 
 
 class TestFraudulentBankScamsIntegration(unittest.TestCase):
@@ -11,7 +11,7 @@ class TestFraudulentBankScamsIntegration(unittest.TestCase):
 
     def setUp(self):
         self.mcp = Mock(spec=FastMCP)
-        tool_fraudulent_bank_scams.register(self.mcp)
+        fraudulent_bank_scams.register(self.mcp)
         # The tool decorator calls mcp.tool() which returns a callable, then that callable is called with the function.
         # So, we need to access the call_args of the *returned* mock object.
         self.get_fraudulent_bank_scams_tool = self.mcp.tool.return_value.call_args[0][0]

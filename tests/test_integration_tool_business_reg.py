@@ -1,7 +1,7 @@
 """Integration tests for the Business Registration tool."""
 
 import unittest
-from hkopenai.hk_finance_mcp_server.tool_business_reg import fetch_business_returns_data
+from hkopenai.hk_finance_mcp_server.tools import business_reg
 
 
 class TestBusinessReturnsIntegration(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestBusinessReturnsIntegration(unittest.TestCase):
 
         try:
             # Fetch data with default parameters
-            result = fetch_business_returns_data()
+            result = business_reg._get_business_stats()
             self.assertIsInstance(result, list)
             self.assertGreater(
                 len(result), 0, "Expected non-empty result from live API"
@@ -47,7 +47,7 @@ class TestBusinessReturnsIntegration(unittest.TestCase):
 
         try:
             # Fetch data with a specific time range
-            result = fetch_business_returns_data(
+            result = business_reg._get_business_stats(
                 start_year=2023, start_month=1, end_year=2023, end_month=12
             )
             self.assertIsInstance(result, list)

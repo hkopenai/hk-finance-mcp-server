@@ -3,7 +3,7 @@
 import unittest
 from unittest.mock import Mock
 from fastmcp import FastMCP
-from hkopenai.hk_finance_mcp_server import tool_stamp_duty_statistics
+from hkopenai.hk_finance_mcp_server.tools import stamp_duty_statistics
 
 
 class TestStampDutyStatisticsIntegration(unittest.TestCase):
@@ -11,13 +11,13 @@ class TestStampDutyStatisticsIntegration(unittest.TestCase):
 
     def setUp(self):
         self.mcp = Mock(spec=FastMCP)
-        tool_stamp_duty_statistics.register(self.mcp)
+        stamp_duty_statistics.register(self.mcp)
         self.get_stamp_duty_statistics_tool = self.mcp.tool.return_value.call_args[0][0]
 
     def test_get_stamp_duty_statistics(self):
         """Test fetching stamp duty statistics from HKMA API."""
         try:
-            result = self.get_stamp_duty_statistics_tool()
+            result = stamp_duty_statistics._get_stamp_duty_statistics()
             self.assertIsInstance(result, list)
             self.assertTrue(
                 len(result) > 0, "Expected to fetch at least one stamp duty record"
@@ -35,7 +35,7 @@ class TestStampDutyStatisticsIntegration(unittest.TestCase):
     def test_get_stamp_duty_statistics_with_period_filter(self):
         """Test fetching stamp duty statistics with period filter from the live API."""
         try:
-            result = self.get_stamp_duty_statistics_tool(
+            result = stamp_duty_statistics._get_stamp_duty_statistics(
                 start_period="202501", end_period="202502"
             )
             self.assertIsInstance(result, list)

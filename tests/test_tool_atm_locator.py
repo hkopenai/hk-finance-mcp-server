@@ -8,8 +8,7 @@ of ATM location data from the HKMA API using the tool_atm_locator module.
 import unittest
 import json
 from unittest.mock import patch, Mock, MagicMock
-from hkopenai.hk_finance_mcp_server.tool_atm_locator import (
-    fetch_atm_locator_data,
+from hkopenai.hk_finance_mcp_server.tools.atm_locator import (
     _get_atm_locations,
     register,
 )
@@ -35,43 +34,50 @@ class TestAtmLocatorTool(unittest.TestCase):
                         "service_hours": "24 hours",
                         "latitude": "22.461655",
                         "longitude": "113.997757",
+                    },
+                    {
+                        "district": "Central",
+                        "bank_name": "Bank of China (Hong Kong) Limited",
+                        "type_of_machine": "Automatic Teller Machine",
+                        "function": "Cash withdrawal",
+                        "currencies_supported": "HKD",
+                        "barrier_free_access": "None",
+                        "network": "JETCO",
+                        "address": "Bank of China Tower, 1 Garden Road, Central, Hong Kong",
+                        "service_hours": "24 hours",
+                        "latitude": "22.2793",
+                        "longitude": "114.1616",
                     }
                 ]
             }
         }
 
-    @patch("urllib.request.urlopen")
-    def test_fetch_atm_locator_data(self, mock_urlopen):
+    @patch("hkopenai_common.json_utils.fetch_json_data")
+    def test_fetch_atm_locator_data(self, mock_fetch_json_data):
         """Test fetching ATM location data without filters."""
 
-        mock_response = Mock()
-        mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
-        mock_urlopen.return_value.__enter__.return_value = mock_response
-        mock_urlopen.return_value.__exit__.return_value = None
+        mock_fetch_json_data.return_value = self.sample_data
 
-        result = fetch_atm_locator_data(pagesize=1, offset=0)
+        result = _get_atm_locations(pagesize=1, offset=0)
 
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["district"], "YuenLong")
         self.assertEqual(
             result[0]["bank_name"],
-            "Industrial and Commercial Bank of China (Asia) Limited",
+            "Industrial and Commercial Bank of China (Asia) Limited"
         )
 
-    @patch("urllib.request.urlopen")
-    def test_fetch_atm_locator_data_with_filters(self, mock_urlopen):
+    @patch("hkopenai_common.json_utils.fetch_json_data")
+    def test_fetch_atm_locator_data_with_filters(self, mock_fetch_json_data):
         """Test fetching ATM location data with filters.
 
         Verifies that the fetch_atm_locator_data function correctly applies filters
         for district and bank name, returning matching and non-matching results as expected.
         """
 
-        mock_response = Mock()
-        mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
-        mock_urlopen.return_value.__enter__.return_value = mock_response
-        mock_urlopen.return_value.__exit__.return_value = None
+        mock_fetch_json_data.return_value = self.sample_data
 
-        result = fetch_atm_locator_data(
+        result = _get_atm_locations(
             district="YuenLong",
             bank_name="Industrial and Commercial Bank of China (Asia) Limited",
             pagesize=1,
@@ -81,33 +87,10 @@ class TestAtmLocatorTool(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["district"], "YuenLong")
 
-        result = fetch_atm_locator_data(district="Central", pagesize=1, offset=0)
-        self.assertEqual(len(result), 0)
+        result = _get_atm_locations(district="Central", pagesize=1, offset=0)
+        self.assertEqual(len(result), 1)
 
-    def test_get_atm_locations(self):
-        """Test retrieving ATM locations with optional filtering."""
-        with patch(
-            "hkopenai.hk_finance_mcp_server.tool_atm_locator.fetch_atm_locator_data"
-        ) as mock_fetch:
-            mock_fetch.return_value = [
-                {
-                    "district": "YuenLong",
-                    "bank_name": "Industrial and Commercial Bank of China (Asia) Limited",
-                    "type_of_machine": "Automatic Teller Machine",
-                    "function": "Cash withdrawal, Cardless withdrawal",
-                    "currencies_supported": "HKD, RMB",
-                    "barrier_free_access": "Voice navigation, Suitable height ATM for wheelchair users",
-                    "network": "JETCO, PLUS, CIRRUS, CUP, VISA, MASTER, DISCOVER, DINER",
-                    "address": "No.7, 2/F, T Town South, Tin Chung Court, 30 Tin Wah Road, Tin Shui Wai, Yuen Long, N.T.",
-                    "service_hours": "24 hours",
-                    "latitude": 22.461655,
-                    "longitude": 113.997757,
-                }
-            ]
-            result = _get_atm_locations(district="YuenLong")
-            mock_fetch.assert_called_once_with("YuenLong", None, 100, 0)
-            self.assertEqual(len(result), 1)
-            self.assertEqual(result[0]["district"], "YuenLong")
+    
 
     def test_register_tool(self):
         """Test the registration of the get_atm_locations tool."""
@@ -135,7 +118,7 @@ class TestAtmLocatorTool(unittest.TestCase):
 
         # Call the decorated function and verify it calls _get_atm_locations
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_atm_locator._get_atm_locations"
+            "hkopenai.hk_finance_mcp_server.tools.atm_locator._get_atm_locations"
         ) as mock_get_atm_locations:
             decorated_function(
                 district="YuenLong",

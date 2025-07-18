@@ -3,7 +3,10 @@
 import unittest
 import json
 from unittest.mock import patch, Mock, MagicMock
-import hkopenai.hk_finance_mcp_server.tool_bank_branch_locator as tool_bank_branch_locator
+from hkopenai.hk_finance_mcp_server.tools.bank_branch_locator import (
+    _get_bank_branch_locations,
+    register,
+)
 
 
 class TestBankBranchLocatorTool(unittest.TestCase):
@@ -41,86 +44,74 @@ class TestBankBranchLocatorTool(unittest.TestCase):
 }
 """
 
-    @patch("urllib.request.urlopen")
-    def test_fetch_bank_branch_data_no_filter(self, mock_urlopen):
+    @patch("hkopenai_common.json_utils.fetch_json_data")
+    def test_fetch_bank_branch_data_no_filter(self, mock_fetch_json_data):
         """Test fetching bank branch data without filters.
 
-        Verifies that the fetch_bank_branch_data function returns all available data
+        Verifies that the _get_bank_branch_locations function returns all available data
         when no filters are applied.
         """
         # Arrange
-        mock_response = Mock()
-        mock_response.read.return_value = self.sample_data.encode("utf-8")
-        mock_urlopen.return_value.__enter__.return_value = mock_response
-        mock_urlopen.return_value.__exit__.return_value = None
+        mock_fetch_json_data.return_value = json.loads(self.sample_data)
 
         # Act
-        result = tool_bank_branch_locator.fetch_bank_branch_data()
+        result = _get_bank_branch_locations(pagesize=100, offset=0)
 
         # Assert
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]["district"], "Central")
         self.assertEqual(result[1]["bank_name"], "Test Bank 2")
 
-    @patch("urllib.request.urlopen")
-    def test_fetch_bank_branch_data_with_district_filter(self, mock_urlopen):
+    @patch("hkopenai_common.json_utils.fetch_json_data")
+    def test_fetch_bank_branch_data_with_district_filter(self, mock_fetch_json_data):
         """Test fetching bank branch data with district filter.
 
-        Verifies that the fetch_bank_branch_data function correctly filters results
+        Verifies that the _get_bank_branch_locations function correctly filters results
         based on the specified district.
         """
         # Arrange
-        mock_response = Mock()
-        mock_response.read.return_value = self.sample_data.encode("utf-8")
-        mock_urlopen.return_value.__enter__.return_value = mock_response
-        mock_urlopen.return_value.__exit__.return_value = None
+        mock_fetch_json_data.return_value = json.loads(self.sample_data)
 
         # Act
-        result = tool_bank_branch_locator.fetch_bank_branch_data(district="Central")
+        result = _get_bank_branch_locations(district="Central", pagesize=100, offset=0)
 
         # Assert
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["district"], "Central")
 
-    @patch("urllib.request.urlopen")
-    def test_fetch_bank_branch_data_with_bank_name_filter(self, mock_urlopen):
+    @patch("hkopenai_common.json_utils.fetch_json_data")
+    def test_fetch_bank_branch_data_with_bank_name_filter(self, mock_fetch_json_data):
         """Test fetching bank branch data with bank name filter.
 
-        Verifies that the fetch_bank_branch_data function correctly filters results
+        Verifies that the _get_bank_branch_locations function correctly filters results
         based on the specified bank name.
         """
         # Arrange
-        mock_response = Mock()
-        mock_response.read.return_value = self.sample_data.encode("utf-8")
-        mock_urlopen.return_value.__enter__.return_value = mock_response
-        mock_urlopen.return_value.__exit__.return_value = None
+        mock_fetch_json_data.return_value = json.loads(self.sample_data)
 
         # Act
-        result = tool_bank_branch_locator.fetch_bank_branch_data(
-            bank_name="Test Bank 2"
+        result = _get_bank_branch_locations(
+            bank_name="Test Bank 2", pagesize=1, offset=0
         )
 
         # Assert
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["bank_name"], "Test Bank 2")
 
-    @patch("urllib.request.urlopen")
-    def test_get_bank_branch_locations_empty_result(self, mock_urlopen):
+    @patch("hkopenai_common.json_utils.fetch_json_data")
+    def test_get_bank_branch_locations_empty_result(self, mock_fetch_json_data):
         """
         Test fetching bank branch locations with empty result.
 
-        Verifies that the get_bank_branch_locations function returns an empty list
+        Verifies that the _get_bank_branch_locations function returns an empty list
         when no data is available from the API.
         """
         # Arrange
         empty_data = {"result": {"datasize": 0, "records": []}}
-        mock_response = Mock()
-        mock_response.read.return_value = json.dumps(empty_data).encode("utf-8")
-        mock_urlopen.return_value.__enter__.return_value = mock_response
-        mock_urlopen.return_value.__exit__.return_value = None
+        mock_fetch_json_data.return_value = empty_data
 
         # Act
-        result = tool_bank_branch_locator._get_bank_branch_locations(
+        result = _get_bank_branch_locations(
             district=None, bank_name=None, lang="en", pagesize=100, offset=0
         )
 
@@ -138,7 +129,7 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         mock_mcp = MagicMock()
 
         # Call the register function
-        tool_bank_branch_locator.register(mock_mcp)
+        register(mock_mcp)
 
         # Verify that mcp.tool was called with the correct description
         mock_mcp.tool.assert_called_once_with(
@@ -159,7 +150,7 @@ class TestBankBranchLocatorTool(unittest.TestCase):
 
         # Call the decorated function and verify it calls _get_bank_branch_locations
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_bank_branch_locator._get_bank_branch_locations"
+            "hkopenai.hk_finance_mcp_server.tools.bank_branch_locator._get_bank_branch_locations"
         ) as mock_get_bank_branch_locations:
             decorated_function(
                 district="Central",

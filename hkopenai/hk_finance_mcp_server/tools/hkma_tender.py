@@ -55,7 +55,7 @@ def register(mcp):
         )
 
 
-def fetch_tender_invitations(
+def _get_tender_invitations(
     lang: str = "en",
     segment: str = "tender",
     pagesize: Optional[int] = None,
@@ -63,8 +63,7 @@ def fetch_tender_invitations(
     from_date: Optional[str] = None,
     to_date: Optional[str] = None,
 ) -> List[Dict]:
-    """
-    Fetch tender invitations from HKMA API
+    """Fetch tender invitations from HKMA API
 
     Args:
         lang: Language (en/tc/sc)
@@ -95,58 +94,12 @@ def fetch_tender_invitations(
         params.append(f"to={to_date}")
 
     url = f"https://api.hkma.gov.hk/public/tender-invitations?{'&'.join(params)}"
-    data = fetch_json_data(url)
-    if "error" in data:
-        return data
-    return data.get("result", {}).get("records", [])
-
-
-def _get_tender_invitations(
-    lang: str = "en",
-    segment: str = "tender",
-    pagesize: Optional[int] = None,
-    offset: Optional[int] = None,
-    from_date: Optional[str] = None,
-    to_date: Optional[str] = None,
-    fetch_func=fetch_tender_invitations,  # Add fetch_func as an argument
-) -> List[Dict]:
-    """Fetch tender invitations from HKMA API
-
-    Args:
-        lang: Language (en/tc/sc)
-        segment: Type of records (tender/notice)
-        pagesize: Number of records per page
-        offset: Starting record offset
-        from_date: Filter records from date (YYYY-MM-DD)
-        to_date: Filter records to date (YYYY-MM-DD)
-        fetch_func: Function to fetch raw data (for mocking in tests)
-
-    Returns:
-        List of tender records with title, link and date
-    """
-
-    # Use default values if parameters are empty or invalid
-    effective_lang = lang if lang in ["en", "tc", "sc"] else "en"
-    effective_segment = (
-        segment if segment and segment in ["tender", "notice"] else "tender"
-    )
-    params = [f"lang={effective_lang}", f"segment={effective_segment}"]
-
-    if pagesize:
-        params.append(f"pagesize={pagesize}")
-    if offset:
-        params.append(f"offset={offset}")
-    if from_date:
-        params.append(f"from={from_date}")
-    if to_date:
-        params.append(f"to={to_date}")
-
-    records = fetch_func(lang, segment, pagesize, offset, from_date, to_date)
+    records = fetch_json_data(url)
     if "error" in records:
         return {"type": "Error", "error": records["error"]}
 
     filtered_records = []
-    for record in records:
+    for record in records.get("result", {}).get("records", []):
         include_record = True
 
         record_date_str = record.get("issue_date")
@@ -166,22 +119,3 @@ def _get_tender_invitations(
             filtered_records.append(record)
 
     return filtered_records
-
-
-def get_tender_invitations(
-    lang: str = "en",
-    segment: str = "tender",
-    pagesize: Optional[int] = None,
-    offset: Optional[int] = None,
-    from_date: Optional[str] = None,
-    to_date: Optional[str] = None,
-) -> Dict:
-    """Get tender invitations in standardized format
-
-    Returns:
-        Dictionary with 'tender_invitations' key containing list of records
-    """
-    records = _get_tender_invitations(
-        lang, segment, pagesize, offset, from_date, to_date, fetch_tender_invitations
-    )
-    return {"tender_invitations": records}

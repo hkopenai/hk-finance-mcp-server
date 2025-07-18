@@ -20,20 +20,10 @@ def register(mcp):
         return _get_coin_cart_schedule()
 
 
-def fetch_coin_cart_schedule() -> Dict:
-    """
-    Fetch and parse HKMA Coin Cart Schedule data
-
-    Returns:
-        Dictionary containing the full API response with header and result data
-    """
-    url = "https://api.hkma.gov.hk/public/coin-cart-schedule?lang=en"
-    return fetch_json_data(url)
-
-
 def _get_coin_cart_schedule() -> Dict:
     """Get coin cart schedule data in standardized format"""
-    data = fetch_coin_cart_schedule()
+    url = "https://api.hkma.gov.hk/public/coin-cart-schedule?lang=en"
+    data = fetch_json_data(url)
     if "error" in data:
         return {"type": "Error", "error": data["error"]}
     return {"coin_cart_schedule": data}

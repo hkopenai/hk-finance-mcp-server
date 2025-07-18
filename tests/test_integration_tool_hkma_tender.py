@@ -1,7 +1,7 @@
 """Integration tests for the HKMA Tender Invitations tool."""
 
 import unittest
-from hkopenai.hk_finance_mcp_server.tool_hkma_tender import fetch_tender_invitations
+from hkopenai.hk_finance_mcp_server.tools import hkma_tender
 
 
 class TestHKMATenderIntegration(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestHKMATenderIntegration(unittest.TestCase):
 
         try:
             # Fetch data with default parameters
-            result = fetch_tender_invitations()
+            result = hkma_tender._get_tender_invitations()
             self.assertIsInstance(result, list)
             self.assertGreater(
                 len(result), 0, "Expected non-empty result from live API"
@@ -39,7 +39,7 @@ class TestHKMATenderIntegration(unittest.TestCase):
 
         try:
             # Fetch data with pagination parameters
-            result = fetch_tender_invitations(pagesize=5, offset=0)
+            result = hkma_tender._get_tender_invitations(pagesize=5, offset=0)
             self.assertIsInstance(result, list)
             self.assertGreater(
                 len(result),

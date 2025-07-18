@@ -1,7 +1,7 @@
 """
-Module for fetching and processing ATM location data from the Hong Kong Monetary Authority (HKMA).
+Module for fetching and processing bank branch location data from the Hong Kong Monetary Authority (HKMA).
 
-This module provides functions to retrieve ATM location information from the HKMA API with filtering options for district and bank name.
+This module provides functions to retrieve bank branch location information from the HKMA API with filtering options for district and bank name.
 """
 
 from typing import List, Dict, Optional
@@ -11,18 +11,25 @@ from typing_extensions import Annotated
 
 
 def register(mcp):
-    """Registers the ATM locator tool with the FastMCP server."""
+    """Registers the bank branch locator tool with the FastMCP server."""
 
     @mcp.tool(
-        description="Get information on Automated Teller Machines (ATMs) of retail banks in Hong Kong"
+        description="Get information on bank branch locations of retail banks in Hong Kong"
     )
-    def get_atm_locations(
+    def get_bank_branch_locations(
         district: Annotated[
             Optional[str], Field(description="District name to filter results")
         ] = None,
         bank_name: Annotated[
             Optional[str], Field(description="Bank name to filter results")
         ] = None,
+        lang: Annotated[
+            Optional[str],
+            Field(
+                description="Language for data output (en, tc, sc)",
+                json_schema_extra={"enum": ["en", "tc", "sc"]},
+            ),
+        ] = "en",
         pagesize: Annotated[
             Optional[int], Field(description="Number of records per page")
         ] = 100,
@@ -30,29 +37,31 @@ def register(mcp):
             Optional[int], Field(description="Starting record offset")
         ] = 0,
     ) -> List[Dict]:
-        """Retrieve ATM locations with optional filtering"""
-        return _get_atm_locations(district, bank_name, pagesize, offset)
+        """Retrieve bank branch locations with optional filtering"""
+        return _get_bank_branch_locations(district, bank_name, lang, pagesize, offset)
 
 
-def fetch_atm_locator_data(
+def _get_bank_branch_locations(
     district: Optional[str] = None,
     bank_name: Optional[str] = None,
+    lang: Optional[str] = "en",
     pagesize: Optional[int] = 100,
     offset: Optional[int] = 0,
 ) -> List[Dict]:
     """
-    Fetch and parse ATM locator data from HKMA API
+    Retrieve bank branch locations with optional filtering
 
     Args:
         district: Optional district name to filter results
         bank_name: Optional bank name to filter results
+        lang: Language for data output (en, tc, sc) - default: en
         pagesize: Number of records per page (default: 100)
         offset: Offset for pagination (default: 0)
 
     Returns:
-        List of ATM location data in JSON format
+        List of bank branch location data
     """
-    url = f"https://api.hkma.gov.hk/public/bank-svf-info/banks-atm-locator?lang=en&pagesize={pagesize}&offset={offset}"
+    url = f"https://api.hkma.gov.hk/public/bank-svf-info/banks-branch-locator?lang={lang}&pagesize={pagesize}&offset={offset}"
     data = fetch_json_data(url)
 
     records = data.get("result", {}).get("records", [])
@@ -67,30 +76,13 @@ def fetch_atm_locator_data(
             {
                 "district": record.get("district", ""),
                 "bank_name": record.get("bank_name", ""),
-                "type_of_machine": record.get("type_of_machine", ""),
-                "function": record.get("function", ""),
-                "currencies_supported": record.get("currencies_supported", ""),
-                "barrier_free_access": record.get("barrier_free_access", ""),
-                "network": record.get("network", ""),
+                "branch_name": record.get("branch_name", ""),
                 "address": record.get("address", ""),
                 "service_hours": record.get("service_hours", ""),
                 "latitude": float(record.get("latitude", 0.0)),
                 "longitude": float(record.get("longitude", 0.0)),
+                "barrier_free_access": record.get("barrier_free_access", ""),
             }
         )
 
     return filtered_records
-
-
-def _get_atm_locations(
-    district: Optional[str] = None,
-    bank_name: Optional[str] = None,
-    pagesize: Optional[int] = 100,
-    offset: Optional[int] = 0,
-) -> List[Dict]:
-    """Retrieve ATM locations with optional filtering"""
-    data = fetch_atm_locator_data(district, bank_name, pagesize, offset)
-
-    if not data:
-        return []
-    return data

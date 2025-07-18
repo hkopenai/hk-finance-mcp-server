@@ -7,23 +7,23 @@ of the MCP server with various financial data tools.
 
 import unittest
 from unittest.mock import patch, Mock
-from hkopenai.hk_finance_mcp_server.server import create_mcp_server
+from hkopenai.hk_finance_mcp_server.server import server
 
 
 class TestApp(unittest.TestCase):
     """Test case class for verifying MCP server functionality."""
 
     @patch("hkopenai.hk_finance_mcp_server.server.FastMCP")
-    @patch("hkopenai.hk_finance_mcp_server.tool_business_reg.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_credit_card.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_coin_cart.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_hkma_tender.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_hibor_daily.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_atm_locator.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_bank_branch_locator.register")
-    @patch("hkopenai.hk_finance_mcp_server.tool_fraudulent_bank_scams.register")
+    @patch("hkopenai.hk_finance_mcp_server.tools.business_reg.register")
+    @patch("hkopenai.hk_finance_mcp_server.tools.neg_resident_mortgage.register")
+    @patch("hkopenai.hk_finance_mcp_server.tools.credit_card.register")
+    @patch("hkopenai.hk_finance_mcp_server.tools.coin_cart.register")
+    @patch("hkopenai.hk_finance_mcp_server.tools.hkma_tender.register")
+    @patch("hkopenai.hk_finance_mcp_server.tools.hibor_daily.register")
+    @patch("hkopenai.hk_finance_mcp_server.tools.atm_locator.register")
+    @patch("hkopenai.hk_finance_mcp_server.tools.stamp_duty_statistics.register")
+    @patch("hkopenai.hk_finance_mcp_server.tools.bank_branch_locator.register")
+    @patch("hkopenai.hk_finance_mcp_server.tools.fraudulent_bank_scams.register")
     def test_create_mcp_server(
         self,
         mock_fraudulent_bank_scams_register,
@@ -47,7 +47,7 @@ class TestApp(unittest.TestCase):
         mock_fastmcp.return_value = mock_server
 
         # Test server creation
-        create_mcp_server()
+        server()
 
         # Verify server creation
         mock_fastmcp.assert_called_once()

@@ -8,7 +8,14 @@ import unittest
 from unittest.mock import patch, MagicMock
 from datetime import datetime
 
-from hkopenai.hk_finance_mcp_server.tool_hkma_tender import (
+from unittest.mock import ANY
+from unittest.mock import ANY
+from unittest.mock import ANY
+from unittest.mock import ANY
+from unittest.mock import ANY
+from unittest.mock import ANY
+from unittest.mock import ANY
+from hkopenai.hk_finance_mcp_server.tools.hkma_tender import (
     _get_tender_invitations,
     register,
 )
@@ -95,7 +102,7 @@ class TestHKMATenderInvitations(unittest.TestCase):
 
         # Call the decorated function and verify it calls _get_tender_invitations
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_hkma_tender._get_tender_invitations"
+            "hkopenai.hk_finance_mcp_server.tools.hkma_tender._get_tender_invitations"
         ) as mock_get_tender_invitations:
             decorated_function(lang="en", segment="tender", from_date="2023-01-01", to_date="2023-12-31")
             mock_get_tender_invitations.assert_called_once_with(

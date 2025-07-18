@@ -12,19 +12,28 @@ from fastmcp import FastMCP
 from hkopenai_common.json_utils import fetch_json_data
 
 
-def fetch_hibor_daily_data(
+def register(mcp: FastMCP):
+    """Registers the HIBOR daily stats tool with the FastMCP server."""
+
+    @mcp.tool(
+        description="Get daily figures of Hong Kong Interbank Interest Rates (HIBOR) from HKMA"
+    )
+    def get_hibor_daily_stats(
+        start_date: Annotated[
+            Optional[str], Field(description="Start date (YYYY-MM-DD)")
+        ] = None,
+        end_date: Annotated[
+            Optional[str], Field(description="End date (YYYY-MM-DD)")
+        ] = None,
+    ) -> List[Dict]:
+        """Get daily figures of Hong Kong Interbank Interest Rates (HIBOR) from HKMA."""
+        return _get_hibor_stats(start_date, end_date)
+
+
+def _get_hibor_stats(
     start_date: Optional[str] = None, end_date: Optional[str] = None
 ) -> List[Dict]:
-    """
-    Fetch and parse Hong Kong Interbank Interest Rates (HIBOR) daily figures from HKMA API
-
-    Args:
-        start_date: Optional start date in YYYY-MM-DD format
-        end_date: Optional end date in YYYY-MM-DD format
-
-    Returns:
-        List of HIBOR daily data in JSON format with date and interest rates for various tenors
-    """
+    """Retrieve HIBOR daily figures data"""
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/er-ir/hk-interbank-ir-daily?segment=hibor.fixing"
     data = fetch_json_data(url)
 
@@ -68,32 +77,3 @@ def fetch_hibor_daily_data(
         )
 
     return results
-
-
-def register(mcp: FastMCP):
-    """Registers the HIBOR daily stats tool with the FastMCP server."""
-
-    @mcp.tool(
-        description="Get daily figures of Hong Kong Interbank Interest Rates (HIBOR) from HKMA"
-    )
-    def get_hibor_daily_stats(
-        start_date: Annotated[
-            Optional[str], Field(description="Start date (YYYY-MM-DD)")
-        ] = None,
-        end_date: Annotated[
-            Optional[str], Field(description="End date (YYYY-MM-DD)")
-        ] = None,
-    ) -> List[Dict]:
-        """Get daily figures of Hong Kong Interbank Interest Rates (HIBOR) from HKMA."""
-        return _get_hibor_stats(start_date, end_date)
-
-
-def _get_hibor_stats(
-    start_date: Optional[str] = None, end_date: Optional[str] = None
-) -> List[Dict]:
-    """Retrieve HIBOR daily figures data"""
-    data = fetch_hibor_daily_data(start_date, end_date)
-
-    if not data:
-        return []
-    return data

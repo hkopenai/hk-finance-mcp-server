@@ -1,7 +1,7 @@
 """Integration tests for the ATM Locator tool."""
 
 import unittest
-from hkopenai.hk_finance_mcp_server import tool_atm_locator
+from hkopenai.hk_finance_mcp_server.tools import atm_locator
 
 
 class TestAtmLocatorIntegration(unittest.TestCase):
@@ -9,7 +9,7 @@ class TestAtmLocatorIntegration(unittest.TestCase):
 
     def test_fetch_atm_locator_data_integration(self):
         """Test fetching ATM location data from the live API."""
-        result = tool_atm_locator.fetch_atm_locator_data(pagesize=5, offset=0)
+        result = atm_locator._get_atm_locations(pagesize=5, offset=0)
 
         self.assertTrue(len(result) > 0, "Expected to fetch at least one ATM record")
         self.assertIn("district", result[0], "Expected 'district' field in result")
@@ -18,7 +18,7 @@ class TestAtmLocatorIntegration(unittest.TestCase):
 
     def test_fetch_atm_locator_data_with_district_filter(self):
         """Test fetching ATM location data with district filter from the live API."""
-        result = tool_atm_locator.fetch_atm_locator_data(
+        result = atm_locator._get_atm_locations(
             district="YuenLong", pagesize=5, offset=0
         )
 

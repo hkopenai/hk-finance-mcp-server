@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from datetime import datetime
 
-from hkopenai.hk_finance_mcp_server.tool_hibor_daily import (
+from hkopenai.hk_finance_mcp_server.tools.hibor_daily import (
     _get_hibor_stats,
     register,
 )
@@ -43,10 +43,10 @@ class TestHIBORDaily(unittest.TestCase):
         }
 
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_hibor_daily.fetch_hibor_daily_data"
-        ) as mock_fetch_hibor_daily_data:
+            "hkopenai.hk_finance_mcp_server.tools.hibor_daily.fetch_json_data"
+        ) as mock_fetch_json_data:
             # Setup mock response for successful data fetching
-            mock_fetch_hibor_daily_data.return_value = mock_json_data["result"]["records"]
+            mock_fetch_json_data.return_value = mock_json_data["result"]["records"]
 
             # Test filtering by date range
             result = _get_hibor_stats(start_date="2023-01-01", end_date="2023-01-31")
@@ -59,7 +59,7 @@ class TestHIBORDaily(unittest.TestCase):
             self.assertEqual(len(result), 0)
 
             # Test error handling when fetch_hibor_daily_data returns an error
-            mock_fetch_hibor_daily_data.return_value = {"error": "JSON fetch failed"}
+            mock_fetch_json_data.return_value = {"error": "JSON fetch failed"}
             result = _get_hibor_stats(start_date="2023-01-01")
             self.assertEqual(result, {"type": "Error", "error": "JSON fetch failed"})
 
@@ -95,7 +95,7 @@ class TestHIBORDaily(unittest.TestCase):
 
         # Call the decorated function and verify it calls _get_hibor_stats
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_hibor_daily._get_hibor_stats"
+            "hkopenai.hk_finance_mcp_server.tools.hibor_daily._get_hibor_stats"
         ) as mock_get_hibor_stats:
             decorated_function(start_date="2023-01-01", end_date="2023-12-31")
             mock_get_hibor_stats.assert_called_once_with("2023-01-01", "2023-12-31")

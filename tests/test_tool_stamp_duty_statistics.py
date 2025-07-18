@@ -7,7 +7,7 @@ This module contains unit tests for fetching and processing stamp duty statistic
 import unittest
 from unittest.mock import patch, MagicMock
 
-from hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics import (
+from hkopenai.hk_finance_mcp_server.tools.stamp_duty_statistics import (
     _get_stamp_duty_statistics,
     register,
 )
@@ -89,7 +89,7 @@ class TestStampDutyStatistics(unittest.TestCase):
 
         # Call the decorated function and verify it calls _get_stamp_duty_statistics
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics._get_stamp_duty_statistics"
+            "hkopenai.hk_finance_mcp_server.tools.stamp_duty_statistics._get_stamp_duty_statistics"
         ) as mock_get_stamp_duty_statistics:
             decorated_function(start_period="202301", end_period="202312")
             mock_get_stamp_duty_statistics.assert_called_once_with("202301", "202312")

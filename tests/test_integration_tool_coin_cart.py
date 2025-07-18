@@ -1,7 +1,7 @@
 """Integration tests for the Coin Cart tool."""
 
 import unittest
-from hkopenai.hk_finance_mcp_server.tool_coin_cart import fetch_coin_cart_schedule
+from hkopenai.hk_finance_mcp_server.tools import coin_cart
 
 
 class TestCoinCartIntegration(unittest.TestCase):
@@ -21,19 +21,19 @@ class TestCoinCartIntegration(unittest.TestCase):
 
         try:
             # Fetch data with default parameters
-            result = fetch_coin_cart_schedule()
+            result = coin_cart._get_coin_cart_schedule()
             self.assertIsInstance(result, dict)
-            self.assertTrue("header" in result, "Expected 'header' key in result")
-            self.assertTrue("result" in result, "Expected 'result' key in result")
+            self.assertTrue("header" in result["coin_cart_schedule"], "Expected 'header' key in result")
+            self.assertTrue("result" in result["coin_cart_schedule"], "Expected 'result' key in result")
 
             try:
-                header = result["header"]
+                header = result["coin_cart_schedule"]["header"]
                 self.assertTrue("success" in header, "Expected 'success' key in header")
             except KeyError as ke:
                 self.fail(f"Missing expected key in header: {str(ke)}")
 
             try:
-                result_data = result["result"]
+                result_data = result["coin_cart_schedule"]["result"]
                 self.assertTrue(
                     "records" in result_data, "Expected 'records' key in result"
                 )

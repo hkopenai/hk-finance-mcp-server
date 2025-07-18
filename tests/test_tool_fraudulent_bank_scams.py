@@ -7,7 +7,7 @@ alerts from the HKMA API using the tool_fraudulent_bank_scams module.
 
 import unittest
 from unittest.mock import patch, Mock, MagicMock
-from hkopenai.hk_finance_mcp_server.tool_fraudulent_bank_scams import (
+from hkopenai.hk_finance_mcp_server.tools.fraudulent_bank_scams import (
     _get_fraudulent_bank_scams,
     register,
 )
@@ -68,26 +68,24 @@ class TestFraudulentBankScamsTool(unittest.TestCase):
         self.assertEqual(result[1]["scam_type"], "Phishing email")
         mock_get.assert_called_once_with(f"{self.api_url}?lang=en", timeout=10)
 
-    @patch("requests.get")
-    def test_get_fraudulent_bank_scams_api_error(self, mock_get):
+    @patch("hkopenai_common.json_utils.fetch_json_data")
+    def test_get_fraudulent_bank_scams_api_error(self, mock_fetch_json_data):
         """Test handling of API error response for fraudulent bank scams data.
 
         Verifies that the _get_fraudulent_bank_scams function raises an exception
         when the API returns an error.
         """
         # Mock API error response
-        mock_response = Mock()
-        mock_response.json.return_value = {
+        mock_fetch_json_data.return_value = {
             "header": {"success": False, "err_code": "9999", "err_msg": "API error"}
         }
-        mock_get.return_value = mock_response
 
         # Call the function and expect an exception
         with self.assertRaises(ValueError) as context:
             _get_fraudulent_bank_scams(lang="en")
 
         self.assertTrue("API Error: API error" in str(context.exception))
-        mock_get.assert_called_once_with(f"{self.api_url}?lang=en", timeout=10)
+        mock_fetch_json_data.assert_called_once_with(f"{self.api_url}?lang=en", timeout=10)
 
     def test_register_tool(self):
         """Test the registration of the get_fraudulent_bank_scams tool."""
@@ -106,7 +104,7 @@ class TestFraudulentBankScamsTool(unittest.TestCase):
         self.assertEqual(decorated_function.__name__, "get_fraudulent_bank_scams")
 
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_fraudulent_bank_scams._get_fraudulent_bank_scams"
+            "hkopenai.hk_finance_mcp_server.tools.fraudulent_bank_scams._get_fraudulent_bank_scams"
         ) as mock_get_fraudulent_bank_scams:
             decorated_function(lang="en")
             mock_get_fraudulent_bank_scams.assert_called_once_with("en")

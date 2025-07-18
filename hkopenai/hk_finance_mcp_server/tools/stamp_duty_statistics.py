@@ -12,13 +12,32 @@ from fastmcp import FastMCP
 from hkopenai_common.csv_utils import fetch_csv_from_url
 
 
-def fetch_stamp_duty_data() -> List[Dict]:
-    """
-    Fetch and parse monthly stamp duty statistics from IRD API
+def register(mcp: FastMCP):
+    """Registers the stamp duty statistics tool with the FastMCP server."""
 
-    Returns:
-        List of stamp duty statistics data in JSON format
-    """
+    @mcp.tool(
+        description="""Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"""
+    )
+    def get_stamp_duty_statistics(
+        start_period: Annotated[
+            Optional[str],
+            Field(description="""Start period in YYYYMM format to filter results"""
+            ),
+        ] = None,
+        end_period: Annotated[
+            Optional[str],
+            Field(description="""End period in YYYYMM format to filter results"""
+            ),
+        ] = None,
+    ) -> List[Dict]:
+        """Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"""
+        return _get_stamp_duty_statistics(start_period, end_period)
+
+
+def _get_stamp_duty_statistics(
+    start_period: Optional[str] = None, end_period: Optional[str] = None
+) -> List[Dict]:
+    """Retrieve monthly stamp duty statistics with optional period filtering"""
     url = "https://www.ird.gov.hk/datagovhk/Stamp_Col_ST.csv"
     records = fetch_csv_from_url(url)
 
@@ -37,34 +56,7 @@ def fetch_stamp_duty_data() -> List[Dict]:
             record["period"] = record["Period"]
             del record["Period"]
 
-    return records
-
-
-def register(mcp: FastMCP):
-    """Registers the stamp duty statistics tool with the FastMCP server."""
-
-    @mcp.tool(
-        description="""Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"""
-    )
-    def get_stamp_duty_statistics(
-        start_period: Annotated[
-            Optional[str],
-            Field(description="""Start period in YYYYMM format to filter results"""),
-        ] = None,
-        end_period: Annotated[
-            Optional[str],
-            Field(description="""End period in YYYYMM format to filter results"""),
-        ] = None,
-    ) -> List[Dict]:
-        """Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"""
-        return _get_stamp_duty_statistics(start_period, end_period)
-
-
-def _get_stamp_duty_statistics(
-    start_period: Optional[str] = None, end_period: Optional[str] = None
-) -> List[Dict]:
-    """Retrieve monthly stamp duty statistics with optional period filtering"""
-    data = fetch_stamp_duty_data()
+    data = records
 
     if not data:
         return []

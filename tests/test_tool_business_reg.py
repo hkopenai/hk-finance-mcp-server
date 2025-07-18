@@ -7,7 +7,7 @@ This module contains unit tests for fetching and processing business registratio
 import unittest
 from unittest.mock import patch, MagicMock
 
-from hkopenai.hk_finance_mcp_server.tools.tool_business_reg import (
+from hkopenai.hk_finance_mcp_server.tools.business_reg import (
     _get_business_stats,
     register,
 )
@@ -94,7 +94,7 @@ class TestBusinessRegistration(unittest.TestCase):
 
         # Call the decorated function and verify it calls _get_business_stats
         with patch(
-            "hkopenai.hk_finance_mcp_server.tools.tool_business_reg._get_business_stats"
+            "hkopenai.hk_finance_mcp_server.tools.business_reg._get_business_stats"
         ) as mock_get_business_stats:
             decorated_function(start_year=2023, end_year=2023)
             mock_get_business_stats.assert_called_once_with(2023, None, 2023, None)

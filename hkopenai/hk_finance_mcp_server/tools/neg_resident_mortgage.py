@@ -25,24 +25,13 @@ def register(mcp):
         return _get_neg_equity_stats(start_year, start_month, end_year, end_month)
 
 
-def fetch_neg_equity_data(
+def _get_neg_equity_stats(
     start_year: Optional[int] = None,
     start_month: Optional[int] = None,
     end_year: Optional[int] = None,
     end_month: Optional[int] = None,
 ) -> List[Dict]:
-    """
-    Fetch and parse negative equity residential mortgage data from HKMA
-
-    Args:
-        start_year: Optional start year (YYYY)
-        start_month: Optional start month (1-12)
-        end_year: Optional end year (YYYY)
-        end_month: Optional end month (1-12)
-
-    Returns:
-        List of negative equity mortgage data in JSON format
-    """
+    """Get negative equity residential mortgage statistics"""
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/banking/residential-mortgage-loans-neg-equity"
     data = fetch_json_data(url)
 
@@ -103,14 +92,3 @@ def fetch_neg_equity_data(
             results.append(result)
 
     return results
-
-
-def _get_neg_equity_stats(
-    start_year: Optional[int] = None,
-    start_month: Optional[int] = None,
-    end_year: Optional[int] = None,
-    end_month: Optional[int] = None,
-) -> List[Dict]:
-    """Get negative equity residential mortgage statistics"""
-    data = fetch_neg_equity_data(start_year, start_month, end_year, end_month)
-    return data

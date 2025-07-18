@@ -32,24 +32,13 @@ def register(mcp):
         return _get_credit_card_hotlines()
 
 
-def fetch_credit_card_data(
+def _get_credit_card_stats(
     start_year: Optional[int] = None,
     start_month: Optional[int] = None,
     end_year: Optional[int] = None,
     end_month: Optional[int] = None,
 ) -> List[Dict]:
-    """
-    Fetch and parse credit card lending survey data from HKMA
-
-    Args:
-        start_year: Optional start year (YYYY)
-        start_month: Optional start month (1-12)
-        end_year: Optional end year (YYYY)
-        end_month: Optional end month (1-12)
-
-    Returns:
-        List of credit card lending data in JSON format
-    """
+    """Get credit card lending survey statistics"""
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/banking/credit-card-lending-survey"
     data = fetch_json_data(url)
 
@@ -103,23 +92,8 @@ def fetch_credit_card_data(
     return results
 
 
-def _get_credit_card_stats(
-    start_year: Optional[int] = None,
-    start_month: Optional[int] = None,
-    end_year: Optional[int] = None,
-    end_month: Optional[int] = None,
-) -> List[Dict]:
-    """Get credit card lending survey statistics"""
-    data = fetch_credit_card_data(start_year, start_month, end_year, end_month)
-    return data
-
-
-def fetch_credit_card_hotlines() -> List[Dict]:
-    """Fetch and parse credit card hotline data from HKMA
-
-    Returns:
-        List of credit card hotline information in JSON format
-    """
+def _get_credit_card_hotlines() -> List[Dict]:
+    """Get list of hotlines for reporting loss of credit card"""
     url = "https://api.hkma.gov.hk/public/bank-svf-info/hotlines-report-loss-credit-card?lang=en"
     data = fetch_json_data(url)
 
@@ -127,9 +101,3 @@ def fetch_credit_card_hotlines() -> List[Dict]:
         return {"type": "Error", "error": data["error"]}
 
     return data["result"]["records"]
-
-
-def _get_credit_card_hotlines() -> List[Dict]:
-    """Get list of hotlines for reporting loss of credit card"""
-    data = fetch_credit_card_hotlines()
-    return data

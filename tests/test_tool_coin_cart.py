@@ -7,7 +7,7 @@ This module contains unit tests for fetching and processing coin cart schedule d
 import unittest
 from unittest.mock import patch, MagicMock
 
-from hkopenai.hk_finance_mcp_server.tool_coin_cart import (
+from hkopenai.hk_finance_mcp_server.tools.coin_cart import (
     _get_coin_cart_schedule,
     register,
 )
@@ -88,7 +88,7 @@ class TestCoinCart(unittest.TestCase):
 
         # Call the decorated function and verify it calls _get_coin_cart_schedule
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_coin_cart._get_coin_cart_schedule"
+            "hkopenai.hk_finance_mcp_server.tools.coin_cart._get_coin_cart_schedule"
         ) as mock_get_coin_cart_schedule:
             decorated_function()
             mock_get_coin_cart_schedule.assert_called_once()

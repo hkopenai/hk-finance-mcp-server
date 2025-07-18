@@ -1,7 +1,7 @@
 """Integration tests for the Credit Card tool."""
 
 import unittest
-from hkopenai.hk_finance_mcp_server.tool_credit_card import fetch_credit_card_data
+from hkopenai.hk_finance_mcp_server.tools import credit_card
 
 
 class TestCreditCardIntegration(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestCreditCardIntegration(unittest.TestCase):
 
         try:
             # Fetch data with default parameters
-            result = fetch_credit_card_data()
+            result = credit_card._get_credit_card_stats()
             self.assertIsInstance(result, list)
             self.assertGreater(
                 len(result), 0, "Expected non-empty result from live API"
@@ -40,7 +40,7 @@ class TestCreditCardIntegration(unittest.TestCase):
 
         try:
             # Fetch data with a specific time range
-            result = fetch_credit_card_data(
+            result = credit_card._get_credit_card_stats(
                 start_year=2023, start_month=1, end_year=2023, end_month=12
             )
             self.assertIsInstance(result, list)

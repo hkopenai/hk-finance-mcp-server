@@ -3,7 +3,7 @@
 import unittest
 from unittest.mock import Mock
 from fastmcp import FastMCP
-from hkopenai.hk_finance_mcp_server import tool_hibor_daily
+from hkopenai.hk_finance_mcp_server.tools import hibor_daily
 
 
 class TestHiborDailyIntegration(unittest.TestCase):
@@ -11,7 +11,7 @@ class TestHiborDailyIntegration(unittest.TestCase):
 
     def setUp(self):
         self.mcp = Mock(spec=FastMCP)
-        tool_hibor_daily.register(self.mcp)
+        hibor_daily.register(self.mcp)
         self.get_hibor_daily_stats_tool = self.mcp.tool.return_value.call_args[0][0]
 
     def test_get_hibor_daily_stats(self):

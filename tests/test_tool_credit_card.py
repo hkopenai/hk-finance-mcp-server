@@ -7,7 +7,7 @@ This module contains unit tests for fetching and processing credit card related 
 import unittest
 from unittest.mock import patch, MagicMock
 
-from hkopenai.hk_finance_mcp_server.tool_credit_card import (
+from hkopenai.hk_finance_mcp_server.tools.credit_card import (
     _get_credit_card_stats,
     _get_credit_card_hotlines,
     register,
@@ -63,7 +63,7 @@ class TestCreditCardTools(unittest.TestCase):
         }
 
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_credit_card.fetch_json_data"
+            "hkopenai.hk_finance_mcp_server.tools.credit_card.fetch_json_data"
         ) as mock_fetch_json_data:
             # Setup mock response for successful data fetching
             mock_fetch_json_data.return_value = mock_json_data
@@ -106,7 +106,7 @@ class TestCreditCardTools(unittest.TestCase):
         }
 
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_credit_card.fetch_json_data"
+            "hkopenai.hk_finance_mcp_server.tools.credit_card.fetch_json_data"
         ) as mock_fetch_json_data:
             # Setup mock response for successful data fetching
             mock_fetch_json_data.return_value = mock_json_data
@@ -155,12 +155,14 @@ class TestCreditCardTools(unittest.TestCase):
         self.assertEqual(decorated_function_hotlines.__name__, "get_credit_card_hotlines")
 
         # Call the decorated functions and verify they call the underlying functions
-        with patch(
-            "hkopenai.hk_finance_mcp_server.tool_credit_card._get_credit_card_stats"
-        ) as mock_get_credit_card_stats,
-        patch(
-            "hkopenai.hk_finance_mcp_server.tool_credit_card._get_credit_card_hotlines"
-        ) as mock_get_credit_card_hotlines:
+        with (
+            patch(
+                "hkopenai.hk_finance_mcp_server.tools.credit_card._get_credit_card_stats"
+            ) as mock_get_credit_card_stats,
+            patch(
+                "hkopenai.hk_finance_mcp_server.tools.credit_card._get_credit_card_hotlines"
+            ) as mock_get_credit_card_hotlines
+        ):
             decorated_function_stats(start_year=2023, end_year=2023)
             mock_get_credit_card_stats.assert_called_once_with(2023, None, 2023, None)
 

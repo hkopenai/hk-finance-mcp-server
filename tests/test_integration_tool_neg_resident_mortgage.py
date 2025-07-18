@@ -1,9 +1,7 @@
 """Integration tests for the Negative Equity Residential Mortgage tool."""
 
 import unittest
-from hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage import (
-    fetch_neg_equity_data,
-)
+from hkopenai.hk_finance_mcp_server.tools import neg_resident_mortgage
 
 
 class TestNegResidentMortgageIntegration(unittest.TestCase):
@@ -23,7 +21,7 @@ class TestNegResidentMortgageIntegration(unittest.TestCase):
 
         try:
             # Fetch data with default parameters
-            result = fetch_neg_equity_data()
+            result = neg_resident_mortgage._get_neg_equity_stats()
             self.assertIsInstance(result, list)
             self.assertGreater(
                 len(result), 0, "Expected non-empty result from live API"
@@ -43,7 +41,7 @@ class TestNegResidentMortgageIntegration(unittest.TestCase):
 
         try:
             # Fetch data with a specific time range
-            result = fetch_neg_equity_data(
+            result = neg_resident_mortgage._get_neg_equity_stats(
                 start_year=2023, start_month=1, end_year=2023, end_month=12
             )
             self.assertIsInstance(result, list)
