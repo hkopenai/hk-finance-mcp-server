@@ -5,9 +5,8 @@ This module provides functions to retrieve credit card lending survey statistics
 for reporting lost credit cards from the HKMA API.
 """
 
-import json
-import urllib.request
 from typing import List, Dict, Optional
+from hkopenai_common.json_utils import fetch_json_data
 from pydantic import Field
 from typing_extensions import Annotated
 
@@ -39,7 +38,8 @@ def fetch_credit_card_data(
     end_year: Optional[int] = None,
     end_month: Optional[int] = None,
 ) -> List[Dict]:
-    """Fetch and parse credit card lending survey data from HKMA
+    """
+    Fetch and parse credit card lending survey data from HKMA
 
     Args:
         start_year: Optional start year (YYYY)
@@ -51,16 +51,10 @@ def fetch_credit_card_data(
         List of credit card lending data in JSON format
     """
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/banking/credit-card-lending-survey"
-    try:
-        with urllib.request.urlopen(url) as response:
-            data = json.loads(response.read().decode("utf-8"))
-    except json.JSONDecodeError as e:
-        raise Exception(f"JSON decode error: {str(e)}")
-    except Exception as e:
-        raise Exception(f"Error fetching data: {str(e)}")
+    data = fetch_json_data(url)
 
-    if not data.get("header", {}).get("success", False):
-        return []
+    if "error" in data:
+        return {"type": "Error", "error": data["error"]}
 
     results = []
     for record in data["result"]["records"]:
@@ -127,16 +121,10 @@ def fetch_credit_card_hotlines() -> List[Dict]:
         List of credit card hotline information in JSON format
     """
     url = "https://api.hkma.gov.hk/public/bank-svf-info/hotlines-report-loss-credit-card?lang=en"
-    try:
-        with urllib.request.urlopen(url) as response:
-            data = json.loads(response.read().decode("utf-8"))
-    except json.JSONDecodeError as e:
-        raise Exception(f"JSON decode error: {e}")
-    except Exception as e:
-        raise Exception(f"Error fetching data: {e}")
+    data = fetch_json_data(url)
 
-    if not data.get("header", {}).get("success", False):
-        return []
+    if "error" in data:
+        return {"type": "Error", "error": data["error"]}
 
     return data["result"]["records"]
 

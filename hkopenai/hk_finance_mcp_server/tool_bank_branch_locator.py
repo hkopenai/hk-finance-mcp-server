@@ -4,9 +4,8 @@ Module for fetching and processing bank branch location data from the Hong Kong 
 This module provides functions to retrieve bank branch location information from the HKMA API with filtering options for district and bank name.
 """
 
-import json
-import urllib.request
 from typing import List, Dict, Optional
+from hkopenai_common.json_utils import fetch_json_data
 from pydantic import Field
 from typing_extensions import Annotated
 
@@ -49,7 +48,8 @@ def fetch_bank_branch_data(
     pagesize: Optional[int] = 100,
     offset: Optional[int] = 0,
 ) -> List[Dict]:
-    """Fetch and parse bank branch data from HKMA API
+    """
+    Fetch and parse bank branch data from HKMA API
 
     Args:
         district: Optional district name to filter results
@@ -62,8 +62,7 @@ def fetch_bank_branch_data(
         List of bank branch location data in JSON format
     """
     url = f"https://api.hkma.gov.hk/public/bank-svf-info/banks-branch-locator?lang={lang}&pagesize={pagesize}&offset={offset}"
-    with urllib.request.urlopen(url) as response:
-        data = json.loads(response.read().decode("utf-8"))
+    data = fetch_json_data(url)
 
     records = data.get("result", {}).get("records", [])
     filtered_records = []

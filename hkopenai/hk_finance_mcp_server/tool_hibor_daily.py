@@ -4,19 +4,19 @@ Module for fetching and processing Hong Kong Interbank Interest Rates (HIBOR) da
 This module provides functions to retrieve HIBOR daily figures from the HKMA API and format them for further use.
 """
 
-import json
-import urllib.request
 from datetime import datetime
 from typing import List, Dict, Optional
 from pydantic import Field
 from typing_extensions import Annotated
 from fastmcp import FastMCP
+from hkopenai_common.json_utils import fetch_json_data
 
 
 def fetch_hibor_daily_data(
     start_date: Optional[str] = None, end_date: Optional[str] = None
 ) -> List[Dict]:
-    """Fetch and parse Hong Kong Interbank Interest Rates (HIBOR) daily figures from HKMA API
+    """
+    Fetch and parse Hong Kong Interbank Interest Rates (HIBOR) daily figures from HKMA API
 
     Args:
         start_date: Optional start date in YYYY-MM-DD format
@@ -26,8 +26,10 @@ def fetch_hibor_daily_data(
         List of HIBOR daily data in JSON format with date and interest rates for various tenors
     """
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/er-ir/hk-interbank-ir-daily?segment=hibor.fixing"
-    with urllib.request.urlopen(url) as response:
-        data = json.loads(response.read().decode("utf-8"))
+    data = fetch_json_data(url)
+
+    if "error" in data:
+        return data
 
     records = data.get("result", {}).get("records", [])
 
@@ -66,7 +68,6 @@ def fetch_hibor_daily_data(
         )
 
     return results
-
 
 
 def register(mcp: FastMCP):

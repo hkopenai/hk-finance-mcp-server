@@ -4,11 +4,10 @@ Module for fetching and processing tender invitations data from the Hong Kong Mo
 This module provides functions to retrieve tender invitations and notices from the HKMA API with various filtering options.
 """
 
-import json
-import urllib.request
 from datetime import datetime
 from typing import Dict, List, Optional, Annotated
 from pydantic import Field
+from hkopenai_common.json_utils import fetch_json_data
 
 
 def register(mcp):
@@ -64,7 +63,8 @@ def fetch_tender_invitations(
     from_date: Optional[str] = None,
     to_date: Optional[str] = None,
 ) -> List[Dict]:
-    """Fetch tender invitations from HKMA API
+    """
+    Fetch tender invitations from HKMA API
 
     Args:
         lang: Language (en/tc/sc)
@@ -95,18 +95,10 @@ def fetch_tender_invitations(
         params.append(f"to={to_date}")
 
     url = f"https://api.hkma.gov.hk/public/tender-invitations?{'&'.join(params)}"
-    try:
-        with urllib.request.urlopen(url) as response:
-            raw_data = response.read().decode("utf-8")
-
-        if not raw_data:
-            return []
-        data = json.loads(raw_data)
-        return data.get("result", {}).get("records", [])
-    except json.JSONDecodeError as e:
-        raise Exception(f"JSON decode error: {e}")
-    except Exception as e:
-        raise Exception(f"Error fetching data: {e}")
+    data = fetch_json_data(url)
+    if "error" in data:
+        return data
+    return data.get("result", {}).get("records", [])
 
 
 def _get_tender_invitations(
@@ -149,33 +141,31 @@ def _get_tender_invitations(
     if to_date:
         params.append(f"to={to_date}")
 
-    try:
-        # Use fetch_func instead of direct urllib.request.urlopen
-        records = fetch_func(lang, segment, pagesize, offset, from_date, to_date)
+    records = fetch_func(lang, segment, pagesize, offset, from_date, to_date)
+    if "error" in records:
+        return {"type": "Error", "error": records["error"]}
 
-        filtered_records = []
-        for record in records:
-            include_record = True
+    filtered_records = []
+    for record in records:
+        include_record = True
 
-            record_date_str = record.get("issue_date")
-            if record_date_str:
-                record_date = datetime.strptime(record_date_str, "%Y-%m-%d")
+        record_date_str = record.get("issue_date")
+        if record_date_str:
+            record_date = datetime.strptime(record_date_str, "%Y-%m-%d")
 
-                if from_date:
-                    from_dt = datetime.strptime(from_date, "%Y-%m-%d")
-                    if record_date < from_dt:
-                        include_record = False
-                if include_record and to_date:
-                    to_dt = datetime.strptime(to_date, "%Y-%m-%d")
-                    if record_date > to_dt:
-                        include_record = False
+            if from_date:
+                from_dt = datetime.strptime(from_date, "%Y-%m-%d")
+                if record_date < from_dt:
+                    include_record = False
+            if include_record and to_date:
+                to_dt = datetime.strptime(to_date, "%Y-%m-%d")
+                if record_date > to_dt:
+                    include_record = False
 
-            if include_record:
-                filtered_records.append(record)
+        if include_record:
+            filtered_records.append(record)
 
-        return filtered_records
-    except Exception as e:
-        raise Exception(f"Error fetching data: {e}")
+    return filtered_records
 
 
 def get_tender_invitations(

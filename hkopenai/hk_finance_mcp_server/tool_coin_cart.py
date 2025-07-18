@@ -5,9 +5,8 @@ This module provides functions to retrieve coin cart schedule information from t
 and format it for further use.
 """
 
-import json
-import urllib.request
 from typing import Dict
+from hkopenai_common.json_utils import fetch_json_data
 
 
 def register(mcp):
@@ -22,23 +21,19 @@ def register(mcp):
 
 
 def fetch_coin_cart_schedule() -> Dict:
-    """Fetch and parse HKMA Coin Cart Schedule data
+    """
+    Fetch and parse HKMA Coin Cart Schedule data
 
     Returns:
         Dictionary containing the full API response with header and result data
     """
     url = "https://api.hkma.gov.hk/public/coin-cart-schedule?lang=en"
-    try:
-        with urllib.request.urlopen(url) as response:
-            data = json.loads(response.read().decode("utf-8"))
-        return data
-    except json.JSONDecodeError as e:
-        raise Exception(f"JSON decode error: {e}")
-    except Exception as e:
-        raise Exception(f"Error fetching data: {e}")
+    return fetch_json_data(url)
 
 
 def _get_coin_cart_schedule() -> Dict:
     """Get coin cart schedule data in standardized format"""
     data = fetch_coin_cart_schedule()
+    if "error" in data:
+        return {"type": "Error", "error": data["error"]}
     return {"coin_cart_schedule": data}

@@ -17,7 +17,7 @@ from hkopenai.hk_finance_mcp_server import tool_bank_branch_locator
 from hkopenai.hk_finance_mcp_server import tool_fraudulent_bank_scams
 
 
-def create_mcp_server():
+def server():
     """Create and configure the MCP server"""
     mcp = FastMCP(name="HK OpenAI Finance Server")
 

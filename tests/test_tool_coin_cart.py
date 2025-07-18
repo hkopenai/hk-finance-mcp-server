@@ -1,182 +1,94 @@
 """
-Module for testing the Coin Cart Schedule tool functionality.
+Module for testing the coin cart tool functionality.
 
-This module contains unit tests to verify the correct fetching and processing
-of coin cart schedule data from the HKMA API using the tool_coin_cart module.
+This module contains unit tests for fetching and processing coin cart schedule data.
 """
 
 import unittest
-from unittest.mock import patch, mock_open
-import json
-import hkopenai.hk_finance_mcp_server.tool_coin_cart as tool_coin_cart
+from unittest.mock import patch, MagicMock
+
+from hkopenai.hk_finance_mcp_server.tool_coin_cart import (
+    _get_coin_cart_schedule,
+    register,
+)
 
 
-class TestCoinCartSchedule(unittest.TestCase):
-    """Test case class for verifying Coin Cart Schedule tool functionality."""
+class TestCoinCart(unittest.TestCase):
+    """
+    Test class for verifying coin cart functionality.
 
-    MOCK_JSON = {
-        "header": {"success": "true", "err_code": "0000", "err_msg": "No error found"},
-        "result": {
-            "datasize": 2,
-            "records": [
-                {
-                    "start_date": "2025-08-11",
-                    "end_date": "2025-08-17",
-                    "cart_no": 1,
-                    "district": "Tuen Mun District",
-                    "address": "Open area outside Yuet Tin House, Yan Tin Estate, Tuen Mun",
-                    "latitude": 22.414693,
-                    "longitude": 113.977181,
-                    "remarks": "Service suspended on Wednesday 13 August",
-                },
-                {
-                    "start_date": "2025-08-12",
-                    "end_date": "2025-08-17",
-                    "cart_no": 2,
-                    "district": "Kwun Tong District",
-                    "address": "Chi Tai House, On Tai Estate, Kwun Tong",
-                    "latitude": 22.328886,
-                    "longitude": 114.228783,
-                    "remarks": "Service suspended on Monday 11 August",
-                },
-            ],
-        },
-    }
-
-    def setUp(self):
-        """Set up test fixtures before each test method."""
-        self.mock_urlopen = patch("urllib.request.urlopen").start()
-        mock_response = mock_open(read_data=json.dumps(self.MOCK_JSON).encode("utf-8"))
-        self.mock_urlopen.return_value = mock_response()
-        self.addCleanup(patch.stopall)
-
-    def test_fetch_coin_cart_schedule(self):
-        """Test fetching coin cart schedule data.
-
-        Verifies that the fetch_coin_cart_schedule function returns the expected data structure
-        with header and result information.
-        """
-        result = tool_coin_cart.fetch_coin_cart_schedule()
-
-        self.assertIsInstance(result, dict)
-        self.assertIn("header", result)
-        self.assertIn("result", result)
-        self.assertEqual(result["result"]["datasize"], 2)
+    This class contains test cases to ensure the data fetching and processing
+    for coin cart schedule data work as expected.
+    """
 
     def test_get_coin_cart_schedule(self):
-        """Test getting coin cart schedule data in standardized format.
-
-        Verifies that the get_coin_cart_schedule function returns data with the expected key.
         """
-        result = tool_coin_cart._get_coin_cart_schedule()
+        Test the retrieval of coin cart schedule data.
 
-        self.assertIn("coin_cart_schedule", result)
-
-    @patch("urllib.request.urlopen")
-    def test_api_error_handling(self, mock_urlopen):
-        """Test handling of API errors.
-
-        Verifies that the fetch_coin_cart_schedule function raises an exception
-        when an API error occurs.
+        This test verifies that the function correctly fetches and returns data,
+        and handles error cases.
         """
-        mock_urlopen.side_effect = Exception("API Error")
-
-        with self.assertRaises(Exception):
-            tool_coin_cart.fetch_coin_cart_schedule()
-
-    @patch("urllib.request.urlopen")
-    def test_invalid_json_data(self, mock_urlopen):
-        """Test handling of invalid JSON data.
-
-        Verifies that the fetch_coin_cart_schedule function raises an exception
-        when invalid JSON data is received.
-        """
-        # Test handling of invalid JSON data
-        invalid_json = "{invalid json}"
-        mock_urlopen.return_value = mock_open(read_data=invalid_json.encode("utf-8"))()
-
-        with self.assertRaises(Exception) as context:
-            tool_coin_cart.fetch_coin_cart_schedule()
-        self.assertTrue(
-            "JSON" in str(context.exception) or "decode" in str(context.exception),
-            "Expected JSON decode error",
-        )
-
-    @patch("urllib.request.urlopen")
-    def test_empty_json_data(self, mock_urlopen):
-        """Test handling of empty JSON data.
-
-        Verifies that the fetch_coin_cart_schedule function returns an empty dict
-        when empty JSON data is received.
-        """
-        # Test handling of empty JSON data
-        empty_json = "{}"
-        mock_urlopen.return_value = mock_open(read_data=empty_json.encode("utf-8"))()
-
-        result = tool_coin_cart.fetch_coin_cart_schedule()
-        self.assertEqual(result, {}, "Expected empty dict for empty JSON data")
-
-    @patch("urllib.request.urlopen")
-    def test_missing_records_in_json(self, mock_urlopen):
-        """Test handling of JSON data with missing records.
-
-        Verifies that the fetch_coin_cart_schedule function returns a result
-        with an empty records list when no records are present in the JSON data.
-        """
-        # Test handling of JSON data with missing records
-        missing_records_json = {"result": {"records": []}}
-        mock_urlopen.return_value = mock_open(
-            read_data=json.dumps(missing_records_json).encode("utf-8")
-        )()
-
-        result = tool_coin_cart.fetch_coin_cart_schedule()
-        self.assertIn("result", result)
-        self.assertEqual(
-            result["result"]["records"],
-            [],
-            "Expected empty records list for JSON with no records",
-        )
-
-    @patch("urllib.request.urlopen")
-    def test_incomplete_record_data(self, mock_urlopen):
-        """Test handling of JSON data with incomplete records.
-
-        Verifies that the fetch_coin_cart_schedule function processes partial data
-        and includes only the available fields in the result.
-        """
-        # Test handling of JSON data with incomplete records
-        incomplete_record_json = {
+        # Mock the JSON data
+        mock_json_data = {
+            "header": {"success": True},
             "result": {
                 "records": [
-                    {
-                        "date": "2025-06-10",
-                        # Missing other fields
-                    }
+                    {"location": "Central", "date": "2023-07-17"},
+                    {"location": "Mong Kok", "date": "2023-07-18"},
                 ]
-            }
+            },
         }
-        mock_urlopen.return_value = mock_open(
-            read_data=json.dumps(incomplete_record_json).encode("utf-8")
-        )()
 
-        result = tool_coin_cart.fetch_coin_cart_schedule()
-        self.assertIn("result", result)
-        self.assertEqual(
-            len(result["result"]["records"]),
-            1,
-            "Expected result with partial data to be processed",
-        )
-        self.assertIn(
-            "date",
-            result["result"]["records"][0],
-            "Expected 'date' to be present in result",
-        )
-        self.assertNotIn(
-            "district",
-            result["result"]["records"][0],
-            "Expected missing fields to not be in result",
+        with patch(
+            "hkopenai.hk_finance_mcp_server.tool_coin_cart.fetch_json_data"
+        ) as mock_fetch_json_data:
+            # Setup mock response for successful data fetching
+            mock_fetch_json_data.return_value = mock_json_data
+
+            # Test successful data retrieval
+            result = _get_coin_cart_schedule()
+            self.assertIn("coin_cart_schedule", result)
+            self.assertEqual(len(result["coin_cart_schedule"]["result"]["records"]), 2)
+            self.assertEqual(result["coin_cart_schedule"]["result"]["records"][0]["location"], "Central")
+
+            # Test error handling when fetch_json_data returns an error
+            mock_fetch_json_data.return_value = {"error": "JSON fetch failed"}
+            result = _get_coin_cart_schedule()
+            self.assertEqual(result, {"type": "Error", "error": "JSON fetch failed"})
+
+    def test_register_tool(self):
+        """
+        Test the registration of the get_coin_cart tool.
+
+        This test verifies that the register function correctly registers the tool
+        with the FastMCP server and that the registered tool calls the underlying
+        _get_coin_cart_schedule function.
+        """
+        mock_mcp = MagicMock()
+
+        # Call the register function
+        register(mock_mcp)
+
+        # Verify that mcp.tool was called with the correct description
+        mock_mcp.tool.assert_called_once_with(
+            description="Get coin collection cart schedule in Hong Kong. The cart can charge your electronic wallet and you no long have to keep coins."
         )
 
+        # Get the mock that represents the decorator returned by mcp.tool
+        mock_decorator = mock_mcp.tool.return_value
 
-if __name__ == "__main__":
-    unittest.main()
+        # Verify that the mock decorator was called once (i.e., the function was decorated)
+        mock_decorator.assert_called_once()
+
+        # The decorated function is the first argument of the first call to the mock_decorator
+        decorated_function = mock_decorator.call_args[0][0]
+
+        # Verify the name of the decorated function
+        self.assertEqual(decorated_function.__name__, "get_coin_cart")
+
+        # Call the decorated function and verify it calls _get_coin_cart_schedule
+        with patch(
+            "hkopenai.hk_finance_mcp_server.tool_coin_cart._get_coin_cart_schedule"
+        ) as mock_get_coin_cart_schedule:
+            decorated_function()
+            mock_get_coin_cart_schedule.assert_called_once()

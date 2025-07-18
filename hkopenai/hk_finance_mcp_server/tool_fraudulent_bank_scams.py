@@ -5,10 +5,10 @@ This module provides functions to retrieve data on reported fraudulent bank scam
 """
 
 from typing import Any, Dict, List, Optional
-import requests
 from pydantic import Field
 from typing_extensions import Annotated
 from fastmcp import FastMCP
+from hkopenai_common.json_utils import fetch_json_data
 
 API_URL = "https://api.hkma.gov.hk/public/bank-svf-info/fraudulent-bank-scams"
 
@@ -43,9 +43,7 @@ def _get_fraudulent_bank_scams(lang: str = "en") -> List[Dict[str, Any]]:
         List of dictionaries containing details of fraudulent bank scams.
     """
     url = f"{API_URL}?lang={lang}"
-    response = requests.get(url, timeout=10)
-    response.raise_for_status()
-    data = response.json()
+    data = fetch_json_data(url, timeout=10)
     if data.get("header", {}).get("success", False):
         return data.get("result", {}).get("records", [])
     else:

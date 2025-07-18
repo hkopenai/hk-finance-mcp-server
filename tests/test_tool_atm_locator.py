@@ -42,9 +42,7 @@ class TestAtmLocatorTool(unittest.TestCase):
 
     @patch("urllib.request.urlopen")
     def test_fetch_atm_locator_data(self, mock_urlopen):
-        
         """Test fetching ATM location data without filters."""
-
 
         mock_response = Mock()
         mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
@@ -67,7 +65,6 @@ class TestAtmLocatorTool(unittest.TestCase):
         Verifies that the fetch_atm_locator_data function correctly applies filters
         for district and bank name, returning matching and non-matching results as expected.
         """
-
 
         mock_response = Mock()
         mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")

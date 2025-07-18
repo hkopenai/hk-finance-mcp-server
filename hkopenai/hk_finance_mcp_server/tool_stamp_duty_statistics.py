@@ -4,41 +4,40 @@ Module for fetching and processing monthly stamp duty statistics from the Inland
 This module provides functions to retrieve stamp duty data related to listed and unlisted securities from the IRD API.
 """
 
-import csv
-import urllib.request
 from typing import List, Dict, Optional
 from io import StringIO
 from pydantic import Field
 from typing_extensions import Annotated
 from fastmcp import FastMCP
+from hkopenai_common.csv_utils import fetch_csv_from_url
 
 
 def fetch_stamp_duty_data() -> List[Dict]:
-    """Fetch and parse monthly stamp duty statistics from IRD API
+    """
+    Fetch and parse monthly stamp duty statistics from IRD API
 
     Returns:
         List of stamp duty statistics data in JSON format
     """
     url = "https://www.ird.gov.hk/datagovhk/Stamp_Col_ST.csv"
-    with urllib.request.urlopen(url) as response:
-        data = response.read().decode("utf-8")
+    records = fetch_csv_from_url(url)
 
-    # Parse CSV data
-    csv_file = StringIO(data)
-    csv_reader = csv.DictReader(csv_file)
-    records = []
+    if "error" in records:
+        return records
 
-    for row in csv_reader:
-        records.append(
-            {
-                "period": row.get("Period", ""),
-                "sd_listed": float(row.get("SD_Listed", 0.0)),
-                "sd_unlisted": float(row.get("SD_Unlisted", 0.0)),
-            }
-        )
+    # Convert relevant fields to float
+    for record in records:
+        if "SD_Listed" in record:
+            record["sd_listed"] = float(record["SD_Listed"])
+            del record["SD_Listed"]
+        if "SD_Unlisted" in record:
+            record["sd_unlisted"] = float(record["SD_Unlisted"])
+            del record["SD_Unlisted"]
+        if "Period" in record:
+            record["period"] = record["Period"]
+            del record["Period"]
 
     return records
-
 
 
 def register(mcp: FastMCP):

@@ -47,6 +47,9 @@ def fetch_business_returns_data(
     url = "https://www.ird.gov.hk/datagovhk/BRFMBUSC.csv"
     reader = fetch_csv_from_url(url)
 
+    if "error" in reader:
+        return {"type": "Error", "error": reader["error"]}
+
     results = []
     for row in reader:
         year_month = row.get("RUN_DATE", "")

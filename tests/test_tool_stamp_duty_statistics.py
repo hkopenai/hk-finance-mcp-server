@@ -1,106 +1,95 @@
 """
-Module for testing the Stamp Duty Statistics tool functionality.
+Module for testing the stamp duty statistics tool functionality.
 
-This module contains unit tests to verify the correct fetching and filtering
-of stamp duty statistics data using the tool_stamp_duty_statistics module.
+This module contains unit tests for fetching and processing stamp duty statistics data.
 """
 
 import unittest
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, MagicMock
+
 from hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics import (
     _get_stamp_duty_statistics,
     register,
-    fetch_stamp_duty_data,
 )
 
 
-class TestStampDutyStatisticsTool(unittest.TestCase):
-    """Test case class for verifying Stamp Duty Statistics tool functionality."""
+class TestStampDutyStatistics(unittest.TestCase):
+    """
+    Test class for verifying stamp duty statistics functionality.
 
-    def setUp(self):
-        """Set up test fixtures before each test method."""
-        self.sample_data = [
-            {
-                "Period": "202501",
-                "SD_Listed": "3554.692596",
-                "SD_Unlisted": "27.088813",
-            },
-            {"Period": "202502", "SD_Listed": "6206.47798", "SD_Unlisted": "32.083893"},
-        ]
-        self.csv_content = "Period,SD_Listed,SD_Unlisted\n202501,3554.692596,27.088813\n202502,6206.47798,32.083893\n"
+    This class contains test cases to ensure the data fetching and processing
+    for stamp duty statistics data work as expected.
+    """
 
-    @patch("urllib.request.urlopen")
-    def test_fetch_stamp_duty_data(self, mock_urlopen):
-        """Test fetching stamp duty statistics data.
-
-        Verifies that the fetch_stamp_duty_data function returns the expected data
-        from the provided CSV content.
+    def test_get_stamp_duty_statistics(self):
         """
-        mock_response = Mock()
-        mock_response.read.return_value = self.csv_content.encode("utf-8")
-        mock_urlopen.return_value.__enter__.return_value = mock_response
-        mock_urlopen.return_value.__exit__.return_value = None
+        Test the retrieval and filtering of stamp duty statistics.
 
-        result = fetch_stamp_duty_data()
-
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result[0]["period"], "202501")
-        self.assertEqual(result[0]["sd_listed"], 3554.692596)
-        self.assertEqual(result[0]["sd_unlisted"], 27.088813)
-
-    @patch(
-        "hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics.fetch_stamp_duty_data"
-    )
-    def test_get_stamp_duty_statistics_with_filters(self, mock_fetch_stamp_duty_data):
-        """Test getting stamp duty statistics with period filters.
-
-        Verifies that the _get_stamp_duty_statistics function correctly filters results
-        based on the specified start and end periods.
+        This test verifies that the function correctly fetches and filters data by period range,
+        and handles error cases.
         """
-        mock_fetch_stamp_duty_data.return_value = [
-            {"period": "202501", "sd_listed": 100.0, "sd_unlisted": 10.0},
-            {"period": "202502", "sd_listed": 200.0, "sd_unlisted": 20.0},
-            {"period": "202503", "sd_listed": 300.0, "sd_unlisted": 30.0},
+        # Mock the CSV data
+        mock_csv_data = [
+            {"Period": "202301", "SD_Listed": "100.0", "SD_Unlisted": "50.0"},
+            {"Period": "202302", "SD_Listed": "110.0", "SD_Unlisted": "55.0"},
+            {"Period": "202303", "SD_Listed": "120.0", "SD_Unlisted": "60.0"},
+            {"Period": "202401", "SD_Listed": "130.0", "SD_Unlisted": "65.0"},
         ]
 
-        result = _get_stamp_duty_statistics(start_period="202501", end_period="202501")
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]["period"], "202501")
+        with patch(
+            "hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics.fetch_csv_from_url"
+        ) as mock_fetch_csv_from_url:
+            # Setup mock response for successful data fetching
+            mock_fetch_csv_from_url.return_value = mock_csv_data
 
-        result = _get_stamp_duty_statistics(start_period="202503")
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]["period"], "202503")
+            # Test filtering by period range
+            result = _get_stamp_duty_statistics(start_period="202301", end_period="202302")
+            self.assertEqual(len(result), 2)
+            self.assertEqual(result[0]["period"], "202301")
+            self.assertEqual(result[0]["sd_listed"], 100.0)
 
-        result = _get_stamp_duty_statistics(end_period="202502")
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result[0]["period"], "202501")
-        self.assertEqual(result[1]["period"], "202502")
+            # Test empty result for non-matching periods
+            result = _get_stamp_duty_statistics(start_period="202501", end_period="202512")
+            self.assertEqual(len(result), 0)
 
-        result = _get_stamp_duty_statistics(start_period="202601")
-        self.assertEqual(len(result), 0)
+            # Test error handling when fetch_csv_from_url returns an error
+            mock_fetch_csv_from_url.return_value = {"error": "CSV fetch failed"}
+            result = _get_stamp_duty_statistics(start_period="202301")
+            self.assertEqual(result, {"type": "Error", "error": "CSV fetch failed"})
 
     def test_register_tool(self):
-        """Test the registration of the get_stamp_duty_statistics tool."""
+        """
+        Test the registration of the get_stamp_duty_statistics tool.
+
+        This test verifies that the register function correctly registers the tool
+        with the FastMCP server and that the registered tool calls the underlying
+        _get_stamp_duty_statistics function.
+        """
         mock_mcp = MagicMock()
 
+        # Call the register function
         register(mock_mcp)
 
+        # Verify that mcp.tool was called with the correct description
         mock_mcp.tool.assert_called_once_with(
-            description="Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"
+            description="""Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"""
         )
 
+        # Get the mock that represents the decorator returned by mcp.tool
         mock_decorator = mock_mcp.tool.return_value
+
+        # Verify that the mock decorator was called once (i.e., the function was decorated)
         mock_decorator.assert_called_once()
 
+        # The decorated function is the first argument of the first call to the mock_decorator
         decorated_function = mock_decorator.call_args[0][0]
+
+        # Verify the name of the decorated function
         self.assertEqual(decorated_function.__name__, "get_stamp_duty_statistics")
 
+        # Call the decorated function and verify it calls _get_stamp_duty_statistics
         with patch(
             "hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics._get_stamp_duty_statistics"
         ) as mock_get_stamp_duty_statistics:
-            decorated_function(start_period="202401", end_period="202403")
-            mock_get_stamp_duty_statistics.assert_called_once_with("202401", "202403")
-
-
-if __name__ == "__main__":
-    unittest.main()
+            decorated_function(start_period="202301", end_period="202312")
+            mock_get_stamp_duty_statistics.assert_called_once_with("202301", "202312")

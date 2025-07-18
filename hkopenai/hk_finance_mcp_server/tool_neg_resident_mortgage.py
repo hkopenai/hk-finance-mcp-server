@@ -4,10 +4,9 @@ Module for fetching and processing negative equity residential mortgage data fro
 This module provides functions to retrieve statistics on residential mortgage loans in negative equity from the HKMA API.
 """
 
-import json
-import urllib.request
 from typing import List, Dict, Optional, Annotated
 from pydantic import Field
+from hkopenai_common.json_utils import fetch_json_data
 
 
 def register(mcp):
@@ -32,7 +31,8 @@ def fetch_neg_equity_data(
     end_year: Optional[int] = None,
     end_month: Optional[int] = None,
 ) -> List[Dict]:
-    """Fetch and parse negative equity residential mortgage data from HKMA
+    """
+    Fetch and parse negative equity residential mortgage data from HKMA
 
     Args:
         start_year: Optional start year (YYYY)
@@ -44,16 +44,10 @@ def fetch_neg_equity_data(
         List of negative equity mortgage data in JSON format
     """
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/banking/residential-mortgage-loans-neg-equity"
-    try:
-        with urllib.request.urlopen(url) as response:
-            data = json.loads(response.read().decode("utf-8"))
-    except json.JSONDecodeError as e:
-        return [{"error": f"Invalid JSON data received: {e}"}]
-    except Exception as e:
-        raise Exception(f"Error fetching data: {str(e)}")
+    data = fetch_json_data(url)
 
-    if not data.get("header", {}).get("success", False):
-        return []
+    if "error" in data:
+        return {"type": "Error", "error": data["error"]}
 
     results = []
     records = data.get("result", {}).get("records", [])
@@ -62,7 +56,7 @@ def fetch_neg_equity_data(
         year = int(quarter.split("-")[0])
         quarter_num = int(quarter.split("-Q")[1])
 
-        # Convert quarter to approximate month (Q1=3, Q2=6, Q3=9, Q4=12)
+        # Convert quarter to approximate month (Q1=3, Q2=6, Q3=9, Q4=4)
         month = quarter_num * 3
 
         include_record = True

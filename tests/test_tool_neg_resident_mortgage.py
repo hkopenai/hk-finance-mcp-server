@@ -1,132 +1,116 @@
 """
-Module for testing the negative equity residential mortgage tool.
+Module for testing the negative equity residential mortgage tool functionality.
 
-This module contains unit tests for fetching and filtering negative equity residential mortgage data.
+This module contains unit tests for fetching and processing negative equity residential mortgage data.
 """
 
 import unittest
 from unittest.mock import patch, MagicMock
-import json
 
 from hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage import (
+    _get_neg_equity_stats,
     register,
-    fetch_neg_equity_data,
 )
 
 
-class TestNegResidentMortgage(unittest.TestCase):
+class TestNegEquityResidentialMortgage(unittest.TestCase):
     """
     Test class for verifying negative equity residential mortgage functionality.
+
+    This class contains test cases to ensure the data fetching and processing
+    for negative equity residential mortgage data work as expected.
     """
 
-    def setUp(self):
-        self.sample_data = {
+    def test_get_neg_equity_stats(self):
+        """
+        Test the retrieval and filtering of negative equity residential mortgage statistics.
+
+        This test verifies that the function correctly fetches and filters data by year and month range,
+        and handles error cases.
+        """
+        # Mock the JSON data
+        mock_json_data = {
             "header": {"success": True},
             "result": {
                 "records": [
                     {
-                        "end_of_quarter": "2023-Q4",
-                        "outstanding_loans": 1000,
-                        "outstanding_loans_ratio": 0.5,
-                        "outstanding_loans_amt": 500,
-                        "outstanding_loans_amt_ratio": 0.25,
-                        "unsecured_portion_amt": 100,
-                        "lv_ratio": 0.1,
+                        "end_of_quarter": "2023-Q1",
+                        "outstanding_loans": 100,
+                        "outstanding_loans_ratio": 0.1,
                     },
                     {
-                        "end_of_quarter": "2023-Q3",
-                        "outstanding_loans": 900,
-                        "outstanding_loans_ratio": 0.4,
-                        "outstanding_loans_amt": 450,
-                        "outstanding_loans_amt_ratio": 0.20,
-                        "unsecured_portion_amt": 90,
-                        "lv_ratio": 0.09,
+                        "end_of_quarter": "2023-Q2",
+                        "outstanding_loans": 110,
+                        "outstanding_loans_ratio": 0.11,
                     },
                     {
-                        "end_of_quarter": "2022-Q4",
-                        "outstanding_loans": 800,
-                        "outstanding_loans_ratio": 0.3,
-                        "outstanding_loans_amt": 400,
-                        "outstanding_loans_amt_ratio": 0.15,
-                        "unsecured_portion_amt": 80,
-                        "lv_ratio": 0.08,
-                    },
-                    {
-                        "end_of_quarter": "2021-Q1",
-                        "outstanding_loans": 700,
-                        "outstanding_loans_ratio": 0.2,
-                        "outstanding_loans_amt": 350,
-                        "outstanding_loans_amt_ratio": 0.10,
-                        "unsecured_portion_amt": 70,
-                        "lv_ratio": 0.07,
+                        "end_of_quarter": "2024-Q1",
+                        "outstanding_loans": 120,
+                        "outstanding_loans_ratio": 0.12,
                     },
                 ]
             },
         }
 
-    @patch("urllib.request.urlopen")
-    def test_fetch_neg_equity_data_success(self, mock_urlopen):
-        """
-        Test successful fetching and parsing of negative equity data.
-        """
-        mock_response = MagicMock()
-        mock_response.read.return_value = json.dumps(self.sample_data).encode("utf-8")
-        mock_urlopen.return_value.__enter__.return_value = mock_response
-        mock_urlopen.return_value.__exit__.return_value = None
+        with patch(
+            "hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage.fetch_json_data"
+        ) as mock_fetch_json_data:
+            # Setup mock response for successful data fetching
+            mock_fetch_json_data.return_value = mock_json_data
 
-        data = fetch_neg_equity_data()
-        self.assertIsInstance(data, list)
-        self.assertEqual(len(data), 4)
-        self.assertEqual(data[0]["quarter"], "2023-Q4")
+            # Test filtering by year range
+            result = _get_neg_equity_stats(start_year=2023, end_year=2023)
+            self.assertEqual(len(result), 2)
+            self.assertEqual(result[0]["quarter"], "2023-Q1")
+            self.assertEqual(result[0]["outstanding_loans"], 100)
 
-    @patch("urllib.request.urlopen")
-    def test_fetch_neg_equity_data_api_error(self, mock_urlopen):
-        """
-        Test handling of API errors during data fetching.
-        """
-        mock_urlopen.side_effect = Exception("Connection failed")
-        with self.assertRaisesRegex(
-            Exception, "Error fetching data: Connection failed"
-        ):
-            fetch_neg_equity_data()
+            # Test filtering by year and month range (Q1 = Jan-Mar, Q2 = Apr-Jun)
+            result = _get_neg_equity_stats(start_year=2023, start_month=4, end_year=2023, end_month=6)
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["quarter"], "2023-Q2")
 
-    @patch("urllib.request.urlopen")
-    def test_fetch_neg_equity_data_invalid_json(self, mock_urlopen):
-        """
-        Test handling of invalid JSON response.
-        """
-        mock_response = MagicMock()
-        mock_response.read.return_value.decode.return_value = "invalid json"
-        mock_urlopen.return_value.__enter__.return_value = mock_response
-        mock_urlopen.return_value.__exit__.return_value = None
+            # Test empty result for non-matching years
+            result = _get_neg_equity_stats(start_year=2025, end_year=2025)
+            self.assertEqual(len(result), 0)
 
-        data = fetch_neg_equity_data()
-        self.assertIsInstance(data, list)
-        self.assertEqual(len(data), 1)
-        self.assertIn("error", data[0])
-        self.assertIn("Invalid JSON data received", data[0]["error"])
+            # Test error handling when fetch_json_data returns an error
+            mock_fetch_json_data.return_value = {"error": "JSON fetch failed"}
+            result = _get_neg_equity_stats(start_year=2023, end_year=2023)
+            self.assertEqual(result, {"type": "Error", "error": "JSON fetch failed"})
 
     def test_register_tool(self):
         """
         Test the registration of the get_neg_equity_stats tool.
+
+        This test verifies that the register function correctly registers the tool
+        with the FastMCP server and that the registered tool calls the underlying
+        _get_neg_equity_stats function.
         """
         mock_mcp = MagicMock()
+
+        # Call the register function
         register(mock_mcp)
 
+        # Verify that mcp.tool was called with the correct description
         mock_mcp.tool.assert_called_once_with(
             description="Get statistics on residential mortgage loans in negative equity in Hong Kong"
         )
+
+        # Get the mock that represents the decorator returned by mcp.tool
         mock_decorator = mock_mcp.tool.return_value
+
+        # Verify that the mock decorator was called once (i.e., the function was decorated)
         mock_decorator.assert_called_once()
+
+        # The decorated function is the first argument of the first call to the mock_decorator
         decorated_function = mock_decorator.call_args[0][0]
+
+        # Verify the name of the decorated function
         self.assertEqual(decorated_function.__name__, "get_neg_equity_stats")
 
+        # Call the decorated function and verify it calls _get_neg_equity_stats
         with patch(
             "hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage._get_neg_equity_stats"
         ) as mock_get_neg_equity_stats:
             decorated_function(start_year=2023, end_year=2023)
             mock_get_neg_equity_stats.assert_called_once_with(2023, None, 2023, None)
-
-
-if __name__ == "__main__":
-    unittest.main()
