@@ -8,13 +8,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from datetime import datetime
 
-from unittest.mock import ANY
-from unittest.mock import ANY
-from unittest.mock import ANY
-from unittest.mock import ANY
-from unittest.mock import ANY
-from unittest.mock import ANY
-from unittest.mock import ANY
+
 from hkopenai.hk_finance_mcp_server.tools.hkma_tender import (
     _get_tender_invitations,
     register,
@@ -50,23 +44,27 @@ class TestHKMATenderInvitations(unittest.TestCase):
         }
 
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_hkma_tender.fetch_tender_invitations"
-        ) as mock_fetch_tender_invitations:
+            "hkopenai.hk_finance_mcp_server.tools.hkma_tender.fetch_json_data"
+        ) as mock_fetch_json_data:
             # Setup mock response for successful data fetching
-            mock_fetch_tender_invitations.return_value = mock_json_data["result"]["records"]
+            mock_fetch_json_data.return_value = mock_json_data
 
             # Test filtering by date range
-            result = _get_tender_invitations(from_date="2023-02-01", to_date="2023-03-31")
+            result = _get_tender_invitations(
+                from_date="2023-02-01", to_date="2023-03-31"
+            )
             self.assertEqual(len(result), 2)
             self.assertEqual(result[0]["title"], "Tender 2")
             self.assertEqual(result[1]["title"], "Tender 3")
 
             # Test empty result for non-matching dates
-            result = _get_tender_invitations(from_date="2025-01-01", to_date="2025-12-31")
+            result = _get_tender_invitations(
+                from_date="2025-01-01", to_date="2025-12-31"
+            )
             self.assertEqual(len(result), 0)
 
-            # Test error handling when fetch_tender_invitations returns an error
-            mock_fetch_tender_invitations.return_value = {"error": "JSON fetch failed"}
+            # Test error handling when fetch_json_data returns an error
+            mock_fetch_json_data.return_value = {"error": "JSON fetch failed"}
             result = _get_tender_invitations(from_date="2023-01-01")
             self.assertEqual(result, {"type": "Error", "error": "JSON fetch failed"})
 
@@ -104,7 +102,17 @@ class TestHKMATenderInvitations(unittest.TestCase):
         with patch(
             "hkopenai.hk_finance_mcp_server.tools.hkma_tender._get_tender_invitations"
         ) as mock_get_tender_invitations:
-            decorated_function(lang="en", segment="tender", from_date="2023-01-01", to_date="2023-12-31")
+            decorated_function(
+                lang="en",
+                segment="tender",
+                from_date="2023-01-01",
+                to_date="2023-12-31",
+            )
             mock_get_tender_invitations.assert_called_once_with(
-                lang="en", segment="tender", pagesize=None, offset=None, from_date="2023-01-01", to_date="2023-12-31", fetch_func=ANY
+                lang="en",
+                segment="tender",
+                pagesize=None,
+                offset=None,
+                from_date="2023-01-01",
+                to_date="2023-12-31",
             )

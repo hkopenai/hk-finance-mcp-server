@@ -98,6 +98,10 @@ def _get_tender_invitations(
     if "error" in records:
         return {"type": "Error", "error": records["error"]}
 
+    # Ensure records is a dictionary before attempting to get 'result'
+    if not isinstance(records, dict):
+        return {"type": "Error", "error": "Invalid data format from API"}
+
     filtered_records = []
     for record in records.get("result", {}).get("records", []):
         include_record = True

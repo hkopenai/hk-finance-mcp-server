@@ -30,14 +30,30 @@ class TestBusinessRegistration(unittest.TestCase):
         """
         # Mock the CSV data
         mock_csv_data = [
-            {"RUN_DATE": "202301", "ACTIVE_MAIN_BUS": "1000", "NEW_REG_MAIN_BUS": "100"},
-            {"RUN_DATE": "202302", "ACTIVE_MAIN_BUS": "1050", "NEW_REG_MAIN_BUS": "110"},
-            {"RUN_DATE": "202303", "ACTIVE_MAIN_BUS": "1100", "NEW_REG_MAIN_BUS": "120"},
-            {"RUN_DATE": "202401", "ACTIVE_MAIN_BUS": "1200", "NEW_REG_MAIN_BUS": "130"},
+            {
+                "RUN_DATE": "202301",
+                "ACTIVE_MAIN_BUS": "1000",
+                "NEW_REG_MAIN_BUS": "100",
+            },
+            {
+                "RUN_DATE": "202302",
+                "ACTIVE_MAIN_BUS": "1050",
+                "NEW_REG_MAIN_BUS": "110",
+            },
+            {
+                "RUN_DATE": "202303",
+                "ACTIVE_MAIN_BUS": "1100",
+                "NEW_REG_MAIN_BUS": "120",
+            },
+            {
+                "RUN_DATE": "202401",
+                "ACTIVE_MAIN_BUS": "1200",
+                "NEW_REG_MAIN_BUS": "130",
+            },
         ]
 
         with patch(
-            "hkopenai.hk_finance_mcp_server.tools.tool_business_reg.fetch_csv_from_url"
+            "hkopenai.hk_finance_mcp_server.tools.business_reg.fetch_csv_from_url"
         ) as mock_fetch_csv_from_url:
             # Setup mock response for successful data fetching
             mock_fetch_csv_from_url.return_value = mock_csv_data
@@ -49,7 +65,9 @@ class TestBusinessRegistration(unittest.TestCase):
             self.assertEqual(result[0]["active_business"], 1000)
 
             # Test filtering by year and month range
-            result = _get_business_stats(start_year=2023, start_month=2, end_year=2023, end_month=2)
+            result = _get_business_stats(
+                start_year=2023, start_month=2, end_year=2023, end_month=2
+            )
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0]["year_month"], "2023-02")
 

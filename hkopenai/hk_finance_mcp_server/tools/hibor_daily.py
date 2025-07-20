@@ -40,6 +40,10 @@ def _get_hibor_stats(
     if "error" in data:
         return data
 
+    # Ensure data is a dictionary before attempting to get 'result'
+    if not isinstance(data, dict):
+        return {"type": "Error", "error": "Invalid data format from API"}
+
     records = data.get("result", {}).get("records", [])
 
     results = []

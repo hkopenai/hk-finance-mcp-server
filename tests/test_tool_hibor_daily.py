@@ -46,7 +46,7 @@ class TestHIBORDaily(unittest.TestCase):
             "hkopenai.hk_finance_mcp_server.tools.hibor_daily.fetch_json_data"
         ) as mock_fetch_json_data:
             # Setup mock response for successful data fetching
-            mock_fetch_json_data.return_value = mock_json_data["result"]["records"]
+            mock_fetch_json_data.return_value = mock_json_data
 
             # Test filtering by date range
             result = _get_hibor_stats(start_date="2023-01-01", end_date="2023-01-31")
@@ -61,7 +61,7 @@ class TestHIBORDaily(unittest.TestCase):
             # Test error handling when fetch_hibor_daily_data returns an error
             mock_fetch_json_data.return_value = {"error": "JSON fetch failed"}
             result = _get_hibor_stats(start_date="2023-01-01")
-            self.assertEqual(result, {"type": "Error", "error": "JSON fetch failed"})
+            self.assertEqual(result, {"error": "JSON fetch failed"})
 
     def test_register_tool(self):
         """

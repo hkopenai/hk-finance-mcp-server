@@ -75,7 +75,9 @@ class TestCreditCardTools(unittest.TestCase):
             self.assertEqual(result[0]["accounts_count"], 100)
 
             # Test filtering by year and month range (Q1 = Jan-Mar, Q2 = Apr-Jun)
-            result = _get_credit_card_stats(start_year=2023, start_month=4, end_year=2023, end_month=6)
+            result = _get_credit_card_stats(
+                start_year=2023, start_month=4, end_year=2023, end_month=6
+            )
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0]["quarter"], "2023-Q2")
 
@@ -131,6 +133,11 @@ class TestCreditCardTools(unittest.TestCase):
         """
         mock_mcp = MagicMock()
 
+        # Mock the decorator behavior
+        mock_decorator_stats = MagicMock(return_value=lambda f: f)
+        mock_decorator_hotlines = MagicMock(return_value=lambda f: f)
+        mock_mcp.tool.side_effect = [mock_decorator_stats, mock_decorator_hotlines]
+
         # Call the register function
         register(mock_mcp)
 
@@ -144,15 +151,14 @@ class TestCreditCardTools(unittest.TestCase):
             description="Get list of hotlines for reporting loss of credit card from Hong Kong banks."
         )
 
-        # Get the mock that represents the decorator returned by mcp.tool for get_credit_card_stats
-        mock_decorator_stats = mock_mcp.tool.call_args_list[0].return_value
+        # Get the decorated functions from the calls to the decorator mocks
         decorated_function_stats = mock_decorator_stats.call_args[0][0]
         self.assertEqual(decorated_function_stats.__name__, "get_credit_card_stats")
 
-        # Get the mock that represents the decorator returned by mcp.tool for get_credit_card_hotlines
-        mock_decorator_hotlines = mock_mcp.tool.call_args_list[1].return_value
         decorated_function_hotlines = mock_decorator_hotlines.call_args[0][0]
-        self.assertEqual(decorated_function_hotlines.__name__, "get_credit_card_hotlines")
+        self.assertEqual(
+            decorated_function_hotlines.__name__, "get_credit_card_hotlines"
+        )
 
         # Call the decorated functions and verify they call the underlying functions
         with (
@@ -161,7 +167,7 @@ class TestCreditCardTools(unittest.TestCase):
             ) as mock_get_credit_card_stats,
             patch(
                 "hkopenai.hk_finance_mcp_server.tools.credit_card._get_credit_card_hotlines"
-            ) as mock_get_credit_card_hotlines
+            ) as mock_get_credit_card_hotlines,
         ):
             decorated_function_stats(start_year=2023, end_year=2023)
             mock_get_credit_card_stats.assert_called_once_with(2023, None, 2023, None)

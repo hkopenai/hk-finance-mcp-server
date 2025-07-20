@@ -61,28 +61,40 @@ def _get_bank_branch_locations(
     Returns:
         List of bank branch location data
     """
-    url = f"https://api.hkma.gov.hk/public/bank-svf-info/banks-branch-locator?lang={lang}&pagesize={pagesize}&offset={offset}"
+    url = f"https://api.hkma.gov.hk/public/bank-svf-info/banks-branch-locator?lang={lang}&pagesize=10000&offset=0"
     data = fetch_json_data(url)
 
     records = data.get("result", {}).get("records", [])
     filtered_records = []
 
+    normalized_district_param = district.lower().strip() if district else None
+    normalized_bank_name_param = bank_name.lower().strip() if bank_name else None
+
     for record in records:
-        if district and record.get("district", "").lower() != district.lower():
+        record_district = record.get("district", "").lower().strip()
+        record_bank_name = record.get("bank_name", "").lower().strip()
+
+        if normalized_district_param and normalized_district_param != record_district:
             continue
-        if bank_name and record.get("bank_name", "").lower() != bank_name.lower():
+        if (
+            normalized_bank_name_param
+            and normalized_bank_name_param != record_bank_name
+        ):
             continue
         filtered_records.append(
             {
-                "district": record.get("district", ""),
-                "bank_name": record.get("bank_name", ""),
-                "branch_name": record.get("branch_name", ""),
-                "address": record.get("address", ""),
-                "service_hours": record.get("service_hours", ""),
+                "district": record.get("district", "").strip(),
+                "bank_name": record.get("bank_name", "").strip(),
+                "branch_name": record.get("branch_name", "").strip(),
+                "address": record.get("address", "").strip(),
+                "service_hours": record.get("service_hours", "").strip(),
                 "latitude": float(record.get("latitude", 0.0)),
                 "longitude": float(record.get("longitude", 0.0)),
-                "barrier_free_access": record.get("barrier_free_access", ""),
+                "barrier_free_access": record.get("barrier_free_access", "").strip(),
             }
         )
 
-    return filtered_records
+    # Apply pagesize and offset after filtering
+    start_index = offset
+    end_index = offset + pagesize
+    return filtered_records[start_index:end_index]

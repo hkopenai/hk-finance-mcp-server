@@ -17,58 +17,60 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         self.sample_data = """
 {
     "result": {
-        "datasize": 2,
+        "datasize": 3,
         "records": [
             {
-                "district": "Central",
-                "bank_name": "Test Bank 1",
-                "branch_name": "Main Branch",
-                "address": "123 Test Street, Central",
-                "service_hours": "Mon-Fri, 09:00 - 17:00",
-                "latitude": "22.2799",
-                "longitude": "114.1588",
+                "district": "YuenLong",
+                "bank_name": "Industrial and Commercial Bank of China (Asia) Limited",
+                "branch_name": "Yuen Long Branch",
+                "address": "No.7, 2/F, T Town South, Tin Chung Court, 30 Tin Wah Road, Tin Shui Wai, Yuen Long, N.T.",
+                "service_hours": "24 hours",
+                "latitude": "22.461655",
+                "longitude": "113.997757",
                 "barrier_free_access": "Wheelchair accessible"
             },
             {
-                "district": "Kowloon",
-                "bank_name": "Test Bank 2",
-                "branch_name": "Kowloon Branch",
-                "address": "456 Test Road, Kowloon",
+                "district": "Central",
+                "bank_name": "Bank of China (Hong Kong) Limited",
+                "branch_name": "Bank of China Tower Branch",
+                "address": "Bank of China Tower, 1 Garden Road, Central, Hong Kong",
+                "service_hours": "24 hours",
+                "latitude": "22.2793",
+                "longitude": "114.1616",
+                "barrier_free_access": "None"
+            },
+            {
+                "district": "Central",
+                "bank_name": "Test Bank 3",
+                "branch_name": "Another Branch",
+                "address": "789 Another Street, Central",
                 "service_hours": "Mon-Fri, 09:00 - 17:00",
-                "latitude": "22.3169",
-                "longitude": "114.1694",
-                "barrier_free_access": "Guide dogs welcome"
+                "latitude": "22.2800",
+                "longitude": "114.1590",
+                "barrier_free_access": "None"
             }
         ]
     }
 }
 """
 
-    @patch("hkopenai_common.json_utils.fetch_json_data")
+    @patch("hkopenai.hk_finance_mcp_server.tools.bank_branch_locator.fetch_json_data")
     def test_fetch_bank_branch_data_no_filter(self, mock_fetch_json_data):
-        """Test fetching bank branch data without filters.
-
-        Verifies that the _get_bank_branch_locations function returns all available data
-        when no filters are applied.
-        """
+        """Test fetching bank branch data without filters."""
         # Arrange
         mock_fetch_json_data.return_value = json.loads(self.sample_data)
 
         # Act
-        result = _get_bank_branch_locations(pagesize=100, offset=0)
+        result = _get_bank_branch_locations(pagesize=2, offset=0)
 
         # Assert
         self.assertEqual(len(result), 2)
-        self.assertEqual(result[0]["district"], "Central")
-        self.assertEqual(result[1]["bank_name"], "Test Bank 2")
+        self.assertEqual(result[0]["district"], "YuenLong")
+        self.assertEqual(result[1]["bank_name"], "Bank of China (Hong Kong) Limited")
 
-    @patch("hkopenai_common.json_utils.fetch_json_data")
+    @patch("hkopenai.hk_finance_mcp_server.tools.bank_branch_locator.fetch_json_data")
     def test_fetch_bank_branch_data_with_district_filter(self, mock_fetch_json_data):
-        """Test fetching bank branch data with district filter.
-
-        Verifies that the _get_bank_branch_locations function correctly filters results
-        based on the specified district.
-        """
+        """Test fetching bank branch data with district filter."""
         # Arrange
         mock_fetch_json_data.return_value = json.loads(self.sample_data)
 
@@ -76,29 +78,25 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         result = _get_bank_branch_locations(district="Central", pagesize=100, offset=0)
 
         # Assert
-        self.assertEqual(len(result), 1)
+        self.assertEqual(len(result), 2)
         self.assertEqual(result[0]["district"], "Central")
 
-    @patch("hkopenai_common.json_utils.fetch_json_data")
+    @patch("hkopenai.hk_finance_mcp_server.tools.bank_branch_locator.fetch_json_data")
     def test_fetch_bank_branch_data_with_bank_name_filter(self, mock_fetch_json_data):
-        """Test fetching bank branch data with bank name filter.
-
-        Verifies that the _get_bank_branch_locations function correctly filters results
-        based on the specified bank name.
-        """
+        """Test fetching bank branch data with bank name filter."""
         # Arrange
         mock_fetch_json_data.return_value = json.loads(self.sample_data)
 
         # Act
         result = _get_bank_branch_locations(
-            bank_name="Test Bank 2", pagesize=1, offset=0
+            bank_name="Test Bank 3", pagesize=1, offset=0
         )
 
         # Assert
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]["bank_name"], "Test Bank 2")
+        self.assertEqual(result[0]["bank_name"], "Test Bank 3")
 
-    @patch("hkopenai_common.json_utils.fetch_json_data")
+    @patch("hkopenai.hk_finance_mcp_server.tools.bank_branch_locator.fetch_json_data")
     def test_get_bank_branch_locations_empty_result(self, mock_fetch_json_data):
         """
         Test fetching bank branch locations with empty result.

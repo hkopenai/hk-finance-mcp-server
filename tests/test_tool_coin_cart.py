@@ -40,7 +40,7 @@ class TestCoinCart(unittest.TestCase):
         }
 
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_coin_cart.fetch_json_data"
+            "hkopenai.hk_finance_mcp_server.tools.coin_cart.fetch_json_data"
         ) as mock_fetch_json_data:
             # Setup mock response for successful data fetching
             mock_fetch_json_data.return_value = mock_json_data
@@ -49,7 +49,10 @@ class TestCoinCart(unittest.TestCase):
             result = _get_coin_cart_schedule()
             self.assertIn("coin_cart_schedule", result)
             self.assertEqual(len(result["coin_cart_schedule"]["result"]["records"]), 2)
-            self.assertEqual(result["coin_cart_schedule"]["result"]["records"][0]["location"], "Central")
+            self.assertEqual(
+                result["coin_cart_schedule"]["result"]["records"][0]["location"],
+                "Central",
+            )
 
             # Test error handling when fetch_json_data returns an error
             mock_fetch_json_data.return_value = {"error": "JSON fetch failed"}

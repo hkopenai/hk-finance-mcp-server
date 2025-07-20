@@ -37,25 +37,29 @@ class TestStampDutyStatistics(unittest.TestCase):
         ]
 
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_stamp_duty_statistics.fetch_csv_from_url"
+            "hkopenai.hk_finance_mcp_server.tools.stamp_duty_statistics.fetch_csv_from_url"
         ) as mock_fetch_csv_from_url:
             # Setup mock response for successful data fetching
             mock_fetch_csv_from_url.return_value = mock_csv_data
 
             # Test filtering by period range
-            result = _get_stamp_duty_statistics(start_period="202301", end_period="202302")
+            result = _get_stamp_duty_statistics(
+                start_period="202301", end_period="202302"
+            )
             self.assertEqual(len(result), 2)
             self.assertEqual(result[0]["period"], "202301")
             self.assertEqual(result[0]["sd_listed"], 100.0)
 
             # Test empty result for non-matching periods
-            result = _get_stamp_duty_statistics(start_period="202501", end_period="202512")
+            result = _get_stamp_duty_statistics(
+                start_period="202501", end_period="202512"
+            )
             self.assertEqual(len(result), 0)
 
             # Test error handling when fetch_csv_from_url returns an error
             mock_fetch_csv_from_url.return_value = {"error": "CSV fetch failed"}
             result = _get_stamp_duty_statistics(start_period="202301")
-            self.assertEqual(result, {"type": "Error", "error": "CSV fetch failed"})
+            self.assertEqual(result, {"error": "CSV fetch failed"})
 
     def test_register_tool(self):
         """

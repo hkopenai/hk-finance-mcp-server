@@ -21,13 +21,11 @@ def register(mcp: FastMCP):
     def get_stamp_duty_statistics(
         start_period: Annotated[
             Optional[str],
-            Field(description="""Start period in YYYYMM format to filter results"""
-            ),
+            Field(description="""Start period in YYYYMM format to filter results"""),
         ] = None,
         end_period: Annotated[
             Optional[str],
-            Field(description="""End period in YYYYMM format to filter results"""
-            ),
+            Field(description="""End period in YYYYMM format to filter results"""),
         ] = None,
     ) -> List[Dict]:
         """Get monthly statistics on stamp duty collected from transfer of Hong Kong stock (both listed and unlisted)"""

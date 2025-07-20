@@ -53,7 +53,7 @@ class TestNegEquityResidentialMortgage(unittest.TestCase):
         }
 
         with patch(
-            "hkopenai.hk_finance_mcp_server.tool_neg_resident_mortgage.fetch_json_data"
+            "hkopenai.hk_finance_mcp_server.tools.neg_resident_mortgage.fetch_json_data"
         ) as mock_fetch_json_data:
             # Setup mock response for successful data fetching
             mock_fetch_json_data.return_value = mock_json_data
@@ -65,7 +65,9 @@ class TestNegEquityResidentialMortgage(unittest.TestCase):
             self.assertEqual(result[0]["outstanding_loans"], 100)
 
             # Test filtering by year and month range (Q1 = Jan-Mar, Q2 = Apr-Jun)
-            result = _get_neg_equity_stats(start_year=2023, start_month=4, end_year=2023, end_month=6)
+            result = _get_neg_equity_stats(
+                start_year=2023, start_month=4, end_year=2023, end_month=6
+            )
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0]["quarter"], "2023-Q2")
 

@@ -52,31 +52,47 @@ def _get_atm_locations(
     Returns:
         List of ATM location data in JSON format
     """
-    url = f"https://api.hkma.gov.hk/public/bank-svf-info/banks-atm-locator?lang=en&pagesize={pagesize}&offset={offset}"
+    url = "https://api.hkma.gov.hk/public/bank-svf-info/banks-atm-locator?lang=en&pagesize=10000&offset=0"
     data = fetch_json_data(url)
 
     records = data.get("result", {}).get("records", [])
     filtered_records = []
 
+    normalized_district_param = district.lower().strip() if district else None
+    normalized_bank_name_param = bank_name.lower().strip() if bank_name else None
+
     for record in records:
-        if district and record.get("district", "").lower() != district.lower():
+        record_district = record.get("district", "").lower().strip()
+        record_bank_name = record.get("bank_name", "").lower().strip()
+
+        if normalized_district_param and normalized_district_param != record_district:
             continue
-        if bank_name and record.get("bank_name", "").lower() != bank_name.lower():
+        if (
+            normalized_bank_name_param
+            and normalized_bank_name_param != record_bank_name
+        ):
             continue
         filtered_records.append(
             {
-                "district": record.get("district", ""),
-                "bank_name": record.get("bank_name", ""),
-                "type_of_machine": record.get("type_of_machine", ""),
-                "function": record.get("function", ""),
-                "currencies_supported": record.get("currencies_supported", ""),
-                "barrier_free_access": record.get("barrier_free_access", ""),
-                "network": record.get("network", ""),
-                "address": record.get("address", ""),
-                "service_hours": record.get("service_hours", ""),
+                "district": str(record.get("district", "")).strip(),
+                "bank_name": str(record.get("bank_name", "")).strip(),
+                "type_of_machine": str(record.get("type_of_machine", "")).strip(),
+                "function": str(record.get("function", "")).strip(),
+                "currencies_supported": str(
+                    record.get("currencies_supported", "")
+                ).strip(),
+                "barrier_free_access": str(
+                    record.get("barrier_free_access", "")
+                ).strip(),
+                "network": str(record.get("network", "")).strip(),
+                "address": str(record.get("address", "")).strip(),
+                "service_hours": str(record.get("service_hours", "")).strip(),
                 "latitude": float(record.get("latitude", 0.0)),
                 "longitude": float(record.get("longitude", 0.0)),
             }
         )
 
-    return filtered_records
+    # Apply pagesize and offset after filtering
+    start_index = offset
+    end_index = offset + pagesize
+    return filtered_records[start_index:end_index]

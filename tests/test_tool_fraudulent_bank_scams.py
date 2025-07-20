@@ -22,16 +22,15 @@ class TestFraudulentBankScamsTool(unittest.TestCase):
             "https://api.hkma.gov.hk/public/bank-svf-info/fraudulent-bank-scams"
         )
 
-    @patch("requests.get")
-    def test_get_fraudulent_bank_scams_success(self, mock_get):
+    @patch("hkopenai.hk_finance_mcp_server.tools.fraudulent_bank_scams.fetch_json_data")
+    def test_get_fraudulent_bank_scams_success(self, mock_fetch_json_data):
         """Test fetching fraudulent bank scams data with successful API response.
 
         Verifies that the _get_fraudulent_bank_scams function returns the expected data
         when the API responds successfully.
         """
         # Mock successful API response
-        mock_response = Mock()
-        mock_response.json.return_value = {
+        mock_fetch_json_data.return_value = {
             "header": {
                 "success": True,
                 "err_code": "0000",
@@ -57,7 +56,6 @@ class TestFraudulentBankScamsTool(unittest.TestCase):
                 ],
             },
         }
-        mock_get.return_value = mock_response
 
         # Call the function
         result = _get_fraudulent_bank_scams(lang="en")
@@ -66,9 +64,11 @@ class TestFraudulentBankScamsTool(unittest.TestCase):
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]["alleged_name"], "Test Bank")
         self.assertEqual(result[1]["scam_type"], "Phishing email")
-        mock_get.assert_called_once_with(f"{self.api_url}?lang=en", timeout=10)
+        mock_fetch_json_data.assert_called_once_with(
+            f"{self.api_url}?lang=en", timeout=10
+        )
 
-    @patch("hkopenai_common.json_utils.fetch_json_data")
+    @patch("hkopenai.hk_finance_mcp_server.tools.fraudulent_bank_scams.fetch_json_data")
     def test_get_fraudulent_bank_scams_api_error(self, mock_fetch_json_data):
         """Test handling of API error response for fraudulent bank scams data.
 
@@ -85,7 +85,9 @@ class TestFraudulentBankScamsTool(unittest.TestCase):
             _get_fraudulent_bank_scams(lang="en")
 
         self.assertTrue("API Error: API error" in str(context.exception))
-        mock_fetch_json_data.assert_called_once_with(f"{self.api_url}?lang=en", timeout=10)
+        mock_fetch_json_data.assert_called_once_with(
+            f"{self.api_url}?lang=en", timeout=10
+        )
 
     def test_register_tool(self):
         """Test the registration of the get_fraudulent_bank_scams tool."""

@@ -26,10 +26,10 @@ class TestAtmLocatorTool(unittest.TestCase):
                         "district": "YuenLong",
                         "bank_name": "Industrial and Commercial Bank of China (Asia) Limited",
                         "type_of_machine": "Automatic Teller Machine",
-                        "function": "Cash withdrawal, Cardless withdrawal",
+                        "function": "Cash withdrawal",
                         "currencies_supported": "HKD, RMB",
-                        "barrier_free_access": "Voice navigation, Suitable height ATM for wheelchair users",
-                        "network": "JETCO, PLUS, CIRRUS, CUP, VISA, MASTER, DISCOVER, DINER",
+                        "barrier_free_access": "Voice navigation",
+                        "network": "JETCO",
                         "address": "No.7, 2/F, T Town South, Tin Chung Court, 30 Tin Wah Road, Tin Shui Wai, Yuen Long, N.T.",
                         "service_hours": "24 hours",
                         "latitude": "22.461655",
@@ -47,12 +47,12 @@ class TestAtmLocatorTool(unittest.TestCase):
                         "service_hours": "24 hours",
                         "latitude": "22.2793",
                         "longitude": "114.1616",
-                    }
+                    },
                 ]
             }
         }
 
-    @patch("hkopenai_common.json_utils.fetch_json_data")
+    @patch("hkopenai.hk_finance_mcp_server.tools.atm_locator.fetch_json_data")
     def test_fetch_atm_locator_data(self, mock_fetch_json_data):
         """Test fetching ATM location data without filters."""
 
@@ -64,10 +64,10 @@ class TestAtmLocatorTool(unittest.TestCase):
         self.assertEqual(result[0]["district"], "YuenLong")
         self.assertEqual(
             result[0]["bank_name"],
-            "Industrial and Commercial Bank of China (Asia) Limited"
+            "Industrial and Commercial Bank of China (Asia) Limited",
         )
 
-    @patch("hkopenai_common.json_utils.fetch_json_data")
+    @patch("hkopenai.hk_finance_mcp_server.tools.atm_locator.fetch_json_data")
     def test_fetch_atm_locator_data_with_filters(self, mock_fetch_json_data):
         """Test fetching ATM location data with filters.
 
@@ -89,8 +89,7 @@ class TestAtmLocatorTool(unittest.TestCase):
 
         result = _get_atm_locations(district="Central", pagesize=1, offset=0)
         self.assertEqual(len(result), 1)
-
-    
+        self.assertEqual(result[0]["district"], "Central")
 
     def test_register_tool(self):
         """Test the registration of the get_atm_locations tool."""

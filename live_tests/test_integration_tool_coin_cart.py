@@ -23,8 +23,14 @@ class TestCoinCartIntegration(unittest.TestCase):
             # Fetch data with default parameters
             result = coin_cart._get_coin_cart_schedule()
             self.assertIsInstance(result, dict)
-            self.assertTrue("header" in result["coin_cart_schedule"], "Expected 'header' key in result")
-            self.assertTrue("result" in result["coin_cart_schedule"], "Expected 'result' key in result")
+            self.assertTrue(
+                "header" in result["coin_cart_schedule"],
+                "Expected 'header' key in result",
+            )
+            self.assertTrue(
+                "result" in result["coin_cart_schedule"],
+                "Expected 'result' key in result",
+            )
 
             try:
                 header = result["coin_cart_schedule"]["header"]

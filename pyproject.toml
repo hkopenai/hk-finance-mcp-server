@@ -20,7 +20,7 @@ name = "hkopenai.hk_finance_mcp_server"
 version = "0.1.7"
 description = "Hong Kong Finance MCP Server providing financial data tools"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 authors = [
     {name = "Neo Chow", email = "neo@01man.com"}
 ]
