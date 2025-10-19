@@ -3,7 +3,7 @@ name: Python Tests
 on: [push, pull_request]
 
 jobs:
-  test:
+  unit-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -19,15 +19,28 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e .
-
-
-    - name: Run tests with coverage
-      id: coverage
+    - name: Run unit tests
       run: |
         pytest
 
-    - name: Run live tests
-      if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+  integration-tests:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+    - name: Run integration tests
       env:
         RUN_LIVE_TESTS: 'true'
       run: |
