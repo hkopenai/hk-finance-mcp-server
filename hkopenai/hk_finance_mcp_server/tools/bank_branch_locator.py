@@ -83,14 +83,14 @@ def _get_bank_branch_locations(
             continue
         filtered_records.append(
             {
-                "district": record.get("district", "").strip(),
-                "bank_name": record.get("bank_name", "").strip(),
-                "branch_name": record.get("branch_name", "").strip(),
-                "address": record.get("address", "").strip(),
-                "service_hours": record.get("service_hours", "").strip(),
+                "district": (record.get("district") or "").strip(),
+                "bank_name": (record.get("bank_name") or "").strip(),
+                "branch_name": (record.get("branch_name") or "").strip(),
+                "address": (record.get("address") or "").strip(),
+                "service_hours": (record.get("service_hours") or "").strip(),
                 "latitude": float(record.get("latitude", 0.0)),
                 "longitude": float(record.get("longitude", 0.0)),
-                "barrier_free_access": record.get("barrier_free_access", "").strip(),
+                "barrier_free_access": (record.get("barrier_free_access") or "").strip(),
             }
         )
 
