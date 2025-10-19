@@ -44,6 +44,8 @@ def _get_fraudulent_bank_scams(lang: str = "en") -> List[Dict[str, Any]]:
     """
     url = f"{API_URL}?lang={lang}"
     data = fetch_json_data(url, timeout=10)
+    if "error" in data:
+        raise ValueError(data["error"])
     if data.get("header", {}).get("success", False):
         return data.get("result", {}).get("records", [])
     else:
