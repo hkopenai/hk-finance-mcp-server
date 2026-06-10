@@ -116,6 +116,66 @@ class TestBankBranchLocatorTool(unittest.TestCase):
         # Assert
         self.assertEqual(result, [])
 
+    @patch("hkopenai.hk_finance_mcp_server.tools.bank_branch_locator.fetch_json_data")
+    def test_fetch_bank_branch_data_with_language(self, mock_fetch_json_data):
+        """Test fetching bank branch data with a language parameter."""
+        mock_fetch_json_data.return_value = json.loads(self.sample_data)
+
+        result = _get_bank_branch_locations(lang="tc", pagesize=1, offset=0)
+
+        self.assertEqual(len(result), 1)
+        self.assertIn("lang=tc", mock_fetch_json_data.call_args[0][0])
+
+    @patch("hkopenai.hk_finance_mcp_server.tools.bank_branch_locator.fetch_json_data")
+    def test_fetch_bank_branch_data_fetches_next_page(self, mock_fetch_json_data):
+        """Test fetching another HKMA page when the previous page is full."""
+        full_page = {
+            "result": {
+                "records": [
+                    {
+                        "district": f"District {i}",
+                        "bank_name": "Bank",
+                        "branch_name": f"Branch {i}",
+                        "address": f"Address {i}",
+                        "service_hours": "24 hours",
+                        "latitude": "22.2793",
+                        "longitude": "114.1616",
+                        "barrier_free_access": "None",
+                    }
+                    for i in range(100)
+                ]
+            }
+        }
+        last_page = {
+            "result": {
+                "records": [
+                    {
+                        "district": "Last District",
+                        "bank_name": "Bank",
+                        "branch_name": "Last Branch",
+                        "address": "Last Address",
+                        "service_hours": "24 hours",
+                        "latitude": "22.2793",
+                        "longitude": "114.1616",
+                        "barrier_free_access": "None",
+                    }
+                ]
+            }
+        }
+        mock_fetch_json_data.side_effect = [full_page, last_page]
+
+        result = _get_bank_branch_locations(pagesize=101, offset=0)
+
+        self.assertEqual(len(result), 101)
+        self.assertIn(
+            "pagesize=100&offset=0",
+            mock_fetch_json_data.call_args_list[0][0][0],
+        )
+        self.assertIn(
+            "pagesize=100&offset=100",
+            mock_fetch_json_data.call_args_list[1][0][0],
+        )
+
     def test_register_tool(self):
         """
         Test the registration of the get_bank_branch_locations tool.

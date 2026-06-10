@@ -10,6 +10,9 @@ from pydantic import Field
 from typing_extensions import Annotated
 
 
+HKMA_PAGE_SIZE = 100
+
+
 def register(mcp):
     """Registers the bank branch locator tool with the FastMCP server."""
 
@@ -61,10 +64,22 @@ def _get_bank_branch_locations(
     Returns:
         List of bank branch location data
     """
-    url = f"https://api.hkma.gov.hk/public/bank-svf-info/banks-branch-locator?lang={lang}&pagesize=10000&offset=0"
-    data = fetch_json_data(url)
+    lang = lang or "en"
+    records = []
+    fetch_offset = 0
+    while True:
+        url = (
+            "https://api.hkma.gov.hk/public/bank-svf-info/banks-branch-locator"
+            f"?lang={lang}&pagesize={HKMA_PAGE_SIZE}&offset={fetch_offset}"
+        )
+        data = fetch_json_data(url)
+        page_records = data.get("result", {}).get("records", []) or []
+        records.extend(page_records)
 
-    records = data.get("result", {}).get("records", [])
+        if len(page_records) < HKMA_PAGE_SIZE:
+            break
+        fetch_offset += HKMA_PAGE_SIZE
+
     filtered_records = []
 
     normalized_district_param = district.lower().strip() if district else None
