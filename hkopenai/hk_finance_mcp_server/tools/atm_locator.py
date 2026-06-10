@@ -10,6 +10,9 @@ from pydantic import Field
 from typing_extensions import Annotated
 
 
+HKMA_PAGE_SIZE = 100
+
+
 def register(mcp):
     """Registers the ATM locator tool with the FastMCP server."""
 
@@ -23,6 +26,13 @@ def register(mcp):
         bank_name: Annotated[
             Optional[str], Field(description="Bank name to filter results")
         ] = None,
+        lang: Annotated[
+            Optional[str],
+            Field(
+                description="Language for data output (en, tc, sc)",
+                json_schema_extra={"enum": ["en", "tc", "sc"]},
+            ),
+        ] = "en",
         pagesize: Annotated[
             Optional[int], Field(description="Number of records per page")
         ] = 100,
@@ -31,12 +41,13 @@ def register(mcp):
         ] = 0,
     ) -> List[Dict]:
         """Retrieve ATM locations with optional filtering"""
-        return _get_atm_locations(district, bank_name, pagesize, offset)
+        return _get_atm_locations(district, bank_name, lang, pagesize, offset)
 
 
 def _get_atm_locations(
     district: Optional[str] = None,
     bank_name: Optional[str] = None,
+    lang: Optional[str] = "en",
     pagesize: Optional[int] = 100,
     offset: Optional[int] = 0,
 ) -> List[Dict]:
@@ -46,16 +57,29 @@ def _get_atm_locations(
     Args:
         district: Optional district name to filter results
         bank_name: Optional bank name to filter results
+        lang: Language for data output (en, tc, sc) - default: en
         pagesize: Number of records per page (default: 100)
         offset: Offset for pagination (default: 0)
 
     Returns:
         List of ATM location data in JSON format
     """
-    url = "https://api.hkma.gov.hk/public/bank-svf-info/banks-atm-locator?lang=en&pagesize=10000&offset=0"
-    data = fetch_json_data(url)
+    lang = lang or "en"
+    records = []
+    fetch_offset = 0
+    while True:
+        url = (
+            "https://api.hkma.gov.hk/public/bank-svf-info/banks-atm-locator"
+            f"?lang={lang}&pagesize={HKMA_PAGE_SIZE}&offset={fetch_offset}"
+        )
+        data = fetch_json_data(url)
+        page_records = data.get("result", {}).get("records", []) or []
+        records.extend(page_records)
 
-    records = data.get("result", {}).get("records", [])
+        if len(page_records) < HKMA_PAGE_SIZE:
+            break
+        fetch_offset += HKMA_PAGE_SIZE
+
     filtered_records = []
 
     normalized_district_param = district.lower().strip() if district else None
