@@ -80,6 +80,7 @@ class TestAtmLocatorTool(unittest.TestCase):
         result = _get_atm_locations(
             district="YuenLong",
             bank_name="Industrial and Commercial Bank of China (Asia) Limited",
+            lang="en",
             pagesize=1,
             offset=0,
         )
@@ -90,6 +91,74 @@ class TestAtmLocatorTool(unittest.TestCase):
         result = _get_atm_locations(district="Central", pagesize=1, offset=0)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["district"], "Central")
+
+    @patch("hkopenai.hk_finance_mcp_server.tools.atm_locator.fetch_json_data")
+    def test_fetch_atm_locator_data_with_language(self, mock_fetch_json_data):
+        """Test fetching ATM location data with a language parameter."""
+
+        mock_fetch_json_data.return_value = self.sample_data
+
+        result = _get_atm_locations(lang="tc", pagesize=1, offset=0)
+
+        self.assertEqual(len(result), 1)
+        self.assertIn("lang=tc", mock_fetch_json_data.call_args[0][0])
+
+    @patch("hkopenai.hk_finance_mcp_server.tools.atm_locator.fetch_json_data")
+    def test_fetch_atm_locator_data_fetches_next_page(self, mock_fetch_json_data):
+        """Test fetching another HKMA page when the previous page is full."""
+
+        full_page = {
+            "result": {
+                "records": [
+                    {
+                        "district": f"District {i}",
+                        "bank_name": "Bank",
+                        "type_of_machine": "Automatic Teller Machine",
+                        "function": "Cash withdrawal",
+                        "currencies_supported": "HKD",
+                        "barrier_free_access": "None",
+                        "network": "JETCO",
+                        "address": f"Address {i}",
+                        "service_hours": "24 hours",
+                        "latitude": "22.2793",
+                        "longitude": "114.1616",
+                    }
+                    for i in range(100)
+                ]
+            }
+        }
+        last_page = {
+            "result": {
+                "records": [
+                    {
+                        "district": "Last District",
+                        "bank_name": "Bank",
+                        "type_of_machine": "Automatic Teller Machine",
+                        "function": "Cash withdrawal",
+                        "currencies_supported": "HKD",
+                        "barrier_free_access": "None",
+                        "network": "JETCO",
+                        "address": "Last Address",
+                        "service_hours": "24 hours",
+                        "latitude": "22.2793",
+                        "longitude": "114.1616",
+                    }
+                ]
+            }
+        }
+        mock_fetch_json_data.side_effect = [full_page, last_page]
+
+        result = _get_atm_locations(pagesize=101, offset=0)
+
+        self.assertEqual(len(result), 101)
+        self.assertIn(
+            "pagesize=100&offset=0",
+            mock_fetch_json_data.call_args_list[0][0][0],
+        )
+        self.assertIn(
+            "pagesize=100&offset=100",
+            mock_fetch_json_data.call_args_list[1][0][0],
+        )
 
     def test_register_tool(self):
         """Test the registration of the get_atm_locations tool."""
@@ -122,12 +191,14 @@ class TestAtmLocatorTool(unittest.TestCase):
             decorated_function(
                 district="YuenLong",
                 bank_name="Industrial and Commercial Bank of China (Asia) Limited",
+                lang="en",
                 pagesize=1,
                 offset=0,
             )
             mock_get_atm_locations.assert_called_once_with(
                 "YuenLong",
                 "Industrial and Commercial Bank of China (Asia) Limited",
+                "en",
                 1,
                 0,
             )
