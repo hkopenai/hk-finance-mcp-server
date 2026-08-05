@@ -14,34 +14,29 @@ class TestLicensedBanksHistoricalTool(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures before each test method."""
+        # New HKMA hkimr schema: Lb_yr / Lb_brnum_a / Lb_bran_a / Lb_broff_a
         self.sample_data = """
 {
     "result": {
         "datasize": 3,
         "records": [
             {
-                "year": "1980",
-                "licensed_banks": 115,
-                "bank_branches": 1234,
-                "bank_offices": 567,
-                "total_branches_and_offices": 1801,
-                "notes": "Data for 1980"
+                "Lb_yr": "1980",
+                "Lb_brnum_a": 115,
+                "Lb_bran_a": 1234,
+                "Lb_broff_a": 567
             },
             {
-                "year": "1990",
-                "licensed_banks": 165,
-                "bank_branches": 1456,
-                "bank_offices": 789,
-                "total_branches_and_offices": 2245,
-                "notes": "Data for 1990"
+                "Lb_yr": "1990",
+                "Lb_brnum_a": 165,
+                "Lb_bran_a": 1456,
+                "Lb_broff_a": 789
             },
             {
-                "year": "2000",
-                "licensed_banks": 154,
-                "bank_branches": 1312,
-                "bank_offices": 456,
-                "total_branches_and_offices": 1768,
-                "notes": "Data for 2000"
+                "Lb_yr": "2000",
+                "Lb_brnum_a": 154,
+                "Lb_bran_a": 1312,
+                "Lb_broff_a": 456
             }
         ]
     }
@@ -51,20 +46,16 @@ class TestLicensedBanksHistoricalTool(unittest.TestCase):
 {
     "records": [
         {
-            "year": "1985",
-            "licensed_banks": 125,
-            "bank_branches": 1350,
-            "bank_offices": 600,
-            "total_branches_and_offices": 1950,
-            "notes": "Data for 1985"
+            "Lb_yr": "1985",
+            "Lb_brnum_a": 125,
+            "Lb_bran_a": 1350,
+            "Lb_broff_a": 600
         },
         {
-            "year": "1995",
-            "licensed_banks": 159,
-            "bank_branches": 1389,
-            "bank_offices": 623,
-            "total_branches_and_offices": 2012,
-            "notes": "Data for 1995"
+            "Lb_yr": "1995",
+            "Lb_brnum_a": 159,
+            "Lb_bran_a": 1389,
+            "Lb_broff_a": 623
         }
     ]
 }"""
