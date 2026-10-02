@@ -21,4 +21,4 @@ jobs:
         pip install -e .
     - name: Run unit tests
       run: |
-        pytest
+        pytest -m "not live"
