@@ -60,69 +60,84 @@ def _get_licensed_banks_historical_data(
     Returns:
         List of historical bank data
     """
-    # AOF API endpoint for the licensed banks historical dataset
-    url = "https://www.aof.org.hk/api/v1/hkimr/lic-bank-branches-and-offices"
-    
-    # Add query parameters
-    params = {"lang": lang}
-    if start_year:
-        params["start_year"] = start_year
-    if end_year:
-        params["end_year"] = end_year
-    if data_type and data_type != "all":
-        params["data_type"] = data_type
+    # HKMA hkimr endpoint (the AOF v1 endpoint was retired). The dataset is small
+    # (49 rows covering 1954-2002), so we fetch the full page and apply
+    # year-range / data-type filters in Python -- the HKMA filter query parameter
+    # on this endpoint only supports exact-match equality, not ranges, and
+    # `sortby` is rejected with err 1002.
+    url = "https://api.hkma.gov.hk/public/hkimr/lic-bank-branches-and-offices"
+
+    # HKMA only needs `lang`; we filter year-range and data_type client-side.
+    params = {"lang": lang, "pagesize": 100}
 
     try:
         data = fetch_json_data(url, params=params, timeout=30)
-        
+
         if not isinstance(data, dict):
             return {"error": "Invalid data format received from API"}
-        
+
         # Handle different response formats
         if "error" in data:
             return {"error": data["error"]}
-        
+
         if "result" in data:
             records = data.get("result", {}).get("records", [])
         else:
             records = data.get("records", [])
-        
+
         if not records:
             return {"message": "No data found for the specified criteria"}
-        
+
         # Process and filter the records
         processed_records = []
         for record in records:
-            year = record.get("year")
-            if year:
-                year_int = int(year) if isinstance(year, str) else year
-                
-                # Apply year filtering if specified
-                if start_year and year_int < start_year:
-                    continue
-                if end_year and year_int > end_year:
-                    continue
-                
-                processed_record = {
-                    "year": year,
-                    "licensed_banks": record.get("licensed_banks"),
-                    "bank_branches": record.get("bank_branches"),
-                    "bank_offices": record.get("bank_offices"),
-                    "total_branches_and_offices": record.get("total_branches_and_offices"),
-                    "notes": record.get("notes", ""),
-                }
-                
-                # Filter by data type if specified
-                if data_type == "licensed_banks":
-                    processed_record = {"year": year, "licensed_banks": record.get("licensed_banks")}
-                elif data_type == "bank_branches":
-                    processed_record = {"year": year, "bank_branches": record.get("bank_branches")}
-                elif data_type == "bank_offices":
-                    processed_record = {"year": year, "bank_offices": record.get("bank_offices")}
-                
-                processed_records.append(processed_record)
-        
+            year_raw = record.get("Lb_yr")
+            if year_raw is None:
+                continue
+            try:
+                year_int = int(str(year_raw))
+            except (TypeError, ValueError):
+                continue
+
+            # Apply year filtering if specified
+            if start_year and year_int < start_year:
+                continue
+            if end_year and year_int > end_year:
+                continue
+
+            licensed_banks = record.get("Lb_brnum_a")
+            bank_branches = record.get("Lb_bran_a")
+            bank_offices = record.get("Lb_broff_a")
+            try:
+                total = (
+                    (bank_branches or 0) + (bank_offices or 0)
+                    if bank_branches is not None and bank_offices is not None
+                    else None
+                )
+            except TypeError:
+                total = None
+
+            base = {
+                "year": str(year_raw),
+                "licensed_banks": licensed_banks,
+                "bank_branches": bank_branches,
+                "bank_offices": bank_offices,
+                "total_branches_and_offices": total,
+            }
+
+            # Filter by data type if specified
+            if data_type == "licensed_banks":
+                processed_record = {"year": base["year"], "licensed_banks": base["licensed_banks"]}
+            elif data_type == "bank_branches":
+                processed_record = {"year": base["year"], "bank_branches": base["bank_branches"]}
+            elif data_type == "bank_offices":
+                processed_record = {"year": base["year"], "bank_offices": base["bank_offices"]}
+            else:
+                processed_record = base
+
+            processed_records.append(processed_record)
+
         return processed_records
-        
+
     except Exception as e:
         return {"error": f"Failed to fetch data: {str(e)}"} 
