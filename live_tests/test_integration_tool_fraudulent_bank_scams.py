@@ -3,6 +3,8 @@
 import unittest
 from unittest.mock import Mock
 from fastmcp import FastMCP
+
+from live_tests._live_helpers import call_with_retry_on_timeout
 from hkopenai.hk_finance_mcp_server.tools import fraudulent_bank_scams
 
 
@@ -18,29 +20,20 @@ class TestFraudulentBankScamsIntegration(unittest.TestCase):
 
     def test_get_fraudulent_bank_scams(self):
         """Test fetching fraudulent bank scams data from HKMA API."""
-        try:
-            result = self.get_fraudulent_bank_scams_tool(lang="en")
-            self.assertIsInstance(result, list)
-            if result:
-                # Check if the structure of the first record is as expected
-                record = result[0]
-                self.assertIn("issue_date", record)
-                self.assertIn("alleged_name", record)
-                self.assertIn("scam_type", record)
-                self.assertIn("pr_url", record)
-                self.assertIn("fraud_website_address", record)
-        except Exception as e:
-            self.fail(f"Failed to fetch fraudulent bank scams data: {str(e)}")
+        result = call_with_retry_on_timeout(self.get_fraudulent_bank_scams_tool, lang="en")
+        self.assertIsInstance(result, list)
+        if result:
+            record = result[0]
+            self.assertIn("issue_date", record)
+            self.assertIn("alleged_name", record)
+            self.assertIn("scam_type", record)
+            self.assertIn("pr_url", record)
+            self.assertIn("fraud_website_address", record)
 
     def test_get_fraudulent_bank_scams_different_language(self):
         """Test fetching data in a different language."""
-        try:
-            result = self.get_fraudulent_bank_scams_tool(lang="tc")
-            self.assertIsInstance(result, list)
-        except Exception as e:
-            self.fail(
-                f"Failed to fetch fraudulent bank scams data in Traditional Chinese: {str(e)}"
-            )
+        result = call_with_retry_on_timeout(self.get_fraudulent_bank_scams_tool, lang="tc")
+        self.assertIsInstance(result, list)
 
 
 if __name__ == "__main__":
