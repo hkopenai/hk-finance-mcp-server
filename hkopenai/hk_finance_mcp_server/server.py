@@ -16,6 +16,7 @@ from .tools import stamp_duty_statistics
 from .tools import bank_branch_locator
 from .tools import fraudulent_bank_scams
 from .tools import licensed_banks_historical
+from .tools import economy_snapshot
 
 
 def server():
@@ -33,5 +34,6 @@ def server():
     bank_branch_locator.register(mcp)
     fraudulent_bank_scams.register(mcp)
     licensed_banks_historical.register(mcp)
+    economy_snapshot.register(mcp)
 
     return mcp
