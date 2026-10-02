@@ -108,13 +108,9 @@ def _get_licensed_banks_historical_data(
             licensed_banks = record.get("Lb_brnum_a")
             bank_branches = record.get("Lb_bran_a")
             bank_offices = record.get("Lb_broff_a")
-            try:
-                total = (
-                    (bank_branches or 0) + (bank_offices or 0)
-                    if bank_branches is not None and bank_offices is not None
-                    else None
-                )
-            except TypeError:
+            if bank_branches is not None and bank_offices is not None:
+                total = bank_branches + bank_offices
+            else:
                 total = None
 
             base = {

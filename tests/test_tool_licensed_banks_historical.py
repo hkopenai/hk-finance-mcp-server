@@ -219,6 +219,55 @@ class TestLicensedBanksHistoricalTool(unittest.TestCase):
         self.assertIn("params", call_args.kwargs)
         self.assertEqual(call_args.kwargs["params"]["lang"], "tc")
 
+    @patch("hkopenai.hk_finance_mcp_server.tools.licensed_banks_historical.fetch_json_data")
+    def test_total_is_none_when_either_field_missing(self, mock_fetch_json_data):
+        """total_branches_and_offices must be None (not 0, not the other field)
+        when bank_branches or bank_offices is missing from the upstream record.
+        Regression: previous implementation used `or 0` short-circuit which silently
+        coerced None -> 0 in the sum.
+        """
+        # Arrange: row with bank_branches present, bank_offices missing
+        #          row with bank_branches missing, bank_offices present
+        #          row with both missing
+        missing_data = {
+            "result": {
+                "datasize": 3,
+                "records": [
+                    {"Lb_yr": "1980", "Lb_brnum_a": 115, "Lb_bran_a": 1234, "Lb_broff_a": None},
+                    {"Lb_yr": "1985", "Lb_brnum_a": 125, "Lb_bran_a": None,  "Lb_broff_a": 567},
+                    {"Lb_yr": "1990", "Lb_brnum_a": 130, "Lb_bran_a": None,  "Lb_broff_a": None},
+                ],
+            }
+        }
+        mock_fetch_json_data.return_value = missing_data
+
+        # Act
+        result = _get_licensed_banks_historical_data()
+
+        # Assert: total is None in every row regardless of which field is missing
+        self.assertEqual(len(result), 3)
+        for row in result:
+            self.assertIsNone(
+                row["total_branches_and_offices"],
+                f"row {row['year']} expected total=None, got {row['total_branches_and_offices']!r}",
+            )
+        # Sanity: the present fields are passed through unchanged
+        self.assertEqual(result[0]["bank_branches"], 1234)
+        self.assertEqual(result[0]["bank_offices"], None)
+        self.assertEqual(result[1]["bank_branches"], None)
+        self.assertEqual(result[1]["bank_offices"], 567)
+
+    @patch("hkopenai.hk_finance_mcp_server.tools.licensed_banks_historical.fetch_json_data")
+    def test_total_is_sum_when_both_fields_present(self, mock_fetch_json_data):
+        """total_branches_and_offices = bank_branches + bank_offices when both present."""
+        mock_fetch_json_data.return_value = json.loads(self.sample_data)
+
+        result = _get_licensed_banks_historical_data()
+
+        self.assertEqual(result[0]["total_branches_and_offices"], 1234 + 567)   # 1801
+        self.assertEqual(result[1]["total_branches_and_offices"], 1456 + 789)   # 2245
+        self.assertEqual(result[2]["total_branches_and_offices"], 1312 + 456)   # 1768
+
     def test_register_tool(self):
         """Test the registration of the get_licensed_banks_historical_data tool."""
         mock_mcp = MagicMock()
