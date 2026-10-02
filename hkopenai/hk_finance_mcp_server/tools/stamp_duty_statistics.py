@@ -42,13 +42,20 @@ def _get_stamp_duty_statistics(
     if "error" in records:
         return records
 
-    # Convert relevant fields to float
+    # Convert relevant fields to float. The IRD CSV now ships thousands-separated
+    # values as strings (e.g. "6,359.45"); strip commas / whitespace before
+    # parsing so we accept both the new and the legacy numeric-only payloads.
+    def _to_float(value) -> float:
+        if value is None or value == "":
+            return 0.0
+        return float(str(value).replace(",", "").strip())
+
     for record in records:
         if "SD_Listed" in record:
-            record["sd_listed"] = float(record["SD_Listed"])
+            record["sd_listed"] = _to_float(record["SD_Listed"])
             del record["SD_Listed"]
         if "SD_Unlisted" in record:
-            record["sd_unlisted"] = float(record["SD_Unlisted"])
+            record["sd_unlisted"] = _to_float(record["SD_Unlisted"])
             del record["SD_Unlisted"]
         if "Period" in record:
             record["period"] = record["Period"]
