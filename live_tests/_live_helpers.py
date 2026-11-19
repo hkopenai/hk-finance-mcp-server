@@ -94,42 +94,50 @@ def call_with_retry_on_timeout(callable_, *args, **kwargs):
         raise
 
 
+def _is_network_error_dict(result) -> bool:
+    """Return True if result is an error dict produced by a network timeout/blip."""
+    if not isinstance(result, dict) or "error" not in result:
+        return False
+    msg = str(result.get("error", ""))
+    return (
+        msg.startswith("The request timed out")
+        or msg.startswith("Connection error")
+        or "timed out" in msg.lower()
+    )
+
+
 def call_with_retry_on_empty(callable_, *args, **kwargs):
-    """Run a tool, retrying once if it returns an empty list.
+    """Run a tool, retrying once if it returns an empty list or network error dict.
 
     Some HKMA endpoints occasionally produce an empty result via the silent
-    `data.get("result", {}).get("records", [])` path when the underlying
-    request timed out. The retry patches fetch_json_data to use a 30s
-    timeout — same root-cause fix as the on-timeout helper, just
-    triggered by a different downstream signal (empty list instead of
-    raised ValueError).
+    `data.get("result", {}).get("records", [])` path or return an error dict
+    (`{"error": "The request timed out: ..."}`) when the underlying request
+    timed out. The retry patches fetch_json_data to use a 30s timeout — same
+    root-cause fix as the on-timeout helper, just triggered by a different
+    downstream signal (empty list or error dict instead of raised ValueError).
 
-    If both attempts return an empty list, raise unittest.SkipTest. A
-    legitimately-empty result (the API really did return [] for this
-    slice) will still cause a skip here; that is acceptable for live
-    integration tests against an external dependency where we cannot
-    distinguish "real empty" from "swallowed timeout" without inspecting
-    the raw response — and the tool itself hides the distinction.
+    If both attempts return empty or a network error dict, raise
+    unittest.SkipTest.
 
     Args:
         callable_: A tool or module function to invoke.
         *args, **kwargs: Forwarded to callable_.
 
     Returns:
-        The non-empty list returned by the function (or by the retry).
+        The non-empty result returned by the function (or by the retry).
 
     Raises:
-        unittest.SkipTest: if both attempts return empty.
+        unittest.SkipTest: if both attempts return empty or a network error dict.
     """
     result = callable_(*args, **kwargs)
-    if result:
+    if result and not _is_network_error_dict(result):
         return result
 
     time.sleep(_RETRY_BACKOFF_S)
     retry_result = _retry_with_longer_timeout(callable_, args, kwargs)
-    if not retry_result:
+    if not retry_result or _is_network_error_dict(retry_result):
         raise unittest.SkipTest(
-            f"{callable_.__module__}.{callable_.__qualname__} returned empty "
-            f"twice (upstream blip, not a code bug)"
+            f"{callable_.__module__}.{callable_.__qualname__} returned empty/error "
+            f"twice (upstream blip, not a code bug): {retry_result!r}"
         )
     return retry_result

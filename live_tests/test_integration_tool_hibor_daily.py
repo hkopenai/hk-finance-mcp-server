@@ -3,6 +3,7 @@
 import unittest
 from unittest.mock import Mock
 from fastmcp import FastMCP
+from live_tests._live_helpers import call_with_retry_on_empty
 from hkopenai.hk_finance_mcp_server.tools import hibor_daily
 
 
@@ -16,33 +17,25 @@ class TestHiborDailyIntegration(unittest.TestCase):
 
     def test_get_hibor_daily_stats(self):
         """Test fetching HIBOR daily stats from HKMA API."""
-        try:
-            stats = self.get_hibor_daily_stats_tool()
-            self.assertIsInstance(stats, list)
-            if stats:
-                self.assertIsInstance(stats[0], dict)
-                self.assertIn("date", stats[0])
-                self.assertIn("overnight", stats[0])
-        except Exception as e:
-            self.fail(f"Failed to fetch HIBOR daily stats: {str(e)}")
+        stats = call_with_retry_on_empty(self.get_hibor_daily_stats_tool)
+        self.assertIsInstance(stats, list)
+        self.assertIsInstance(stats[0], dict)
+        self.assertIn("date", stats[0])
+        self.assertIn("overnight", stats[0])
 
     def test_get_hibor_daily_stats_with_date_range(self):
         """Test fetching HIBOR daily stats with date range from HKMA API."""
-        try:
-            stats = self.get_hibor_daily_stats_tool(
-                start_date="2025-01-01", end_date="2025-01-31"
-            )
-            self.assertIsInstance(stats, list)
-            if stats:
-                for record in stats:
-                    self.assertIsInstance(record, dict)
-                    self.assertIn("date", record)
-                    date_str = record["date"]
-                    self.assertTrue(
-                        date_str >= "2025-01-01" and date_str <= "2025-01-31"
-                    )
-        except Exception as e:
-            self.fail(f"Failed to fetch HIBOR daily stats with date range: {str(e)}")
+        stats = call_with_retry_on_empty(
+            self.get_hibor_daily_stats_tool,
+            start_date="2025-01-01",
+            end_date="2025-01-31",
+        )
+        self.assertIsInstance(stats, list)
+        for record in stats:
+            self.assertIsInstance(record, dict)
+            self.assertIn("date", record)
+            date_str = record["date"]
+            self.assertTrue("2025-01-01" <= date_str <= "2025-01-31")
 
 
 if __name__ == "__main__":
