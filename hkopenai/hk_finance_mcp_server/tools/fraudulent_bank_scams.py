@@ -43,7 +43,7 @@ def _get_fraudulent_bank_scams(lang: str = "en") -> List[Dict[str, Any]]:
         List of dictionaries containing details of fraudulent bank scams.
     """
     url = f"{API_URL}?lang={lang}"
-    data = fetch_json_data(url, timeout=10)
+    data = fetch_json_data(url, timeout=30)
     if "error" in data:
         raise ValueError(data["error"])
     if data.get("header", {}).get("success", False):

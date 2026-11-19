@@ -65,7 +65,7 @@ class TestFraudulentBankScamsTool(unittest.TestCase):
         self.assertEqual(result[0]["alleged_name"], "Test Bank")
         self.assertEqual(result[1]["scam_type"], "Phishing email")
         mock_fetch_json_data.assert_called_once_with(
-            f"{self.api_url}?lang=en", timeout=10
+            f"{self.api_url}?lang=en", timeout=30
         )
 
     @patch("hkopenai.hk_finance_mcp_server.tools.fraudulent_bank_scams.fetch_json_data")
@@ -86,7 +86,7 @@ class TestFraudulentBankScamsTool(unittest.TestCase):
 
         self.assertTrue("API Error: API error" in str(context.exception))
         mock_fetch_json_data.assert_called_once_with(
-            f"{self.api_url}?lang=en", timeout=10
+            f"{self.api_url}?lang=en", timeout=30
         )
 
     def test_register_tool(self):

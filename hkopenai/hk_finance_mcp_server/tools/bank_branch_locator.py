@@ -72,7 +72,7 @@ def _get_bank_branch_locations(
             "https://api.hkma.gov.hk/public/bank-svf-info/banks-branch-locator"
             f"?lang={lang}&pagesize={HKMA_PAGE_SIZE}&offset={fetch_offset}"
         )
-        data = fetch_json_data(url)
+        data = fetch_json_data(url, timeout=30)
         page_records = data.get("result", {}).get("records", []) or []
         records.extend(page_records)
 

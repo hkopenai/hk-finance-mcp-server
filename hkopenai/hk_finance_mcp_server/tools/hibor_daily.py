@@ -35,7 +35,7 @@ def _get_hibor_stats(
 ) -> List[Dict]:
     """Retrieve HIBOR daily figures data"""
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/er-ir/hk-interbank-ir-daily?segment=hibor.fixing"
-    data = fetch_json_data(url)
+    data = fetch_json_data(url, timeout=30)
 
     if "error" in data:
         return data
