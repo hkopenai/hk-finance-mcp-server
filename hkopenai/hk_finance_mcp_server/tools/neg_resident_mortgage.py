@@ -33,7 +33,7 @@ def _get_neg_equity_stats(
 ) -> List[Dict]:
     """Get negative equity residential mortgage statistics"""
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/banking/residential-mortgage-loans-neg-equity"
-    data = fetch_json_data(url)
+    data = fetch_json_data(url, timeout=30)
 
     if "error" in data:
         return {"type": "Error", "error": data["error"]}

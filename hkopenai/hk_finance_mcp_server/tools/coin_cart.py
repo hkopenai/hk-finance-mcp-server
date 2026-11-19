@@ -23,7 +23,7 @@ def register(mcp):
 def _get_coin_cart_schedule() -> Dict:
     """Get coin cart schedule data in standardized format"""
     url = "https://api.hkma.gov.hk/public/coin-cart-schedule?lang=en"
-    data = fetch_json_data(url)
+    data = fetch_json_data(url, timeout=30)
     if "error" in data:
         return {"type": "Error", "error": data["error"]}
     return {"coin_cart_schedule": data}

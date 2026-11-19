@@ -94,7 +94,7 @@ def _get_tender_invitations(
         params.append(f"to={to_date}")
 
     url = f"https://api.hkma.gov.hk/public/tender-invitations?{'&'.join(params)}"
-    records = fetch_json_data(url)
+    records = fetch_json_data(url, timeout=30)
     if "error" in records:
         return {"type": "Error", "error": records["error"]}
 

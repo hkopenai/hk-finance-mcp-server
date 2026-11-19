@@ -40,7 +40,7 @@ def _get_credit_card_stats(
 ) -> List[Dict]:
     """Get credit card lending survey statistics"""
     url = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/banking/credit-card-lending-survey"
-    data = fetch_json_data(url)
+    data = fetch_json_data(url, timeout=30)
 
     if "error" in data:
         return {"type": "Error", "error": data["error"]}
@@ -95,7 +95,7 @@ def _get_credit_card_stats(
 def _get_credit_card_hotlines() -> List[Dict]:
     """Get list of hotlines for reporting loss of credit card"""
     url = "https://api.hkma.gov.hk/public/bank-svf-info/hotlines-report-loss-credit-card?lang=en"
-    data = fetch_json_data(url)
+    data = fetch_json_data(url, timeout=30)
 
     if "error" in data:
         return {"type": "Error", "error": data["error"]}
